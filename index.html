@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PROдажник">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cdefs%3E%3ClinearGradient id=%27a%27 x1=%270%27 y1=%270%27 x2=%271%27 y2=%271%27%3E%3Cstop offset=%270%27 stop-color=%27%230a84ff%27/%3E%3Cstop offset=%271%27 stop-color=%27%23bf5af2%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27url(%23a)%27/%3E%3Cpath d=%27M40 5 21 35h12l-5 24 21-33H37z%27 fill=%27%23ffd60a%27/%3E%3C/svg%3E">
 <title>SUPER PROдажник</title>
 <style>
@@ -53,6 +59,13 @@ main{max-width:1180px;margin:0 auto;padding:24px 20px calc(110px + env(safe-area
 @media (max-width:1023px){
   #wrap[data-tab="main"] .side{display:none}
   #wrap[data-tab="rating"] .mainc{display:none}
+  #wrap[data-tab="main"] .bonusc,#wrap[data-tab="rating"] .bonusc,#wrap[data-tab="point"] .bonusc{display:none}
+  #wrap[data-tab="main"] .pointc,#wrap[data-tab="rating"] .pointc,#wrap[data-tab="bonus"] .pointc{display:none}
+  #wrap[data-tab="bonus"] .mainc,#wrap[data-tab="bonus"] .side,#wrap[data-tab="point"] .mainc,#wrap[data-tab="point"] .side{display:none}
+}
+@media (min-width:1024px){
+  #wrap.role-seller .bonusc,#wrap.role-seller .pointc{grid-column:1}
+  #wrap.role-seller .side{grid-column:2;grid-row:1 / span 2}
 }
 .card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:22px}
 .stack{display:grid;gap:20px}
@@ -366,6 +379,9 @@ h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
 .hero .fcp.hero{color:#fff;background:linear-gradient(90deg,rgba(255,255,255,.5) var(--p),rgba(255,255,255,.14) var(--p));box-shadow:none}
 .sumtbl td .fcp{padding:1px 8px}
 
+.bg-tot{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;color:var(--muted)}.bg-tot b{font-size:24px;color:var(--text)}
+.bg-row{margin:12px 0}.bg-top{display:grid;grid-template-columns:1fr auto 52px;gap:8px;align-items:center;margin-bottom:6px}.bg-top .n{display:flex;align-items:center;gap:8px;font-weight:600}.bg-top .n i{width:10px;height:10px;border-radius:50%}.bg-top em{font-style:normal;color:var(--muted);text-align:right;font-size:13px}
+
 #tmb{
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif;
   --bg:#f2f2f7; --card:rgba(255,255,255,.62); --card-solid:#ffffff; --fg:#1d1d1f; --fg2:#6e6e73; --fg3:#8e8e93;
@@ -486,8 +502,8 @@ h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
 .dr-t2 td.pl{color:var(--muted);border-left:1px solid var(--line)}.dr-t2 tr.tot th,.dr-t2 tr.tot td{font-weight:700;border-top:2px solid var(--line)}
 .dr-m{display:none;gap:12px;grid-template-columns:1fr}.dr-s{background:var(--track);border-radius:14px;padding:12px 12px 6px}.dr-s h3{font-size:14.5px;margin:0 0 6px}
 .dr-mt{width:100%;border-collapse:collapse;font-size:13px}.dr-mt th,.dr-mt td{padding:6px 4px;text-align:right}.dr-mt th:first-child{text-align:left;font-weight:600}.dr-mt thead th{color:var(--muted);font-size:11.5px;font-weight:600}.dr-mt td.pl{color:var(--muted)}
-@media(max-width:820px){.dr-wide{display:none}.dr-m{display:grid}}
-@media(min-width:560px) and (max-width:820px){.dr-m{grid-template-columns:1fr 1fr}}
+@media(max-width:820px){.dr-t2{font-size:12px}.dr-t2 th,.dr-t2 td{padding:6px 5px}.dr-t2 th.l{max-width:110px;white-space:normal;line-height:1.15}.dr-wide{-webkit-overflow-scrolling:touch}}
+
 .rp-dt th,.rp-dt td{white-space:nowrap}
 /* --- вкладки: на узком экране прокручиваются, ничего не налезает --- */
 #tabseg{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}#tabseg::-webkit-scrollbar{display:none}
@@ -495,6 +511,64 @@ h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
 @media (max-width:420px){.seg button{font-size:13.5px;padding:9px 12px;letter-spacing:0}}
 .role-manager .seg{max-width:900px}
 .hx.rp-ser>.rp-h{min-height:40px;margin-bottom:8px;padding-right:76px}.hx.rp-ser>.xt{top:0}
+/* --- смены: график на 3 дня справа --- */
+.sh2{display:grid;grid-template-columns:1fr;gap:16px}
+.sh-div{height:1px;background:var(--line);margin:2px 0}
+.n3h{font-weight:700;font-size:15px;margin:2px 0 10px}
+.n3r{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--line)}.n3r:first-of-type{border-top:0}
+.n3d{min-width:76px}.n3d b{display:block;font-size:16px;letter-spacing:-.01em}.n3d span{font-size:12px;color:var(--muted)}
+.n3b{flex:1;font-size:14px;font-weight:600}.n3b small{display:block;color:var(--muted);font-weight:500;font-size:12.5px;margin-top:2px}
+.n3p{font-style:normal;font-size:11.5px;background:color-mix(in srgb,var(--orange,#ff9f0a) 22%,transparent);color:#b36b00;border-radius:7px;padding:2px 7px;margin-left:4px;font-weight:700}
+.n3r.rep .n3d b{color:#b36b00}
+@media(min-width:720px){.sh2{grid-template-columns:1fr 1px minmax(240px,.9fr);gap:22px}.sh-div{width:1px;height:auto;margin:0}}
+/* --- До сотрудника ДЛ --- */
+.dl-t{border-collapse:collapse;font-size:12.5px;width:max-content;min-width:100%}.dl-t th,.dl-t td{padding:7px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+.dl-t thead th{color:var(--muted);font-weight:600;font-size:11.5px;text-align:center;background:var(--card)}.dl-t thead th.g{font-size:12.5px;color:var(--text)}
+.dl-t th.l{text-align:left;position:sticky;left:0;background:var(--card);font-weight:600;z-index:1;border-right:1px solid var(--line)}
+.dl-t .sp{border-left:1px solid var(--line)}.dl-t td.neg{color:#d70015}.dl-t tbody tr:hover td,.dl-t tbody tr:hover th{background:var(--track)}
+.rp-ser .rp-cards{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+
+/* Салоны × направления — единый стиль: карточка, цветные точки направлений, чипы %, без наложений */
+.dr-wide{border-radius:16px}
+.dr-t2{border-collapse:separate;border-spacing:0;font-size:13.5px}
+.dr-t2 th,.dr-t2 td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.dr-t2 thead th{background:var(--card);position:static}
+.dr-t2 th.g{text-align:left;padding:12px 12px 8px;background:var(--bg)}
+.dr-t2 .gd{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--text);text-transform:none;letter-spacing:-.01em}
+.dr-t2 .gd i{width:10px;height:10px;border-radius:50%;flex:none}
+.dr-t2 thead tr:nth-child(2) th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:600;color:var(--muted);padding-top:2px}
+.dr-t2 th.l{position:sticky;left:0;z-index:2;background:var(--card);min-width:116px;max-width:150px;white-space:normal;line-height:1.2;text-align:left;font-weight:650;box-shadow:1px 0 0 var(--line)}
+.dr-t2 thead th.l{background:var(--bg);z-index:3}
+.dr-t2 td.pl{border-left:1px solid var(--line);min-width:72px}
+.dr-t2 td{min-width:68px}
+.dr-t2 td.pc{min-width:78px;text-align:center;padding-left:6px;padding-right:12px}
+.dr-t2 td.pc .fcp{padding:2px 9px;font-size:12.5px}
+.dr-t2 tbody tr:nth-child(even) td,.dr-t2 tbody tr:nth-child(even) th.l{background:color-mix(in srgb,var(--bg) 60%,var(--card))}
+.dr-t2 tr.tot th,.dr-t2 tr.tot td{font-weight:800;border-top:2px solid var(--line);background:var(--bg)}
+@media(max-width:820px){.dr-t2 th,.dr-t2 td{padding:9px 9px}.dr-t2 th.l{min-width:92px;max-width:104px;font-size:12.5px}.dr-t2 td.pl{min-width:62px}}
+.dr-t2 tbody th.l{text-transform:none;letter-spacing:-.01em;font-size:13.5px}.dr-t2 thead th.l{font-size:11px}
+
+.rc-kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:0 0 12px}
+.rc-kp>div{background:var(--track);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.rc-kp span{font-size:12px;color:var(--muted);font-weight:600}.rc-kp b{font-size:20px;letter-spacing:-.02em}.rc-kp small{font-size:12px;color:var(--muted)}.rc-kp .fcp{align-self:flex-start;margin-top:4px}
+.rc-t{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}.rc-t th,.rc-t td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}.rc-t th.l{text-align:left;position:sticky;left:0;background:var(--card);font-weight:600}.rc-t thead th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.rp-ns{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap;vertical-align:1px}
+.rp-ns.bad{background:rgba(255,55,95,.14);color:var(--pink)}.rp-ns.good{background:rgba(48,184,85,.15);color:var(--green)}
+.rp-sn:has(.rp-ns){white-space:normal;overflow:visible}
+.rc-big .rp-ax{font-size:13px}.rc-big .rp-vl{font-size:13px}
+.rp-ser .rp-cl,.rp-dir .rc-kp+.rp-chart .rp-cl{font-size:13.5px}
+@media(max-width:560px){.rc-big .rp-ax,.rc-big .rp-vl{font-size:14px}}
+h2.n3h{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
+.sh-l h2{margin-bottom:12px}
+@media(max-width:719px){.sh-div{margin:6px 0 2px}}
+
+.pt-t{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.pt-t th,.pt-t td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+.pt-t thead th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.pt-t tbody th{text-align:left;position:sticky;left:0;background:var(--card);font-weight:600;white-space:normal;min-width:130px;max-width:170px;box-shadow:1px 0 0 var(--line)}
+.pt-t thead th:first-child{text-align:left;position:sticky;left:0;background:var(--card)}
+.pt-t td.pc{text-align:center}.pt-t td.pc .fcp{padding:2px 9px;font-size:12.5px}
+.pt-t tbody tr:last-child th,.pt-t tbody tr:last-child td{border-bottom:0}
 
 </style>
 </head>
@@ -525,7 +599,7 @@ h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
     </div>
     <button class="btn" id="btnLogin" type="submit">Далее</button>
     <div class="err" id="loginErr" role="alert"></div>
-    <p id="demoHint" hidden style="font-size:13px;margin:14px 0 0">Демо: введите любую фамилию, при первом входе придумаете PIN из 4 цифр. «ТМ …» (например, ТМ Орлов) открывает вид территориального менеджера, «Руководитель» — вид РТТ/УТТ, «Гость» показывает отказ для тех, кого нет в списке.</p>
+    <p id="demoHint" hidden style="font-size:13px;margin:14px 0 0">Демо: введите любую фамилию, при первом входе придумаете PIN из 4 цифр. «ТМ …» (например, ТМ Миллер) открывает вид территориального менеджера, «Руководитель» — вид РТТ/УТТ, «Гость» показывает отказ для тех, кого нет в списке.</p>
   </form>
 </section>
 
@@ -549,6 +623,8 @@ h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
     <!-- продавец -->
     <div class="grid" id="content" hidden>
       <div class="stack mainc" id="mainc"></div>
+      <div class="stack pointc" id="pointc"></div>
+      <div class="stack bonusc" id="bonusc"></div>
       <aside class="side"><div class="card" id="ratingCard"></div></aside>
     </div>
 
@@ -562,6 +638,7 @@ h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
       <section class="pane" data-pane="summary" id="m-summary" hidden></section>
       <section class="pane" data-pane="reports" id="m-reports" hidden></section>
       <section class="pane" data-pane="cards" id="m-cards" hidden></section>
+      <section class="pane" data-pane="recon" id="m-recon" hidden></section>
       <section class="pane" data-pane="links" id="m-links" hidden></section>
       <section class="pane" data-pane="tmbonus" id="m-tmbonus" hidden>
         <div id="tmb">
@@ -1953,7 +2030,7 @@ $('#btnRefresh').onclick = ()=>{ if (WRAP.dataset.tab==='reports') loadReports(t
 
 /* ---------- вкладки ---------- */
 const TABS = {
-  seller:  [['main','Результаты'],['rating','Рейтинг']],
+  seller:  [['main','Результаты'],['point','Точка'],['bonus','Бонус'],['rating','Рейтинг']],
   manager: [['results','Месяц'],['dayres','Итоги дня'],['days','По дням'],['forecast','Прогноз'],['bonus','Бонус']],
 };
 let TABSET = '', PREV_TAB = null;
@@ -1962,6 +2039,7 @@ function tabsFor(role,d){
   if (role==='manager' && d){
     const bi = () => t.findIndex(x=>x[0]==='bonus');
     t.splice(bi(),0,['cards','Карточки']);
+    if (!d.canLinks) t.splice(bi(),0,['recon','Сопоставления']);
     if (d.summary) t.splice(4,0,['summary','Общий свод']);
     if (d.canLinks){ t[bi()]=['tmbonus','Бонус ТМ']; t.splice(5,0,['reports','Отчёты']); t.push(['links','Ссылки']); }
   }
@@ -1990,6 +2068,7 @@ function setTab(t){
   if (t==='links') loadLinks();
   if (t==='reports') loadReports();
   if (t==='cards') cardsLoad($('#m-cards'));
+  if (t==='recon') reconLoad($('#m-recon'));
   if (t==='news'){ applyView(); loadNews(); }
   else if ($('#newsView') && !$('#newsView').hidden){ $('#newsView').hidden = true; if (DATA){ if (ROLE==='manager') $('#mgrView').hidden=false; else $('#content').hidden=false; } }
 }
@@ -2097,6 +2176,31 @@ function ratingHTML(d){
     `<li class="${r.me?'me':''}"><span class="pl num">${medal(r.place)}</span><span class="nm">${esc(r.name)}${r.me?' · вы':''}</span><span class="sc num">${fmt(r.score)}%</span></li>`).join('')}</ul>
     <div class="sub" style="font-size:13px">Справа — средний % выполнения плана месяца. Руководители салонов в рейтинг не входят.</div>`;
 }
+
+const GRP_COL = ['#0a84ff','#ff9f0a','#30d158','#bf5af2','#ff375f','#64d2ff','#8e8e93'];
+function bonusGroupsHTML(d){
+  const g = (d.bonus.groups||[]).filter(x=>x.v!==0);
+  if (!g.length) return '<div class="card fade"><h2>Бонус по группам товаров</h2><div class="empty">Разбивка по группам пока недоступна</div></div>';
+  const sum = g.reduce((a,x)=>a+x.v,0), tot = d.bonus.groupsTotal!=null ? d.bonus.groupsTotal : sum;
+  const max = Math.max(...g.map(x=>Math.abs(x.v)),1);
+  const sorted = g.slice().sort((a,b)=>b.v-a.v);
+  const rows = sorted.map((x,i)=>`<div class="bg-row"><div class="bg-top"><span class="n"><i style="background:${GRP_COL[i%GRP_COL.length]}"></i>${esc(x.name)}</span><b class="num">${rub(x.v)}</b><em class="num">${tot?fmt(x.v/tot*100,1):0}%</em></div><div class="hbar"><i data-w="${Math.max(2,Math.abs(x.v)/max*100)}" style="width:0;background:${GRP_COL[i%GRP_COL.length]}"></i></div></div>`).join('');
+  return `<div class="card fade"><h2>Бонус по группам товаров</h2>
+    <div class="bg-tot num"><span>Всего за месяц</span><b>${rub(tot)}</b></div>${rows}
+    <div class="dp-note">Данные листа «Доход сотрудника». Копейки в группах округляются, поэтому сумма может отличаться от итога на 1–2 ₽.</div></div>`;
+}
+
+function pointHTML(d){
+  const r = d.pointRes;
+  if (!r || !r.found) return `<div class="card fade"><h2>Результаты торговой точки</h2><div class="empty">${r&&r.salon?`Для точки «${esc(rpShort(r.salon))}» не найден план в листе «План».`:'Основная торговая точка пока не определена — проверьте график.'}</div></div>`;
+  const pc = v => (v==null||isNaN(v)) ? '<span class="fcp">—</span>' : fcChip(v, null);
+  const cell = (v,u) => v==='' || v==null ? '<span class="z">—</span>' : typeof v==='number' ? (u==='pct' ? fmt(v,1).replace('.',',')+'%' : fmt(Math.round(v))) : esc(v);
+  const blocks = (r.blocks||[]).map(b=>`<section class="card fade"><h2>${esc(b.title)}</h2><div class="mtable"><table class="pt-t"><thead><tr><th>Показатель</th><th>План</th><th>Факт</th><th>Остаток</th><th>На день</th><th>Вып.%</th><th>Прог.%</th></tr></thead><tbody>${
+    b.rows.map(x=>`<tr><th>${esc(x.label)}</th><td>${cell(x.plan,x.unit)}</td><td><b>${cell(x.fact,x.unit)}</b></td><td>${cell(x.rest,x.unit==='pct'&&x.label.indexOf('доля')>=0?'':x.unit)}</td><td>${cell(x.perDay,x.unit==='pct'&&x.label.indexOf('доля')>=0?'':x.unit)}</td><td class="pc">${pc(x.pct)}</td><td class="pc">${pc(x.prog)}</td></tr>`).join('')}</tbody></table></div></section>`).join('');
+  return `<div class="card hero fade"><div><div class="eyebrow">Результаты торговой точки</div><div class="hero-big" style="font-size:clamp(26px,6vw,40px);margin-top:8px">${esc(String(r.label||r.salon).replace(/^КЗН\s+/,''))}</div></div>
+    <div class="hero-row num" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div><b>${r.date?esc(r.date.slice(0,5)):'—'}</b><span>Данные на дату</span></div><div><b>${fmt(r.daysPassed)} из ${fmt(r.daysTotal)}</b><span>День месяца</span></div></div></div>${blocks}
+    ${r.noFact?'<div class="dp-note">Фактических данных по этой точке в KPI ОСС пока нет — показан только план.</div>':''}<div class="dp-note">Точка определяется по графику: там, где у вас больше всего часов. План — из листа «План», факт — из KPI ОСС; остаток, «на день», выполнение и прогноз считаются по формулам шаблона.</div>`;
+}
 function renderSeller(d){
   switchRole('seller');
   $('#mgrView').hidden = true;
@@ -2119,20 +2223,20 @@ function renderSeller(d){
       </div>
     </div>
 
-    <div class="card fade"><h2>Смены и часы</h2>
-      ${d.schedule?`<div class="hero-row num" style="margin-top:10px">
+    <div class="card fade">
+      <div class="sh2"><div class="sh-l"><h2>Смены и часы</h2>
+      ${d.schedule?`<div class="hero-row num" style="margin-top:0">
         <div><b>${d.schedule.planned}</b><span>Смен запланировано</span></div>
         <div><b>${d.schedule.done}</b><span>Отработано</span></div>
         <div><b>${d.schedule.left}</b><span>Осталось</span></div></div>`:''}
       <div class="hours num" style="margin-top:16px"><div style="display:flex;justify-content:space-between;color:var(--muted);font-size:14px"><span>Часы: отработано / запланировано</span><span><b style="color:var(--text)">${fmt(d.hours.fact,1)}</b> из ${fmt(d.hours.plan,1)}</span></div>
       <div class="hbar"><i data-w="${hp}" style="width:0"></i></div>
       <div style="color:var(--muted);font-size:13px;margin-top:6px">${d.hours.fact1c!=null?'По данным 1С: <b style="color:var(--text)">'+fmt(d.hours.fact1c,1)+' ч</b> · ':''}Осталось отработать: <b style="color:var(--text)">${fmt(Math.max(0,d.hours.plan-d.hours.fact),1)} ч</b></div></div>
+      </div>${next3HTML(d)}</div>
     </div>
     <div class="card fade"><h2>План и факт за месяц</h2><div class="metrics">${d.metrics.map(metricCard).join('')}</div></div>
 
     ${dayPlanCard(d)}
-
-    <div class="card fade"><h2>Бонус по дням</h2>${bars(d.bonus.days, d.bonus.avgDaily, 'среднее', rub)}</div>
 
     <div class="card fade"><h2>Качество</h2>
       <div class="q num">
@@ -2142,6 +2246,8 @@ function renderSeller(d){
         <div><span>Аттачмент</span><b>${q.attach==null?'—':fmt(q.attach,1)}</b></div>
       </div>
     </div>`;
+  $('#bonusc').innerHTML = `<div class="card hero fade"><div><div class="eyebrow">Бонус за месяц</div><div class="hero-big num" style="margin-top:8px">${fmt(d.bonus.total)}<small>₽</small></div></div><div class="hero-row num"><div><b>${d.bonus.shifts}</b><span>Отработано смен</span></div><div><b>${fmt(d.bonus.avgDaily)} ₽</b><span>В среднем за смену</span></div></div></div>`+bonusGroupsHTML(d)+`<div class="card fade"><h2>Бонус по дням</h2>${bars(d.bonus.days, d.bonus.avgDaily, 'среднее', rub)}</div>`;
+  $('#pointc').innerHTML = pointHTML(d);
   $('#ratingCard').innerHTML = ratingHTML(d);
   $('#loading').hidden = true; $('#content').hidden = false;
   animate();
@@ -2194,7 +2300,7 @@ function renderManager(d){
   $('#mgrHead').innerHTML = `
     <div class="fade"><div class="eyebrow">${esc(d.month)} · ${esc(d.roleTitle)}</div>
       <h1>Привет, ${esc(first[1]||first[0])} 👋</h1>
-      <div class="sub">${esc(salonNames||'Салон не найден в таблице')}</div></div>
+      ${d.salons.length?'':'<div class="sub">Салон не найден в таблице</div>'}</div>
     ${d.salons.length>1?`<div class="chips" role="group" aria-label="Салон">
       <button class="chipb" data-sel="all" aria-pressed="${SEL==='all'}">Все салоны</button>
       ${d.salons.map((s,i)=>`<button class="chipb" data-sel="${i}" aria-pressed="${SEL===String(i)}">${esc(s.name)}</button>`).join('')}</div>`:''}`;
@@ -2434,7 +2540,7 @@ async function loadLinks(){
 
 /* ---------- ДЕМО-данные (работают, пока API_URL пуст) ---------- */
 function demoApi(b){
-  const MG = ['рук','соколов','сафина','гатин','тм','утт'];
+  const MG = ['рук','тюрин','ашрапова','нигматулин','тм','утт'];
   const l=(b.login||'').trim().toLowerCase(), pk='demoPin:'+l;
   if (b.action==='start'){
     if (!l || l.startsWith('гость')) return Promise.resolve({error:'no_access'});
@@ -2447,6 +2553,7 @@ function demoApi(b){
     return Promise.resolve({token:'demo', role:store.get('demoRole')});
   }
   if (b.action==='cards_get') return Promise.resolve(demoCards());
+  if (b.action==='recon_get') return Promise.resolve(demoRecon());
   if (b.action==='tm_report'){
     if (!DEMO_TM()) return Promise.resolve({error:'forbidden'});
     return Promise.resolve(Object.assign({at:new Date().toISOString()},DEMO_RPT[b.name]||{missing:true,name:b.name}));
@@ -2478,15 +2585,20 @@ function demoApi(b){
   return Promise.resolve(store.get('demoRole')==='manager' ? demoManager() : demoSeller());
 }
 const DEMO_NEWS = [
-  {id:'n1',date:'11.11.2026 18:30',author:'Белова Анна',title:'Акция «Чёрная пятница» стартует 20 ноября',text:'Готовим витрины заранее: ценники и POS-материалы придут до 18 ноября. Планёрка по акции — в четверг.',status:'опубликовано'},
-  {id:'n2',date:'10.11.2026 12:05',author:'Белова Анна',title:'Новый чек-лист ДОВ',text:'Обновлённый чек-лист доступен в рабочем чате. Проходим до конца недели.',status:'опубликовано'},
-  {id:'n3',date:'12.11.2026 08:10',author:'Волков Артём',title:'Идея: бонус за лучший аттачмент недели',text:'Предлагаю отмечать лучшего по аттачменту каждую неделю — подстегнёт продажи аксессуаров.',status:'на модерации'}];
+  {id:'n1',date:'11.11.2026 18:30',author:'Лысенкова Анна',title:'Акция «Чёрная пятница» стартует 20 ноября',text:'Готовим витрины заранее: ценники и POS-материалы придут до 18 ноября. Планёрка по акции — в четверг.',status:'опубликовано'},
+  {id:'n2',date:'10.11.2026 12:05',author:'Лысенкова Анна',title:'Новый чек-лист ДОВ',text:'Обновлённый чек-лист доступен в рабочем чате. Проходим до конца недели.',status:'опубликовано'},
+  {id:'n3',date:'12.11.2026 08:10',author:'Гайнцев Ярослав',title:'Идея: бонус за лучший аттачмент недели',text:'Предлагаю отмечать лучшего по аттачменту каждую неделю — подстегнёт продажи аксессуаров.',status:'на модерации'}];
+function demoRecon(){
+  const days=[]; for(let i=1;i<=9;i++) days.push(String(i).padStart(2,'0')+'.11');
+  const mk=(k)=>({sim1c:days.map((_,i)=>Math.round((18+((i*7+k)%9))*(k?0.4:1))),traffic:days.map((_,i)=>Math.round((400+((i*37+k*11)%120))*(k?0.18:1))),plan:days.map(()=>k?9:34),planConv:5.65,
+    simOp:days.map((_,i)=>Math.round((15+(i%5))*(k?0.4:1))),inactive:days.map((_,i)=>i%3),active:days.map((_,i)=>Math.round((14+(i%4))*(k?0.4:1)))});
+  return {month:11,days,opStale:false,updated:new Date().toISOString(),options:[{key:'all',label:'Всего по Миллеру',series:mk(0)},{key:'КЗН Зорге 75 БЛН',label:'КЗН Зорге 75 БЛН',series:mk(1)},{key:'КЗН Мира 30а БЛН',label:'КЗН Мира 30а БЛН',series:mk(2)}]};
+}
 function demoCards(){
-  const S=['ТЦ Северный','ТЦ Западный'], days=Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0')+'.11.2026');
+  const S=['КЗН Зорге 75 БЛН','КЗН Мира 30а БЛН'], days=Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0')+'.11.2026');
   let sd=11; const rn=m=>{sd=(sd*9301+49297)%233280;return Math.floor(sd/233280*m)};
   const mk=(title,dir,pctFlag,max,plan)=>{ const v=days.map(()=>S.map(()=>pctFlag?rn(160):(rn(4)===0?null:rn(max)))); return {title,dir,kind:'days',pct:pctFlag,salons:S,days,plan:days.map(()=>plan),v,tot:pctFlag?S.map((_,j)=>Math.round(v.reduce((a,r)=>a+(r[j]||0),0)/v.length)):S.map((_,j)=>v.reduce((a,r)=>a+(r[j]||0),0)),sums:[]}; };
-  const cards=[mk('Дней без продажи · Защита экрана','Аксессуары',false,3,1),mk('ПЗУ','Аксессуары',false,2,0),mk('Часы','Аксессуары',false,2,0),mk('Наушники','Аксессуары',false,4,1),mk('БП','Услуги',false,3,1),mk('Чистка','Услуги',false,2,0),mk('Пакет','Услуги',false,3,1),mk('Сим · отставание, прогноз','Сим',true,0,0)];
-  cards[7].sums=[{label:'Отставание',vals:[21,-2]},{label:'Прогноз',vals:[63,109]}];
+  const cards=[mk('Дней без продажи · Защита экрана','Аксессуары',false,3,1),mk('ПЗУ','Аксессуары',false,2,0),mk('Часы','Аксессуары',false,2,0),mk('Наушники','Аксессуары',false,4,1),mk('БП','Услуги',false,3,1),mk('Чистка','Услуги',false,2,0),mk('Пакет','Услуги',false,3,1)];
   cards.push({title:'Сводка: ПЗУ, Наушники, Часы',dir:'Аксессуары',kind:'pivot',pct:false,salons:S,rows:[{label:'ПЗУ',vals:[1,2]},{label:'Наушники',vals:[5,3]},{label:'Часы',vals:[0,2]}],sums:[]});
   return {cards,salons:S};
 }
@@ -2500,7 +2612,7 @@ function demoTmTable(){
   const mk=(name,k)=>{const r=row(); const v=[900000*k,507350*k,'104%',120*k,51*k,160000*k,70000*k,'96%',60000*k,'88%','2,6',300000*k,'92%','101%',20*k,'94%','100%','100%']; v.forEach((x,i)=>r[9+i]=String(x).replace('.',',')); r[7]=name; return r;};
   const agg=mk('ТМ',5); agg[0]='Казань'; agg[8]='1 200';
   const hdr=row(); hdr[0]='ТМ'; hdr[7]='Наименование ТТ';
-  const stores=[['ТЦ Северный','БЛН'],['ТЦ Западный','БЛН'],['ТЦ Восточный','БЛН'],['ТЦ Приволжский','МТС'],['ТЦ Речной','Т2'],['ТЦ Горный','МФ']].map(([n,b],i)=>{const r=mk(n,1+i*.1); r[0]='ТМ'; r[3]=b; r[4]=String(1000+i); r[5]='Казань'; return r;});
+  const stores=[['КЗН Зорге 75 БЛН','БЛН'],['КЗН Мира 30а БЛН','БЛН'],['КЗН Ямашева 71а БЛН','БЛН'],['Кукмор Ленина 30Б МТС','МТС'],['Арск Свободы 29 Т2','Т2'],['Высокая Гора 168 МФ','МФ']].map(([n,b],i)=>{const r=mk(n,1+i*.1); r[0]='ТМ'; r[3]=b; r[4]=String(1000+i); r[5]='Казань'; return r;});
   const asof=row(); asof[1]='на дату'; asof[2]='11.11.2026';
   return [asof,top,sub,agg,row(),hdr,...stores];
 }
@@ -2508,17 +2620,18 @@ function demoSeller(){
   const dn=(store.get('demoName')||'Демо').replace(/\S+/g,w=>w[0].toUpperCase()+w.slice(1).toLowerCase());
   const rnd=(a,z)=>a+Math.random()*(z-a), mk=(key,label,plan,pf)=>{const day=plan/30,fact=Math.round(plan*pf);
     return {key,label,planDay:day,planMonth:plan,fact,pct:fact/plan*100,forecast:null,forecastPct:pf*30/9*100};};
-  const names=['Алексеев Даниил','Морозова Василиса','Волков Артём','Лебедева София','Новиков Даниил','Павлова Ксения','Смирнова Алина','Козлова Алина','Никитина Мария','Фёдорова Камилла',dn,'Егоров Артём'];
+  const names=['Егоров Даниил','Логинова Василиса','Гайнцев Ярослав','Сакирьянова София','Ракчеев Даниил','Жилина Ксения','Зарипова Ляйсан','Фахреева Алина','Парукова Мария','Хасаншина Камилла',dn,'Глебов Артем'];
   const rating=names.map((n,i)=>({place:i+1,name:n,score:Math.round(112-i*6.5),me:i===10}));
   const vals=[1840,2310,0,2750,1990,2480,3120,2260,1730];
   const days=vals.map((v,i)=>({d:String(i+1).padStart(2,'0')+'.11.2026',v}));
   const total=vals.reduce((a,b)=>a+b,0), sh=vals.filter(v=>v>0).length;
   return {role:'seller',name:dn,month:'Ноябрь 2026',updated:new Date().toISOString(),place:11,total:12,
-    tt:'ТЦ Западный',hours:{plan:173,fact:54,fact1c:50},score:Math.round(rnd(60,95)),
+    tt:'КЗН Мира 30а БЛН',hours:{plan:173,fact:54,fact1c:50},score:Math.round(rnd(60,95)),
     metrics:[mk('sim','Сим',150,.42),mk('smart','Смарты',420000,.31),mk('acc','Аксессуары',45000,.28),mk('serv','Услуги',60000,.36),mk('ins','Страховки',25000,.22)],
-    schedule:{planned:21,done:9,left:12},cal:{today:10,dim:30},
+    schedule:{planned:21,done:9,left:12},cal:{today:10,dim:30},next3:[{date:'10.11',wd:'вт',day:'сегодня',kind:'shift',shift:'II',time:'13:00 - 22:00',salon:'КЗН Зорге 75 БЛН'},{date:'11.11',wd:'ср',day:'завтра',kind:'shift',shift:'I',time:'9:00 - 18:00',salon:'КЗН Мира 30а БЛН',repl:true,from:'КЗН Зорге 75 БЛН'},{date:'12.11',wd:'чт',day:'послезавтра',kind:'off'}],
     quality:{vmr:34,credits:3,creditsRub:41500,attach:1.7},
-    bonus:{total,shifts:sh,avgDaily:total/sh,days:days},rating};
+pointRes:{found:true,salon:'КЗН Зорге 75 БЛН',label:'Зорге 75',date:'15.11.2026',daysPassed:15,daysTotal:30,blocks:[{title:'Экономика',rows:[{label:'Телефоны руб',plan:'110000',fact:'91081',rest:'18919',perDay:'1182',pct:83,prog:166},{label:'Аксессуары',plan:'33600',fact:'17753',rest:'15847',perDay:'990',pct:53,prog:106},{label:'Услуги',plan:'21223',fact:'9016',rest:'12207',perDay:'763',pct:42,prog:85},{label:'АКС+Услуги',plan:'54823',fact:'26769',rest:'28054',perDay:'1753',pct:49,prog:98},{label:'Страховки',plan:'6930',fact:'15010',rest:'-8080',perDay:'-505',pct:217,prog:433},{label:'Кредитная заявка',plan:'8',fact:'1',rest:'7',perDay:'0',pct:13,prog:25}]},{title:'Операторка БЛН',rows:[{label:'Сим декада 1',plan:'53',fact:'53',rest:'0',perDay:'0',pct:100,prog:200},{label:'Сим декада 2',plan:'52',fact:'32',rest:'20',perDay:'1',pct:62,prog:123},{label:'Сим итого',plan:'160',fact:'85',rest:'75',perDay:'5',pct:53,prog:106},{label:'МНП',plan:'21',fact:'21',rest:'0',perDay:'0',pct:100,prog:200},{label:'Актив 1-15',plan:'80',fact:'80',rest:'0',perDay:'0',pct:100,prog:200}]},{title:'Фокусное направление',rows:[{label:'Комбо М',plan:'1',fact:'3',rest:'-2',perDay:'0',pct:300,prog:600},{label:'Пленки',plan:'15',fact:'7',rest:'8',perDay:'1',pct:47,prog:93},{label:'БП и Пакетные услуги',plan:'15',fact:'5',rest:'10',perDay:'1',pct:33,prog:67}]}]},
+    bonus:{total,shifts:sh,avgDaily:total/sh,days:days,groups:[{name:'Аксессуары',v:Math.round(total*.2)},{name:'Сим-карты',v:Math.round(total*.35)},{name:'Страхование и защита',v:Math.round(total*.1)},{name:'Телефоны и планшеты',v:Math.round(total*.12)},{name:'Услуги',v:Math.round(total*.2)},{name:'Финансовые продукты',v:total-Math.round(total*.97)}],groupsTotal:total},rating};
 }
 function demoManager(){
   const dn=(store.get('demoName')||'Руководитель').replace(/\S+/g,w=>w[0].toUpperCase()+w.slice(1).toLowerCase());
@@ -2530,14 +2643,14 @@ function demoManager(){
     return {key,label,unit,plan,fact,planDay:per,forecast:fact/9*30,days};
   })});
   return {role:'manager',roleTitle:'РТТ',name:dn+' Демо Иванович',month:'Ноябрь 2026',updated:new Date().toISOString(),daysInMonth:30,daysPassed:9,
-    salons:[mkSalon('ТЦ Северный',1),mkSalon('ТЦ Западный',.8)],
+    salons:[mkSalon('КЗН Зорге 75 БЛН',1),mkSalon('КЗН Мира 30а БЛН',.8)],
     canLinks:DEMO_TM(), roleTitle:DEMO_TM()?'ТМ':'РТТ',
     summary:DEMO_TM()?null:{name:'общий свод',head:[['Минимальный прогноз'],['Планирование на ','Общая'],['4','Сим','','','','Телефоны','','','','Аксессуары','','','','Услуги','','','','Страховки','','','','Кредиты'],['','План на день','Факт','Отставание','Прогноз','План на день','Факт','Отставание','Прогноз','План на день','Факт','Отставание','Прогноз','План на день','Факт','Отставание','Прогноз','План на день','Факт','Отставание','Прогноз','План на день']],found:3,
-      rows:[['Орлов','87','336','163','67%','150325','887819','43651','84%','44723','250205','37138','84%','10616','71099','2680','88%','7548','57711','-57294','71%','85284'],['ТЦ Северный','13','30','26','54%','18423','2580','50490','5%','3738','6906','8304','45%','1459','5695','2329','71%','713','450','-394','7%','9733'],['ТЦ Западный','4','25','5','85%','9200','89843','-5663','107%','3362','30902','-142','100%','1980','6363','3575','64%','580','9161','-9131','173%','6048']]},
+      rows:[['Миллер','87','336','163','67%','150325','887819','43651','84%','44723','250205','37138','84%','10616','71099','2680','88%','7548','57711','-57294','71%','85284'],['КЗН Зорге 75 БЛН','13','30','26','54%','18423','2580','50490','5%','3738','6906','8304','45%','1459','5695','2329','71%','713','450','-394','7%','9733'],['КЗН Мира 30а БЛН','4','25','5','85%','9200','89843','-5663','107%','3362','30902','-142','100%','1980','6363','3575','64%','580','9161','-9131','173%','6048']]},
     prefill:{grade:'2',hours:112,att:2.1,vmr:34,credits:6}};
 }
 
-const DEMO_RPT = {"details": {"name": "Детали продаж салоны", "grid": [["", "4", "Телефоны", "34998", "50490", "48770", "50242", "-5663"], ["", "Телефоны", "Прогноз", "52%", "5%", "24%", "49%", "107%"], ["", "План на день", "Телефоны", "Торговая точка", "", "", "", ""], ["", "", "Дата", "ТЦ Центральный", "ТЦ Северный", "ТЦ Заречный", "ТЦ Южный", "ТЦ Западный"], ["", "71898", "01.11.2026", "23477", "37910", "20752", "", "19261"], ["", "71716", "02.11.2026", "62918", "38006", "90271", "", "34377"], ["", "60757", "03.11.2026", "", "19797", "", "12618", "94410"], ["", "79380", "04.11.2026", "23058", "36674", "", "", "18075"], ["", "108274", "05.11.2026", "33811", "11896", "28072", "42573", "27760"], ["", "76838", "06.11.2026", "", "46193", "", "19504", "41902"], ["", "95690", "07.11.2026", "", "29217", "", "99286", ""], ["", "63330", "08.11.2026", "", "33526", "", "49988", "32116"], ["", "76547", "09.11.2026", "13075", "", "", "19317", ""], ["", "74580", "10.11.2026", "8186", "", "10393", "", "22549"], ["", "103494", "11.11.2026", "", "", "", "", ""], ["Телефоны", "#N/A", "Итого", "164525", "253219", "149488", "243286", "290450"], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "", "", "", "", "", "", ""], ["", "5", "Аксессуары", "4995", "8304", "17874", "4727", "-142"], ["", "Аксессуары", "Прогноз", "90%", "45%", "38%", "84%", "100%"], ["", "План на день", "Аксессуары", "Торговая точка", "", "", "", ""], ["", "", "Дата", "ТЦ Центральный", "ТЦ Северный", "ТЦ Заречный", "ТЦ Южный", "ТЦ Западный"], ["", "19827", "01.11.2026", "11650", "", "7348", "20105", ""], ["", "20468", "02.11.2026", "3323", "8058", "9912", "1570", "10686"], ["", "16665", "03.11.2026", "18478", "5470", "3631", "4083", ""], ["", "26935", "04.11.2026", "", "3697", "3574", "2120", ""], ["", "19614", "05.11.2026", "7273", "3734", "", "20365", "3250"], ["", "23171", "06.11.2026", "2335", "", "19716", "", "3862"], ["", "17805", "07.11.2026", "", "18879", "9236", "", ""], ["", "17385", "08.11.2026", "6427", "2690", "8996", "8125", ""], ["", "21479", "09.11.2026", "3126", "14795", "6978", "", ""], ["", "20966", "10.11.2026", "14862", "6912", "11386", "15491", "20590"], ["", "27042", "11.11.2026", "", "", "", "", ""], ["Аксессуары", "#N/A", "Итого", "67474", "64235", "80777", "71859", "38388"], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "", "", "", "", "", "", ""], ["", "6", "Сим", "23", "26", "7", "40", "5"], ["", "Сим", "Прогноз", "64%", "54%", "62%", "46%", "85%"], ["", "План на день", "Сим", "Торговая точка", "", "", "", ""], ["", "", "Дата", "ТЦ Центральный", "ТЦ Северный", "ТЦ Заречный", "ТЦ Южный", "ТЦ Западный"], ["", "871", "01.11.2026", "", "587", "", "", "658"], ["", "699", "02.11.2026", "281", "", "", "93", ""], ["", "806", "03.11.2026", "227", "", "380", "", ""], ["", "1043", "04.11.2026", "", "189", "", "", "542"], ["", "624", "05.11.2026", "94", "401", "134", "168", ""], ["", "987", "06.11.2026", "", "", "", "", "208"], ["", "757", "07.11.2026", "114", "284", "97", "120", ""], ["", "958", "08.11.2026", "342", "254", "124", "847", "298"], ["", "621", "09.11.2026", "134", "647", "520", "592", ""], ["", "867", "10.11.2026", "712", "182", "", "112", "512"], ["", "731", "11.11.2026", "", "", "", "", ""], ["Сим", "#N/A", "Итого", "1904", "2544", "1255", "1932", "2218"], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "", "", "", "", "", "", ""]]}, "summary": {"name": "общий свод", "grid": [["Минммальный прогноз", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Планирование на ", "Общая", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["4", "Сим", "", "", "", "Телефоны", "", "", "", "Аксессуары", "", "", "", "Услуги", "", "", ""], ["", "План на день", "Факт", "Отставание", "Прогноз", "План на день", "Факт", "Отставание", "Прогноз", "План на день", "Факт", "Отставание", "Прогноз", "План на день", "Факт", "Отставание", "Прогноз"], ["Орлов", "87", "336", "163", "67%", "150325", "887819", "43651", "84%", "44723", "250205", "37138", "84%", "10616", "71099", "2680", "88%"], ["ТЦ Центральный", "13", "40", "23", "64%", "16749", "38203", "34998", "52%", "6955", "47213", "4995", "90%", "673", "6694", "-533", "109%"], ["ТЦ Северный", "13", "30", "26", "54%", "18423", "2580", "50490", "5%", "3738", "6906", "8304", "45%", "1459", "5695", "2329", "71%"]]}, "fact": {"name": "Факт продаж", "grid": [["12.11.2026", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Минммальный прогноз", "Актуально на", "", "11.11.2026 10:59:31", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Планирование на ", "Сим", "", "", "Телефоны", "", "", "Аксессуары", "", "", "Услуги", "", "", "Страховки", "", "", "Пленки", "Часы"], ["4", "План", "Факт", "%", "План", "Факт", "%", "План", "Факт", "%", "План", "Факт", "%", "План", "Факт", "%", "", ""], ["Орлов", "156", "336", "215%", "272250", "887819", "326%", "60000", "250205", "417%", "16000", "71099", "444%", "#N/A", "57711", "", "12", "5"], ["ТЦ Центральный", "13", "40", "307%", "16749", "38203", "228%", "", "47213", "", "", "6694", "", "#N/A", "4950", "", "", ""], ["ТЦ Северный", "13", "30", "230%", "18423", "2580", "14%", "", "6906", "", "", "5695", "", "#N/A", "450", "", "", ""]]}, "dl": {"name": "До сотрудника ДЛ", "grid": [["", "", "", "", "", "", "", "", "", "", "", "", "", "", "2", "5", "6", "9", "10", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "План на день", "", "", "", "", "План на месяц", "", "", "", "", "Факт", "", "", "", "", "Качество", "", "", "", "Прогноз"], ["Место", "ТТ", "План", "Факт 1с", "Факт график", "Разница в часах", "Место", "ФИО", "Остаток по сим", "Сим", "Смарты", "Аксессуары", "Услуги", "Страховки", "Сим", "Смарты", "Аксессуары", "Услуги", "Страховки", "Сим", "Смарты", "Аксессуары", "Услуги", "Страховки", "ВМР", "Кредиты ШТ", "Кредиты руб", "Аттачмент", ""], ["", "#N/A", "176", "64", "76", "12,0", "6", "Смирнова Алина Сергеевна", "63", "6", "12444", "1979", "193", "784", "63", "136889", "30486", "6995", "8624", "", "", "8722", "4870", "", "0%", "0", "0", "0,0", ""], ["10,0", "#N/A", "155", "48", "67", "19,0", "18", "Кузнецов Павел Игоревич", "0", "0", "0", "746", "452", "0", "0", "0", "0", "0", "0", "", "", "8204", "4970", "", "0%", "0", "0", "0,8", ""], ["7,0", "#N/A", "128", "52", "56", "4,0", "2", "Волков Артём Вячеславович", "66", "5", "6410", "2957", "40", "404", "66", "76923", "54864", "6475", "4846", "", "", "19383", "5995", "", "0%", "0", "0", "2,0", ""]]}, "sim": {"name": "Детализация СИМ", "grid": [["SUM из Количество", "Группа тарифов", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Торговая точка", "Базовые ТП", "Золото / Комбо сим 3 мес", "Промо Sim / Бустер", "Bundle Базовые ТП", "High Bundle + ТП", "High Bundle ++ ТП", "High Bundle ТП", "#N/A", "Итого", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["ТЦ Центральный", "2", "1", "", "17", "6", "11", "3", "", "40", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["ТЦ Северный", "5", "", "4", "10", "5", "4", "2", "", "30", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["ТЦ Западный", "5", "", "", "3", "3", "11", "3", "", "25", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Итого", "32", "9", "27", "76", "85", "69", "28", "10", "336", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Торговая точка", "Базовые ТП", "Золото / Комбо сим 3 мес", "Промо Sim / Бустер", "Bundle Базовые ТП", "High Bundle + ТП", "High Bundle ++ ТП", "High Bundle ТП", "#N/A", "Итого", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["ТЦ Центральный", "5%", "3%", "0%", "43%", "15%", "28%", "8%", "#N/A", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["ТЦ Северный", "17%", "0%", "13%", "33%", "17%", "13%", "7%", "#N/A", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "01.11.2026", "02.11.2026", "03.11.2026", "04.11.2026", "05.11.2026", "06.11.2026", "07.11.2026", "08.11.2026", "09.11.2026", "10.11.2026", "Итого"], ["#REF!", "", "", "", "", "", "", "", "", "", "", "", "SUM из Количество", "Дата", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "Номенклатура", "01.11.2026", "02.11.2026", "03.11.2026", "04.11.2026", "05.11.2026", "06.11.2026", "07.11.2026", "08.11.2026", "09.11.2026", "10.11.2026", "Итого"], ["", "", "", "", "", "", "", "", "", "", "", "", "Билайн 300р", "", "", "2", "5", "1", "2", "1", "", "1", "5", "17"], ["", "", "", "", "", "", "", "", "", "", "", "", "Билайн 500р", "9", "11", "19", "7", "7", "7", "10", "7", "16", "6", "99"], ["", "", "", "", "", "", "", "", "", "", "", "", "Билайн 700р", "10", "14", "12", "15", "9", "11", "14", "14", "15", "15", "134"], ["", "", "", "", "", "", "", "", "", "", "", "", "Итого", "19", "25", "33", "27", "17", "20", "25", "21", "32", "26", "250"]]}, "recon": {"name": "Сопоставления 1с и рег", "grid": [["", "", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"], ["", "Орлов", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "01.11", "02.11", "03.11", "04.11", "05.11", "06.11", "07.11", "08.11", "09.11", "10.11", "11.11"], ["336", "Сим 1с", "26", "32", "44", "36", "26", "24", "30", "26", "48", "38", "6"], ["4845", "Трафик", "424", "473", "512", "496", "462", "356", "374", "352", "391", "517", "488"], ["6,9%", "Конверсия", "6,1%", "6,8%", "8,6%", "7,3%", "5,6%", "6,7%", "8,0%", "7,4%", "12,3%", "7,4%", "1,2%"], ["394", "План ", "32", "34", "34", "34", "34", "38", "35", "36", "39", "39", "39"], ["", "Плановая конверсия", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%"]]}};
+const DEMO_RPT = {"details": {"name": "Детали продаж салоны", "grid": [["", "4", "Телефоны", "34998", "50490", "48770", "50242", "-5663"], ["", "Телефоны", "Прогноз", "52%", "5%", "24%", "49%", "107%"], ["", "План на день", "Телефоны", "Торговая точка", "", "", "", ""], ["", "", "Дата", "КЗН Ершова 62 БЛН ТЦ Арт Центр", "КЗН Зорге 75 БЛН", "КЗН Краснококшайская 150а БЛН", "КЗН Кулахметова 28 БЛН ТЦ Моки", "КЗН Мира 30а БЛН"], ["", "71898", "01.11.2026", "23477", "37910", "20752", "", "19261"], ["", "71716", "02.11.2026", "62918", "38006", "90271", "", "34377"], ["", "60757", "03.11.2026", "", "19797", "", "12618", "94410"], ["", "79380", "04.11.2026", "23058", "36674", "", "", "18075"], ["", "108274", "05.11.2026", "33811", "11896", "28072", "42573", "27760"], ["", "76838", "06.11.2026", "", "46193", "", "19504", "41902"], ["", "95690", "07.11.2026", "", "29217", "", "99286", ""], ["", "63330", "08.11.2026", "", "33526", "", "49988", "32116"], ["", "76547", "09.11.2026", "13075", "", "", "19317", ""], ["", "74580", "10.11.2026", "8186", "", "10393", "", "22549"], ["", "103494", "11.11.2026", "", "", "", "", ""], ["Телефоны", "#N/A", "Итого", "164525", "253219", "149488", "243286", "290450"], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "", "", "", "", "", "", ""], ["", "5", "Аксессуары", "4995", "8304", "17874", "4727", "-142"], ["", "Аксессуары", "Прогноз", "90%", "45%", "38%", "84%", "100%"], ["", "План на день", "Аксессуары", "Торговая точка", "", "", "", ""], ["", "", "Дата", "КЗН Ершова 62 БЛН ТЦ Арт Центр", "КЗН Зорге 75 БЛН", "КЗН Краснококшайская 150а БЛН", "КЗН Кулахметова 28 БЛН ТЦ Моки", "КЗН Мира 30а БЛН"], ["", "19827", "01.11.2026", "11650", "", "7348", "20105", ""], ["", "20468", "02.11.2026", "3323", "8058", "9912", "1570", "10686"], ["", "16665", "03.11.2026", "18478", "5470", "3631", "4083", ""], ["", "26935", "04.11.2026", "", "3697", "3574", "2120", ""], ["", "19614", "05.11.2026", "7273", "3734", "", "20365", "3250"], ["", "23171", "06.11.2026", "2335", "", "19716", "", "3862"], ["", "17805", "07.11.2026", "", "18879", "9236", "", ""], ["", "17385", "08.11.2026", "6427", "2690", "8996", "8125", ""], ["", "21479", "09.11.2026", "3126", "14795", "6978", "", ""], ["", "20966", "10.11.2026", "14862", "6912", "11386", "15491", "20590"], ["", "27042", "11.11.2026", "", "", "", "", ""], ["Аксессуары", "#N/A", "Итого", "67474", "64235", "80777", "71859", "38388"], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "", "", "", "", "", "", ""], ["", "5", "Услуги", "2247", "3736", "8043", "2127", "-63"], ["", "Услуги", "Прогноз", "90%", "45%", "38%", "84%", "100%"], ["", "План на день", "Услуги", "Торговая точка", "", "", "", ""], ["", "", "Дата", "КЗН Ершова 62 БЛН ТЦ Арт Центр", "КЗН Зорге 75 БЛН", "КЗН Краснококшайская 150а БЛН", "КЗН Кулахметова 28 БЛН ТЦ Моки", "КЗН Мира 30а БЛН"], ["", "8922", "01.11.2026", "5242", "", "3306", "9047", ""], ["", "9210", "02.11.2026", "1495", "3626", "4460", "706", "4808"], ["", "7499", "03.11.2026", "8315", "2461", "1633", "1837", ""], ["", "12120", "04.11.2026", "", "1663", "1608", "954", ""], ["", "8826", "05.11.2026", "3272", "1680", "", "9164", "1462"], ["", "10426", "06.11.2026", "1050", "", "8872", "", "1737"], ["", "8012", "07.11.2026", "", "8495", "4156", "", ""], ["", "7823", "08.11.2026", "2892", "1210", "4048", "3656", ""], ["", "9665", "09.11.2026", "1406", "6657", "3140", "", ""], ["", "9434", "10.11.2026", "6687", "3110", "5123", "6970", "9265"], ["", "12168", "11.11.2026", "", "", "", "", ""], ["Аксессуары", "#N/A", "Итого", "30363", "28905", "36349", "32336", "17274"], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "", "", "", "", "", "", ""], ["", "6", "Сим", "23", "26", "7", "40", "5"], ["", "Сим", "Прогноз", "64%", "54%", "62%", "46%", "85%"], ["", "План на день", "Сим", "Торговая точка", "", "", "", ""], ["", "", "Дата", "КЗН Ершова 62 БЛН ТЦ Арт Центр", "КЗН Зорге 75 БЛН", "КЗН Краснококшайская 150а БЛН", "КЗН Кулахметова 28 БЛН ТЦ Моки", "КЗН Мира 30а БЛН"], ["", "871", "01.11.2026", "", "587", "", "", "658"], ["", "699", "02.11.2026", "281", "", "", "93", ""], ["", "806", "03.11.2026", "227", "", "380", "", ""], ["", "1043", "04.11.2026", "", "189", "", "", "542"], ["", "624", "05.11.2026", "94", "401", "134", "168", ""], ["", "987", "06.11.2026", "", "", "", "", "208"], ["", "757", "07.11.2026", "114", "284", "97", "120", ""], ["", "958", "08.11.2026", "342", "254", "124", "847", "298"], ["", "621", "09.11.2026", "134", "647", "520", "592", ""], ["", "867", "10.11.2026", "712", "182", "", "112", "512"], ["", "731", "11.11.2026", "", "", "", "", ""], ["Сим", "#N/A", "Итого", "1904", "2544", "1255", "1932", "2218"], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "", "", "", "", "", "", ""], ["", "5", "Страховки", "1498", "2491", "5362", "1418", "-42"], ["", "Страховки", "Прогноз", "90%", "45%", "38%", "84%", "100%"], ["", "План на день", "Страховки", "Торговая точка", "", "", "", ""], ["", "", "Дата", "КЗН Ершова 62 БЛН ТЦ Арт Центр", "КЗН Зорге 75 БЛН", "КЗН Краснококшайская 150а БЛН", "КЗН Кулахметова 28 БЛН ТЦ Моки", "КЗН Мира 30а БЛН"], ["", "5948", "01.11.2026", "3495", "", "2204", "6031", ""], ["", "6140", "02.11.2026", "996", "2417", "2973", "471", "3205"], ["", "4999", "03.11.2026", "5543", "1641", "1089", "1224", ""], ["", "8080", "04.11.2026", "", "1109", "1072", "636", ""], ["", "5884", "05.11.2026", "2181", "1120", "", "6109", "975"], ["", "6951", "06.11.2026", "700", "", "5914", "", "1158"], ["", "5341", "07.11.2026", "", "5663", "2770", "", ""], ["", "5215", "08.11.2026", "1928", "807", "2698", "2437", ""], ["", "6443", "09.11.2026", "937", "4438", "2093", "", ""], ["", "6289", "10.11.2026", "4458", "2073", "3415", "4647", "6177"], ["", "8112", "11.11.2026", "", "", "", "", ""], ["Аксессуары", "#N/A", "Итого", "20242", "19270", "24233", "21557", "11516"], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "#N/A", "", "", "", "", "", ""], ["", "", "", "", "", "", "", ""]]}, "summary": {"name": "общий свод", "grid": [["Минммальный прогноз", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Планирование на ", "Общая", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["4", "Сим", "", "", "", "Телефоны", "", "", "", "Аксессуары", "", "", "", "Услуги", "", "", ""], ["", "План на день", "Факт", "Отставание", "Прогноз", "План на день", "Факт", "Отставание", "Прогноз", "План на день", "Факт", "Отставание", "Прогноз", "План на день", "Факт", "Отставание", "Прогноз"], ["Миллер", "87", "336", "163", "67%", "150325", "887819", "43651", "84%", "44723", "250205", "37138", "84%", "10616", "71099", "2680", "88%"], ["КЗН Ершова 62 БЛН ТЦ Арт Центр", "13", "40", "23", "64%", "16749", "38203", "34998", "52%", "6955", "47213", "4995", "90%", "673", "6694", "-533", "109%"], ["КЗН Зорге 75 БЛН", "13", "30", "26", "54%", "18423", "2580", "50490", "5%", "3738", "6906", "8304", "45%", "1459", "5695", "2329", "71%"]]}, "fact": {"name": "Факт продаж", "grid": [["12.11.2026", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Минммальный прогноз", "Актуально на", "", "11.11.2026 10:59:31", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Планирование на ", "Сим", "", "", "Телефоны", "", "", "Аксессуары", "", "", "Услуги", "", "", "Страховки", "", "", "Пленки", "Часы"], ["4", "План", "Факт", "%", "План", "Факт", "%", "План", "Факт", "%", "План", "Факт", "%", "План", "Факт", "%", "", ""], ["Миллер", "156", "336", "215%", "272250", "887819", "326%", "60000", "250205", "417%", "16000", "71099", "444%", "#N/A", "57711", "", "12", "5"], ["КЗН Ершова 62 БЛН ТЦ Арт Центр", "13", "40", "307%", "16749", "38203", "228%", "", "47213", "", "", "6694", "", "#N/A", "4950", "", "", ""], ["КЗН Зорге 75 БЛН", "13", "30", "230%", "18423", "2580", "14%", "", "6906", "", "", "5695", "", "#N/A", "450", "", "", ""]]}, "dl": {"name": "До сотрудника ДЛ", "grid": [["", "", "", "", "", "", "", "", "", "", "", "", "", "", "2", "5", "6", "9", "10", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "План на день", "", "", "", "", "План на месяц", "", "", "", "", "Факт", "", "", "", "", "Качество", "", "", "", "Прогноз"], ["Место", "ТТ", "План", "Факт 1с", "Факт график", "Разница в часах", "Место", "ФИО", "Остаток по сим", "Сим", "Смарты", "Аксессуары", "Услуги", "Страховки", "Сим", "Смарты", "Аксессуары", "Услуги", "Страховки", "Сим", "Смарты", "Аксессуары", "Услуги", "Страховки", "ВМР", "Кредиты ШТ", "Кредиты руб", "Аттачмент", ""], ["", "#N/A", "176", "64", "76", "12,0", "6", "Зарипова Ляйсан Фардатовна", "63", "6", "12444", "1979", "193", "784", "63", "136889", "30486", "6995", "8624", "", "", "8722", "4870", "", "0%", "0", "0", "0,0", ""], ["10,0", "#N/A", "155", "48", "67", "19,0", "18", "Егошин Владимир Сергеевич", "0", "0", "0", "746", "452", "0", "0", "0", "0", "0", "0", "", "", "8204", "4970", "", "0%", "0", "0", "0,8", ""], ["7,0", "#N/A", "128", "52", "56", "4,0", "2", "Гайнцев Ярослав Вячеславович", "66", "5", "6410", "2957", "40", "404", "66", "76923", "54864", "6475", "4846", "", "", "19383", "5995", "", "0%", "0", "0", "2,0", ""]]}, "sim": {"name": "Детализация СИМ", "grid": [["SUM из Количество", "Группа тарифов", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Торговая точка", "Базовые ТП", "Золото / Комбо сим 3 мес", "Промо Sim / Бустер", "Bundle Базовые ТП", "High Bundle + ТП", "High Bundle ++ ТП", "High Bundle ТП", "#N/A", "Итого", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["КЗН Ершова 62 БЛН ТЦ Арт Центр", "2", "1", "", "17", "6", "11", "3", "", "40", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["КЗН Зорге 75 БЛН", "5", "", "4", "10", "5", "4", "2", "", "30", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["КЗН Мира 30а БЛН", "5", "", "", "3", "3", "11", "3", "", "25", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Итого", "32", "9", "27", "76", "85", "69", "28", "10", "336", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Торговая точка", "Базовые ТП", "Золото / Комбо сим 3 мес", "Промо Sim / Бустер", "Bundle Базовые ТП", "High Bundle + ТП", "High Bundle ++ ТП", "High Bundle ТП", "#N/A", "Итого", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["КЗН Ершова 62 БЛН ТЦ Арт Центр", "5%", "3%", "0%", "43%", "15%", "28%", "8%", "#N/A", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["КЗН Зорге 75 БЛН", "17%", "0%", "13%", "33%", "17%", "13%", "7%", "#N/A", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "01.11.2026", "02.11.2026", "03.11.2026", "04.11.2026", "05.11.2026", "06.11.2026", "07.11.2026", "08.11.2026", "09.11.2026", "10.11.2026", "Итого"], ["#REF!", "", "", "", "", "", "", "", "", "", "", "", "SUM из Количество", "Дата", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "Номенклатура", "01.11.2026", "02.11.2026", "03.11.2026", "04.11.2026", "05.11.2026", "06.11.2026", "07.11.2026", "08.11.2026", "09.11.2026", "10.11.2026", "Итого"], ["", "", "", "", "", "", "", "", "", "", "", "", "Билайн 300р", "", "", "2", "5", "1", "2", "1", "", "1", "5", "17"], ["", "", "", "", "", "", "", "", "", "", "", "", "Билайн 500р", "9", "11", "19", "7", "7", "7", "10", "7", "16", "6", "99"], ["", "", "", "", "", "", "", "", "", "", "", "", "Билайн 700р", "10", "14", "12", "15", "9", "11", "14", "14", "15", "15", "134"], ["", "", "", "", "", "", "", "", "", "", "", "", "Итого", "19", "25", "33", "27", "17", "20", "25", "21", "32", "26", "250"]]}, "recon": {"name": "Сопоставления 1с и рег", "grid": [["", "", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"], ["", "Миллер", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "01.11", "02.11", "03.11", "04.11", "05.11", "06.11", "07.11", "08.11", "09.11", "10.11", "11.11"], ["336", "Сим 1с", "26", "32", "44", "36", "26", "24", "30", "26", "48", "38", "6"], ["4845", "Трафик", "424", "473", "512", "496", "462", "356", "374", "352", "391", "517", "488"], ["6,9%", "Конверсия", "6,1%", "6,8%", "8,6%", "7,3%", "5,6%", "6,7%", "8,0%", "7,4%", "12,3%", "7,4%", "1,2%"], ["394", "План ", "32", "34", "34", "34", "34", "38", "35", "36", "39", "39", "39"], ["", "Плановая конверсия", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%", "5,65%"]]}};
 /* =================== ОТЧЁТЫ: листы таблицы в стиле сайта (без горизонтального скролла) =================== */
 const RPTS = [['details','Детали продаж','📊'],['fact','Факт продаж','🎯'],['dl','До сотрудника ДЛ','🧑‍💼'],['sim','Детализация СИМ','📶'],['recon','Сопоставления 1С и рег.','🔗'],];
 let RPT = 'details';
@@ -2558,6 +2671,7 @@ function rpClear(){ try{ Object.keys(localStorage).filter(k=>k.indexOf('rp:')===
 async function rpLoad(key, force){
   const el = $('#rpBody'); if (!el) return;
   if (key==='cards') return cardsLoad(el, force);
+  if (key==='recon') return reconLoad(el, force);
   let cached = null; try{ cached = JSON.parse(store.get(rpKey(key))||'null'); }catch(e){}
   if (cached && !force) rpDraw(key, cached);
   else if (!cached) el.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем лист…</div>';
@@ -2582,7 +2696,7 @@ function rpDraw(key, r){
   const el = $('#rpBody'); if (!el) return;
   if (r.missing){ el.innerHTML = `<div class="card empty">Лист «${esc(r.name)}» не найден в таблице. Как только он появится, страница заполнится автоматически.</div>`; return; }
   let html;
-  try{ const g = rpClean(r.grid); html = key==='details' ? rpDetails(g) : rpGrid(g, {}); }
+  try{ const g = rpClean(r.grid); html = key==='details' ? rpDetails(g) : key==='dl' ? rpDLTable(g) : rpGrid(g, {}); }
   catch(e){ console.error(e); html = `<div class="card empty">Не удалось разобрать лист «${esc(r.name)}».</div>`; }
   const t = r.at ? new Date(r.at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}) : '';
   el.innerHTML = `<div class="rp-meta"><b>${esc(r.name)}</b>${t?' · обновлено '+t:''}</div>`+html;
@@ -2590,6 +2704,138 @@ function rpDraw(key, r){
   animate();
 }
 
+/* ---------- «Сопоставления 1С и рег.»: переключатель «Всего / салон», блоки как на листе ---------- */
+let RECSEL = 'all';
+function reconGrid(r, o){
+  const s=o.series, days=r.days, n=days.length, sum=a=>a.reduce((t,v)=>t+(v||0),0), has=a=>a.some(v=>v!=null);
+  const pf = v => v==null?'':(Math.round(v*100)/100+'%').replace('.',',');
+  const row = (label, a, tot, pct) => [tot==null?'':String(tot), label].concat(a.map(v=>v==null?'':(pct?pf(v):String(v))));
+  const conv = days.map((_,i)=> s.traffic[i]>0 && s.sim1c[i]!=null ? s.sim1c[i]/s.traffic[i]*100 : null);
+  const g = [['',o.label], ['','']. concat(days)];
+  if (has(s.sim1c)) g.push(row('Сим 1с', s.sim1c, sum(s.sim1c)));
+  if (has(s.traffic)) g.push(row('Трафик', s.traffic, sum(s.traffic)));
+  if (has(conv)) g.push(row('Конверсия', conv, pf(sum(s.sim1c)/Math.max(1,sum(s.traffic))*100).replace('%','')+'%', true));
+  if (has(s.plan)) g.push(row('План ', s.plan, sum(s.plan)));
+  if (s.planConv!=null) g.push(row('Плановая конверсия', days.map(()=>s.planConv), null, true));
+  if (has(s.simOp)||has(s.inactive)||has(s.active)){
+    g.push([],[], ['','']. concat(days));
+    if (has(s.inactive)) g.push(row('Сим не актив', s.inactive, null));
+    if (has(s.active)) g.push(row('Сим актив', s.active, null));
+    if (has(s.simOp)) g.push(row('Сим у оператора', s.simOp, null));
+    if (has(s.sim1c)) g.push(row('Сим 1с', s.sim1c, null));
+  }
+  return g;
+}
+
+/* ---------- «Сопоставления»: две сводные диаграммы вместо шести ---------- */
+function rcPrep(ctx){ const W=ctx.w||CW(), H=ctx.h||Math.round(Math.max(150,Math.min(230,W*.44))); return {W,H,pl:6,pr:6,pb:19,pt:16}; }
+function rcAxis(labels, n, W, xAt, H){
+  const fit=Math.max(1,Math.floor((W-60)/46)), step=Math.max(1,Math.ceil(n/fit)); let out='';
+  for(let i=0;i<n;i+=step){ const xx=xAt(i), an=xx<24?'start':(xx>W-24?'end':'middle'); out+=`<text class="rp-ax" x="${an==='start'?2:(an==='end'?W-2:xx).toFixed?xx.toFixed(1):xx}" y="${H-5}" text-anchor="${an}">${esc(String(labels[i]).slice(0,5))}</text>`; }
+  return out;
+}
+function rpCombo(days, s, conv){
+  // как в примере из таблицы: серые столбцы — трафик, узкие столбцы — сим 1с (общая левая шкала «Сим»),
+  // плавная линия — конверсия (правая шкала, %), пунктиры — плановая конверсия и план сим
+  const n=days.length, W=Math.max(340,Math.min(900,Math.round((($('#app')||document.body).clientWidth||innerWidth)-72))), H=Math.round(Math.max(200,Math.min(340,W*.46))), pl=42, pr=46, pb=24, pt=20, labels=days.map(d=>d.slice(0,5));
+  const bw=(W-pl-pr)/n, xc=i=>pl+i*bw+bw/2;
+  const nice=(m)=>{ const p=Math.pow(10,Math.floor(Math.log10(m||1))), f=m/p; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p; };
+  const left=[...s.traffic,...s.sim1c,...(s.plan||[])].filter(v=>v!=null), mL=nice(Math.max(1,...left)*1.04);
+  const right=[...conv,s.planConv].filter(v=>v!=null), mR=nice(Math.max(1,...right)*1.1);
+  const yL=v=>pt+(H-pt-pb)*(1-v/mL), yR=v=>pt+(H-pt-pb)*(1-v/mR);
+  const lab = n<=16 && bw>=34, f1=v=>(Math.round(v*10)/10+'%').replace('.',',');
+  const grid=[0,.25,.5,.75,1].map(t=>{ const y=pt+(H-pt-pb)*(1-t); return `<line x1="${pl}" x2="${W-pr}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1"/><text class="rp-ax" x="${pl-4}" y="${(y+3).toFixed(1)}" text-anchor="end">${fmt(mL*t)}</text><text class="rp-ax" x="${W-pr+4}" y="${(y+3).toFixed(1)}" text-anchor="start">${(Math.round(mR*t*10)/10+'').replace('.',',')}%</text>`; }).join('');
+  const tr=s.traffic.map((v,i)=>{ if(v==null) return ''; const x=pl+i*bw+bw*.16,w=bw*.68,y0=yL(v); return `<rect style="fill:var(--muted);opacity:.42" x="${x.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1,H-pb-y0).toFixed(1)}" rx="2"/>`+(lab?`<text class="rp-vl" style="fill:var(--muted)" x="${xc(i).toFixed(1)}" y="${Math.max(9,y0-3).toFixed(1)}" text-anchor="middle">${fmt(v)}</text>`:''); }).join('');
+  const sm=s.sim1c.map((v,i)=>{ if(v==null) return ''; const x=pl+i*bw+bw*.30,w=bw*.40,y0=yL(v); return `<rect style="fill:var(--blue)" x="${x.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1.5,H-pb-y0).toFixed(1)}" rx="2"/>`+(lab&&v?`<text class="rp-vl" style="fill:var(--blue);font-weight:700" x="${xc(i).toFixed(1)}" y="${(Math.min(H-pb-3,y0-3)).toFixed(1)}" text-anchor="middle">${v}</text>`:''); }).join('');
+  const smooth=(pts)=>{ if(pts.length<2) return pts.length?`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`:''; let d=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`; for(let i=0;i<pts.length-1;i++){ const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2,t=.18;
+      d+=` C${(p1[0]+(p2[0]-p0[0])*t).toFixed(1)},${(p1[1]+(p2[1]-p0[1])*t).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])*t).toFixed(1)},${(p2[1]-(p3[1]-p1[1])*t).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`; } return d; };
+  const cp=conv.map((v,i)=>v==null?null:[xc(i),yR(v)]).filter(Boolean);
+  const cvL = cp.length ? `<path d="${smooth(cp)}" fill="none" class="rp-ln" style="stroke:var(--orange)"/>`+(lab?conv.map((v,i)=>v==null?'':`<text class="rp-vl" style="fill:var(--orange);font-weight:700" x="${xc(i).toFixed(1)}" y="${(yR(v)-5).toFixed(1)}" text-anchor="middle">${f1(v)}</text>`).join(''):'')+cp.map(p=>`<circle class="rp-dot" style="fill:var(--orange)" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.2"/>`).join('') : '';
+  const pcL = s.planConv!=null ? `<line x1="${xc(0).toFixed(1)}" x2="${xc(n-1).toFixed(1)}" y1="${yR(s.planConv).toFixed(1)}" y2="${yR(s.planConv).toFixed(1)}" stroke="var(--orange)" stroke-width="1.8" stroke-dasharray="5 4"/><text class="rp-vl" style="fill:var(--orange)" x="${(W-pr-2).toFixed(1)}" y="${(yR(s.planConv)-4).toFixed(1)}" text-anchor="end">план ${f1(s.planConv)}</text>` : '';
+  const pp=(s.plan||[]).map((v,i)=>v==null||!(v>0)?null:[xc(i),yL(v)]).filter(Boolean);
+  const psL = pp.length ? `<path d="${smooth(pp)}" fill="none" stroke="var(--pink)" stroke-width="1.8" stroke-dasharray="5 4"/>`+(lab&&bw>=30?(s.plan||[]).map((v,i)=>{ if(!(v>0)) return ''; const sy=s.sim1c[i]==null?9e9:yL(s.sim1c[i])-3, py=yL(v)-4, dy=Math.abs(py-sy)<11?-11:0; return `<text class="rp-vl" style="fill:var(--pink)" x="${xc(i).toFixed(1)}" y="${(py+dy).toFixed(1)}" text-anchor="middle">${v}</text>`; }).join(''):'') : '';
+  const hits=days.map((_,i)=>{ const t=[labels[i],'Трафик: '+(s.traffic[i]==null?'—':fmt(s.traffic[i])),'Сим 1с: '+(s.sim1c[i]==null?'—':s.sim1c[i])+(s.plan&&s.plan[i]>0?' · план '+s.plan[i]:''),'Конверсия: '+(conv[i]==null?'—':f1(conv[i]))+(s.planConv!=null?' · план '+f1(s.planConv):'')].join('\n');
+    return `<rect class="rp-hit" x="${(pl+i*bw).toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${H}" data-tip="${tipA(t)}"/>`; }).join('');
+  return `<svg class="rp-svg rc-big" style="max-height:none" viewBox="0 0 ${W} ${H}" role="img">${grid}${tr}${sm}${psL}${pcL}${cvL}${rcAxis(labels,n,W,i=>xc(i),H)}${hits}</svg>`;
+}
+function rpStackDays(days, a, b, tot){   // a — не актив (снизу), b — актив (сверху)
+  const n=days.length, g=rcPrep({}), {W,H,pl,pr,pb,pt}=g, labels=days.map(d=>d.slice(0,5));
+  const bw=(W-pl-pr)/n, xc=i=>pl+i*bw+bw/2, mx=Math.max(1,...tot.filter(v=>v!=null)), y=v=>pt+(H-pt-pb)*(1-v/mx);
+  const seg=(i,v,base,col)=>{ if(!v) return ''; const x=pl+i*bw+bw*.18,w=bw*.64,y1=y(base+v),y0=y(base); return `<rect style="fill:${col}" x="${x.toFixed(1)}" y="${y1.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1,y0-y1).toFixed(1)}" rx="2"/>`; };
+  const bars=days.map((_,i)=>{ const A=a[i]||0,B=b[i]||0; return seg(i,B,0,'var(--green)')+seg(i,A,B,'var(--orange)')+(n<=16&&bw>=24&&tot[i]?`<text class="rp-vl" x="${xc(i).toFixed(1)}" y="${Math.max(9,y(tot[i])-3).toFixed(1)}" text-anchor="middle">${tot[i]}</text>`:''); }).join('');
+  const hits=days.map((_,i)=>`<rect class="rp-hit" x="${(pl+i*bw).toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${H}" data-tip="${tipA([labels[i],'Сим у оператора: '+(tot[i]==null?'—':tot[i]),'Актив: '+(b[i]==null?'—':b[i]),'Не актив: '+(a[i]==null?'—':a[i])].join('\n'))}"/>`).join('');
+  return `<svg class="rp-svg rc-big" viewBox="0 0 ${W} ${H}" role="img">${bars}${rcAxis(labels,n,W,xc,H)}${hits}</svg>`;
+}
+function reconBody(r, o){
+  const s=o.series, days=r.days, n=days.length, sum=a=>a.reduce((t,v)=>t+(v||0),0), has=a=>(a||[]).some(v=>v!=null);
+  const pf = v => v==null?'—':(Math.round(v*10)/10+'%').replace('.',',');
+  const conv = days.map((_,i)=> s.traffic[i]>0 && s.sim1c[i]!=null ? s.sim1c[i]/s.traffic[i]*100 : null);
+  const tS=sum(s.sim1c), tT=sum(s.traffic), cAvg = tT>0 ? tS/tT*100 : null, planSum=sum(s.plan||[]);
+  const dt = (cols, rows) => `<button class="rp-tg" data-tg type="button">Таблица по датам <span>▾</span></button><div hidden><div class="mtable"><table class="rc-t"><thead><tr><th class="l">Дата</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(x=>`<tr><th class="l">${x[0]}</th>${x.slice(1).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+  let out='';
+  if (has(s.sim1c)||has(s.traffic)){
+    const cp = (cAvg!=null && s.planConv>0) ? fcChip(cAvg/s.planConv*100) : '';
+    out += `<section class="card rp-dir fade"><div class="rp-dh"><div><div class="eyebrow">${esc(o.key==='all'?o.label:rpShort(o.label))}</div><h2>Сим 1с · трафик · конверсия</h2></div>
+      <div class="rp-big num">${fmt(tS)}<small>сим 1с за месяц${planSum?' · план '+fmt(planSum):''}</small></div></div>
+      <div class="rc-kp num"><div><span>Трафик</span><b>${fmt(tT)}</b></div><div><span>Конверсия</span><b>${pf(cAvg)}</b><small>${s.planConv!=null?'план '+pf(s.planConv):''}</small>${cp}</div></div>
+      <div class="rp-chart"><div class="rp-cl"><span><i class="k" style="background:var(--muted);opacity:.5"></i>Трафик</span><span><i class="k" style="background:var(--blue)"></i>Сим 1с</span><span><i class="k" style="background:var(--orange)"></i>Конверсия, %</span><span><i class="k pl"></i>План конв.</span>${planSum?'<span><i class="k pl" style="background:var(--pink)"></i>План сим</span>':''}</div>${rpCombo(days,s,conv)}</div>
+      <div class="rp-note">Серые столбцы — трафик, синие — сим 1с (левая шкала). Оранжевая линия — конверсия, пунктир — плановая конверсия (правая шкала, %). Розовый пунктир — план сим.</div>
+      ${dt(['Сим 1с','План','Трафик','Конв.','План конв.'], days.map((d,i)=>[d.slice(0,5), s.sim1c[i]==null?'':s.sim1c[i], (s.plan&&s.plan[i])||'', s.traffic[i]==null?'':fmt(s.traffic[i]), conv[i]==null?'':pf(conv[i]), s.planConv!=null?pf(s.planConv):'']))}</section>`;
+  }
+  const A=s.inactive||[], B=s.active||[], O=s.simOp||[];
+  if (has(A)||has(B)||has(O)){
+    const tot = days.map((_,i)=> (A[i]!=null||B[i]!=null) ? (A[i]||0)+(B[i]||0) : (O[i]==null?null:O[i]));
+    const tA=sum(A), tB=sum(B), tO=sum(tot);
+    out += `<section class="card rp-dir fade"><div class="rp-dh"><div><div class="eyebrow">${esc(o.key==='all'?o.label:rpShort(o.label))}</div><h2>Сим у оператора</h2></div>
+      <div class="rp-big num">${fmt(tO)}<small>регистраций за месяц</small></div></div>
+      <div class="rc-kp num"><div><span>Актив</span><b>${fmt(tB)}</b></div><div><span>Не актив</span><b>${fmt(tA)}</b></div><div><span>Сим 1с</span><b>${fmt(tS)}</b><small>${tS>0?'у оператора '+fmt(tO/tS*100)+'% от 1с':''}</small></div></div>
+      <div class="rp-chart"><div class="rp-cl"><span><i class="k" style="background:var(--green)"></i>Сим актив</span><span><i class="k" style="background:var(--orange)"></i>Сим не актив</span></div>${rpStackDays(days,A,B,tot)}</div>
+      <div class="rp-note">Высота столбца — всего сим у оператора = актив + не актив.</div>
+      ${dt(['Актив','Не актив','У оператора','Сим 1с'], days.map((d,i)=>[d.slice(0,5), B[i]==null?'':B[i], A[i]==null?'':A[i], tot[i]==null?'':tot[i], s.sim1c[i]==null?'':s.sim1c[i]]))}</section>`;
+  }
+  return out || '<div class="card empty">Данных за текущий месяц пока нет.</div>';
+}
+function reconDraw(el, r){
+  const o = r.options.find(x=>x.key===RECSEL) || r.options[0]; RECSEL = o.key;
+  const chips = r.options.length>1 ? `<div class="chips" role="group" aria-label="Салон">${r.options.map(x=>`<button class="chipb" data-rc="${esc(x.key)}" aria-pressed="${x.key===o.key}">${esc(x.key==='all'?x.label:rpShort(x.label))}</button>`).join('')}</div>` : '';
+  const t = r.updated ? new Date(r.updated).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}) : '';
+  let body; try{ body = r.days.length ? reconBody(r,o) : '<div class="card empty">Данных за текущий месяц пока нет.</div>'; }catch(e){ console.error(e); body='<div class="card empty">Не удалось построить страницу.</div>'; }
+  el.innerHTML = `<div class="rp-meta"><b>Сопоставления 1С и рег.</b>${t?' · обновлено '+t:''}</div>${chips}${body}${r.opStale?'<div class="rp-note">Выгрузка регистраций оператора ещё за прошлый месяц — блок «Сим у оператора» появится, когда она обновится.</div>':''}`;
+  el.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>{ RECSEL=b.dataset.rc; reconDraw(el,r); });
+  el.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{ const q=b.nextElementSibling; q.hidden=!q.hidden; b.classList.toggle('on',!q.hidden); });
+  animate();
+}
+async function reconLoad(el, force){
+  if (!el) return;
+  const ck='rp:recon'; let cached=null; try{ cached=JSON.parse(store.get(ck)||'null'); }catch(e){}
+  if (cached && !force) reconDraw(el,cached); else if (!cached) el.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем…</div>';
+  try{
+    const r = await api({action:'recon_get', token:store.get('token'), fresh:!!force});
+    if (r.error){ if (r.error==='auth') return showLogin('Сессия истекла. Войдите снова.'); if(!cached) el.innerHTML='<div class="card empty">Не удалось загрузить ('+esc(r.error)+').</div>'; return; }
+    const same = cached && !force && JSON.stringify(cached)===JSON.stringify(r);
+    store.set(ck, JSON.stringify(r)); if (!same) reconDraw(el,r);
+  }catch(e){ if(!cached) el.innerHTML='<div class="card empty">Нет связи. Нажмите «Обновить».</div>'; }
+}
+/* ---------- «До сотрудника ДЛ»: как в самой таблице — строки сотрудники, столбцы направления с результатами ---------- */
+function rpDLTable(g){
+  let hr=-1, nc=-1;
+  for (let r=0;r<Math.min(g.length,12)&&hr<0;r++) for (let c=0;c<g[r].length;c++) if (String(g[r][c]).trim()==='ФИО'){ hr=r; nc=c; break; }
+  if (hr<1) return rpGrid(g,{});
+  const cl = v => { v=String(v==null?'':v).replace(/\s+/g,' ').trim(); return /^#/.test(v)?'':v; };
+  const rows=[]; for (let r=hr+1;r<g.length;r++){ if (!cl(g[r][nc])) break; rows.push(g[r]); }
+  const W = Math.max(g[hr].length, ...rows.map(r=>r.length));
+  const grp=[]; let cur=''; for (let c=0;c<W;c++){ const t=cl((g[hr-1]||[])[c]); if (t) cur=t; grp[c]=cur; }
+  const keep=[nc]; for (let c=0;c<W;c++) if (c!==nc && rows.some(r=>cl(r[c])) && cl(g[hr][c])) keep.push(c);
+  const lab = c => { const vs=rows.map(r=>cl(r[c])).filter(Boolean); return vs.length && vs.every(v=>isNaN(parseFloat(v.replace(/\s/g,'').replace(',','.')))) ? 'Салон' : cl(g[hr][c]); };
+  const sep = new Set(); keep.forEach((c,i)=>{ if (i>1 && grp[c]!==grp[keep[i-1]]) sep.add(c); });
+  const top=[]; let i=1; while (i<keep.length){ const c=keep[i], gname=grp[c]; if (!gname){ top.push(`<th rowspan="2" class="${sep.has(c)?'sp':''}">${esc(lab(c))}</th>`); i++; continue; } let j=i; while (j<keep.length && grp[keep[j]]===gname) j++; top.push(`<th colspan="${j-i}" class="g sp">${esc(gname)}</th>`); i=j; }
+  const sub = keep.slice(1).filter(c=>grp[c]).map(c=>`<th class="${sep.has(c)?'sp':''}">${esc(lab(c))}</th>`).join('');
+  const body = rows.map(r=>`<tr><th class="l">${esc(short_(cl(r[nc])))}</th>${keep.slice(1).map(c=>{ const v=cl(r[c]); const pct=/%$/.test(v), n=parseFloat(v.replace(/\s/g,'').replace(',','.')); const cls=[sep.has(c)?'sp':'', pct&&isFinite(n)?'pcell '+clsPct(n):'', !pct&&isFinite(n)&&n<0?'neg':''].filter(Boolean).join(' '); return `<td class="${cls}">${esc(v)}</td>`; }).join('')}</tr>`).join('');
+  return `<section class="card fade rp-dl"><div class="eyebrow">До сотрудника ДЛ</div><h2>Сотрудники × направления</h2>
+    <div class="mtable"><table class="dl-t"><thead><tr><th rowspan="2" class="l">Сотрудник</th>${top.join('')}</tr><tr>${sub}</tr></thead><tbody>${body}</tbody></table></div>
+    <div class="note-s" style="margin-top:8px">${rows.length} сотр. · значения как на листе «До сотрудника ДЛ»</div></section>`;
+}
+const short_ = n => String(n||'').trim().split(/\s+/).slice(0,2).join(' ');
 /* ---------- мини-графики (SVG) ---------- */
 const CW = () => { const w = ($('#app')||document.body).clientWidth || innerWidth; return Math.max(250, Math.min(560, Math.round(w-72))); };
 const tipA = t => esc(String(t)).replace(/\n/g,'&#10;');
@@ -2707,6 +2953,7 @@ function rpSide(b, bi){
 /* ---------- «Остальные карточки» (защита экрана, ПЗУ, часы, наушники, БП, чистка, пакет, трафик…) только по салонам руководителя ---------- */
 function rpCardsHTML(r){
   if (r.missing) return `<div class="card empty">Лист «${esc(r.name||'Детали продаж салоны')}» не найден.</div>`;
+  if (r.cards) r = Object.assign({}, r, {cards: r.cards.filter(c=>c.kind!=='pivot' && !/отставани\S*[,\s]+прогноз/i.test(c.title||''))});   // не показываем сводные таблицы по салонам и карточки «… · отставание, прогноз»
   if (!r.cards || !r.cards.length) return '<div class="card empty">Для ваших салонов дополнительных карточек пока нет.'+((r.salons&&r.salons.length)?'':' За вами не закреплен ни один салон (лист «закрепление» в KPI ОСС).')+'</div>';
   const head = `<div class="rp-cap">Ваши салоны: ${esc((r.salons||[]).map(rpShort).join(', '))}</div>`;
   return head + r.cards.map((cd,i)=>cd.kind==='pivot' ? rpPivotCard(cd,i) : rpDaysCard(cd,i)).join('');
@@ -2723,12 +2970,16 @@ function rpDaysCard(cd,i){
   const plan = (!pct && cd.plan.some(v=>v>0)) ? cd.plan : null;
   const tot = cd.tot||[], tv = tot.filter(v=>v!=null), grand = tv.length ? (pct ? avgOf(tv) : tv.reduce((a,b)=>a+b,0)) : null;
   const mxT = Math.max(1,...tot.map(v=>Math.abs(v||0))), mx = Math.max(1,...cd.v.flatMap(r=>r.map(v=>Math.abs(v||0))));
+  const nsCard = /дней без продаж/i.test(cd.title||'');
+  const tdy = (typeof DATA!=='undefined' && DATA && DATA.today>0 && DATA.today<99) ? DATA.today : 99;
+  const noSale = j => { if (!nsCard) return ''; let n=0; for (let ri=cd.days.length-1; ri>=0; ri--){ if (Number(cd.days[ri].slice(0,2))>=tdy) continue; const v=cd.v[ri][j]; if (v==null || v===0) n++; else break; }
+    return `<span class="rp-ns ${n?'bad':'good'}" title="Дней подряд без продажи защиты экрана — с последней продажи">${n?n+' дн. с последней продажи защиты':'продажа была вчера'}</span>`; };
   const chips = j => (cd.sums||[]).map(x=>{ const v=x.vals[j]; if (v==null) return ''; const l=x.label.toLowerCase();
     return /прогноз/.test(l) ? fcChip(v) : /отстав/.test(l) ? `<span class="rp-gap ${v>0?'bad':'good'}" title="Отставание">${v>0?'−':'+'}${fmt(Math.abs(v))}</span>` : `<span class="rp-chip"><em>${esc(x.label)}</em> ${fmt(v,1)}${/%/.test(x.label)?'':''}</span>`; }).join('');
   return `<section class="card rp-dir fade"><div class="rp-dh"><div><div class="eyebrow">${esc(cd.dir||'Детали продаж')}</div><h2>${esc(cd.title)}</h2></div>
     <div class="rp-big num">${grand==null?'—':(pct?fmt(grand)+'%':fmt(grand))}<small>${pct?'в среднем':'всего за месяц'}</small></div></div>
     <div class="rp-chart">${rpBars(perDay, labels, {color:col, line:plan, f})}</div>
-    <div class="rp-sal">${cd.salons.map((n,j)=>`<div class="rp-s"><div class="rp-sn">${esc(rpShort(n))}</div><div class="rp-sb" data-tip="${tipA(rpShort(n)+'\nВсего: '+f(tot[j]))}"><i style="width:0;background:${col}" data-w="${Math.max(2,Math.abs(tot[j]||0)/mxT*100).toFixed(1)}"></i></div><div class="rp-sv num">${f(tot[j])}</div>${chips(j)?`<div class="rp-sx">${chips(j)}</div>`:''}</div>`).join('')}</div>
+    <div class="rp-sal">${cd.salons.map((n,j)=>`<div class="rp-s"><div class="rp-sn">${esc(rpShort(n))}${noSale(j)}</div><div class="rp-sb" data-tip="${tipA(rpShort(n)+'\nВсего: '+f(tot[j]))}"><i style="width:0;background:${col}" data-w="${Math.max(2,Math.abs(tot[j]||0)/mxT*100).toFixed(1)}"></i></div><div class="rp-sv num">${f(tot[j])}</div>${chips(j)?`<div class="rp-sx">${chips(j)}</div>`:''}</div>`).join('')}</div>
     <button class="rp-tg" data-tg type="button">Подробно по дням <span>▾</span></button>
     <div hidden><div class="rp-gridw"><table class="rp-grid"><thead><tr><th>д</th>${plan?'<th title="План на день">пл</th>':''}${cd.salons.map((n,j)=>`<th title="${esc(n)}">${j+1}</th>`).join('')}</tr></thead><tbody>${cd.v.map((row,ri)=>`<tr><th>${esc(labels[ri].slice(0,2))}</th>${plan?`<td class="pl">${rpK(plan[ri])}</td>`:''}${row.map(v=>v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${pct?fmt(v):rpK(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>
     <ol class="rp-leg">${cd.salons.map((n,j)=>`<li><b>${j+1}</b>${esc(rpShort(n))}</li>`).join('')}</ol></div></div></section>`;
@@ -2901,6 +3152,20 @@ function rpMatrix(sg, opt){
 
 /* =================== ИТОГИ ДНЯ: салоны × направления (план на день, факт, % закрытия) =================== */
 let DAYSEL = null;
+function next3HTML(d){
+  const n = d.next3||[]; if (!n.length) return '';
+  const row = x => {
+    let main='', sub='';
+    if (x.kind==='shift'){ main = `${esc(x.shift)} смена${x.time?' · '+esc(x.time.replace(/\s*-\s*/,' – ')):''}`; sub = esc(rpShort(x.salon||'')); }
+    else if (x.kind==='repl'){ main = 'Замена'; sub = x.from?'вместо: '+esc(rpShort(x.from)):'точка не указана'; }
+    else if (x.kind==='other'){ main = esc(x.label); }
+    else if (x.kind==='nodata'){ main = '<span class="z">график следующего месяца ещё не внесён</span>'; }
+    else main = '<span class="z">Выходной</span>';
+    return `<div class="n3r${x.repl?' rep':''}"><div class="n3d"><b>${esc(x.date)}</b><span>${esc(x.wd)} · ${esc(x.day)}</span></div>
+      <div class="n3b"><div>${main}${x.repl&&x.kind==='shift'?' <em class="n3p">Замена</em>':''}</div>${sub?`<small>${sub}${x.repl&&x.kind==='shift'&&x.from?' · вместо: '+esc(rpShort(x.from)):''}</small>`:''}</div></div>`;
+  };
+  return `<div class="sh-div" role="separator"></div><div class="sh-r"><h2 class="n3h">График на 3 дня</h2>${n.map(row).join('')}</div>`;
+}
 function dayResPane(d){
   const sal = d.salons||[];
   const dirs = DIR_ORDER.filter(k=>sal.some(s=>s.dirs.some(x=>x.key===k)));
@@ -2913,20 +3178,19 @@ function dayResPane(d){
   const cell = (s,k) => { const x=s.dirs.find(z=>z.key===k); if(!x) return null; const z=x.days.find(w=>w.d===dt), fact=(z&&z.v)||0, plan=x.planDay||0; return {plan, fact, pct: plan>0 ? fact/plan*100 : null}; };
   const tot = {}; dirs.forEach(k=>{ let p=0,f=0; sal.forEach(s=>{ const c=cell(s,k); if(c){ p+=c.plan; f+=c.fact; } }); tot[k]={plan:p, fact:f, pct:p>0?f/p*100:null}; });
   const nf = (v,k) => fmt(v, meta(k).unit==='шт' && Math.abs(v%1)>.001 ? 1 : 0);
-  const pc = p => p==null ? '<td class="z">—</td>' : `<td class="pcell ${clsPct(p)}">${fmt(p)}%</td>`;
+  const pc = p => p==null ? '<td class="z pc">—</td>' : `<td class="pc">${fcChip(p)}</td>`;
   const chips = `<div class="chips" role="group" aria-label="День">${dates.slice(-12).map(x=>`<button class="chipb" data-dr="${x}" aria-pressed="${x===dt}">${x.slice(0,5)}${d.today>0&&d.today<99&&Number(x.slice(0,2))===d.today?' · сегодня':''}</button>`).join('')}</div>`;
   const tiles = dirs.map(k=>{ const t=tot[k]; return `<div class="dr-t"><span>${esc(meta(k).label)}</span><b class="num">${nf(t.fact,k)}</b><small>план ${nf(t.plan,k)}</small>${t.pct==null?'':fcChip(t.pct)}</div>`; }).join('');
-  const head1 = `<tr><th rowspan="2" class="l">Салон</th>${dirs.map(k=>`<th colspan="3" class="g">${esc(meta(k).label)}</th>`).join('')}</tr>`;
+  const head1 = `<tr><th rowspan="2" class="l">Салон</th>${dirs.map(k=>`<th colspan="3" class="g"><span class="gd"><i style="background:${COLORS[k]||'var(--blue)'}"></i>${esc(meta(k).label)}</span></th>`).join('')}</tr>`;
   const head2 = `<tr>${dirs.map(()=>'<th>План</th><th>Факт</th><th>%</th>').join('')}</tr>`;
   const rows = sal.map(s=>`<tr><th class="l">${esc(rpShort(s.name))}</th>${dirs.map(k=>{ const c=cell(s,k); return c ? `<td class="pl">${nf(c.plan,k)}</td><td>${c.fact?nf(c.fact,k):'<span class="z">—</span>'}</td>${pc(c.pct)}` : '<td class="z">—</td><td class="z">—</td><td class="z">—</td>'; }).join('')}</tr>`).join('');
   const totRow = `<tr class="tot"><th class="l">Итого</th>${dirs.map(k=>`<td class="pl">${nf(tot[k].plan,k)}</td><td>${nf(tot[k].fact,k)}</td>${pc(tot[k].pct)}`).join('')}</tr>`;
   const mob = sal.map(s=>`<div class="dr-s"><h3>${esc(rpShort(s.name))}</h3><table class="dr-mt" data-xl="skip"><thead><tr><th></th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody>${dirs.map(k=>{ const c=cell(s,k); return c ? `<tr><th>${esc(meta(k).label)}</th><td class="pl">${nf(c.plan,k)}</td><td>${c.fact?nf(c.fact,k):'—'}</td>${pc(c.pct)}</tr>` : ''; }).join('')}</tbody></table></div>`).join('');
   return `${chips}
-    <div class="card fade"><div class="eyebrow">Итоги дня · ${esc(dt.slice(0,5))}</div><h2>Все салоны вместе</h2>
+    <div class="card fade"><div class="eyebrow">Итоги дня · ${esc(dt.slice(0,5))}</div><h2>Итого по салонам</h2>
       <div class="dr-tiles">${tiles}</div>${live?'<div class="rp-note">День ещё идёт — факт неполный.</div>':''}</div>
     <div class="card fade"><h2>Салоны × направления · ${esc(dt.slice(0,5))}</h2>
       <div class="mtable dr-wide"><table class="dr-t2"><thead>${head1}${head2}</thead><tbody>${rows}${totRow}</tbody></table></div>
-      <div class="dr-m">${mob}</div>
       <div class="note-s" style="margin-top:10px">План на день = план месяца ÷ дни месяца. «%» — закрытие плана дня.</div></div>`;
 }
 function bindDayRes(){ $('#m-dayres').querySelectorAll('[data-dr]').forEach(b=>b.onclick=()=>{ DAYSEL=b.dataset.dr; $('#m-dayres').innerHTML=dayResPane(DATA); bindDayRes(); }); }
@@ -2995,8 +3259,12 @@ function inlineStyles(o, c){
 }
 async function cardToBlob(card){
   const bodyBg = getComputedStyle(document.body).backgroundColor, bg = (bodyBg && bodyBg!=='rgba(0, 0, 0, 0)') ? bodyBg : '#f5f5f7';
-  const r = card.getBoundingClientRect(), W = Math.ceil(r.width), H = Math.ceil(r.height), PAD = 14, FT = 28;
+  const r = card.getBoundingClientRect(), PAD = 14, FT = 28;
+  const wideO = [...card.querySelectorAll('.mtable,.rp-gridw,.dr-wide')];
+  const extra = Math.max(0, ...wideO.map(e=>e.scrollWidth-e.clientWidth));
+  const W = Math.ceil(r.width)+extra, H = Math.ceil(r.height);
   const clone = card.cloneNode(true); inlineStyles(card, clone);
+  [...clone.querySelectorAll('.mtable,.rp-gridw,.dr-wide')].forEach((e,i)=>{ const o=wideO[i]; e.style.overflow='visible'; e.style.width=o.scrollWidth+'px'; e.style.maxWidth='none'; });
   clone.querySelectorAll('.xt').forEach(n=>n.remove());
   clone.style.margin='0'; clone.style.width=W+'px'; clone.style.height=H+'px'; clone.style.boxSizing='border-box';
   const wrap = document.createElement('div'); wrap.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
@@ -3093,6 +3361,7 @@ addEventListener('resize', ()=>{ clearTimeout(_rt); _rt = setTimeout(()=>{ if (M
 if (store.get('token')) start(); else showLogin();
 if (DEMO){ $('#demoHint').hidden=false; }
 
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
 </html>
