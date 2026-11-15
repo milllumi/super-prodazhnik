@@ -109,7 +109,7 @@ function doGet() { return ContentService.createTextOutput('ok'); }
 function readAccess_(ss) { return cached_('access', 300, function () { return readAccessRaw_(ss); }); }
 function readAccessRaw_(ss) {
   const sh = ss.getSheetByName(CONFIG.SHEET_ACCESS);
-  const rows = sh.getDisplayValues(), out = [];
+  const rows = sh.getDataRange().getDisplayValues(), out = [];
   for (let i = 0; i < rows.length; i++) {
     const role = norm_(rows[i][0]), name = String(rows[i][1] || '').trim();
     if (!name) continue;
@@ -339,7 +339,7 @@ function linksGet_(req) {
   if (!u) return { error: 'auth' };
   if (u.roleTitle !== 'ТМ') return { error: 'forbidden' };
   const sh = ss.getSheetByName(CONFIG.SHEET_LINKS);
-  const v = sh.getDisplayValues(), out = [];
+  const v = sh.getDataRange().getDisplayValues(), out = [];
   for (let i = 0; i < v.length; i++) if (String(v[i][0]).trim()) out.push({ row: i + 1, name: String(v[i][0]).trim(), value: String(v[i][1] || '') });
   return { links: out };
 }
@@ -409,7 +409,7 @@ function groupsImport_(req) {
 function kpiSpreadsheetId_(ss) {
   const sh = ss.getSheetByName(CONFIG.SHEET_LINKS);
   if (!sh) return null;
-  const v = sh.getDisplayValues();
+  const v = sh.getDataRange().getDisplayValues();
   for (let i = 0; i < v.length; i++) {
     if (norm_(v[i][0]) === CONFIG.LINK_KPI_KEY) {
       const m = /\/d\/([\w-]{20,})/.exec(String(v[i][1])) || /^([\w-]{25,})$/.exec(String(v[i][1]).trim());
@@ -834,7 +834,7 @@ function managerData_(ss, sess, access) {
 
 function readSalonSheet_(ss) { return cached_('salons', TTL_, function () { return readSalonSheetRaw_(ss); }); }
 function readSalonSheetRaw_(ss) {
-  const v = ss.getSheetByName(CONFIG.SHEET_SALONS).getDisplayValues();
+  const v = ss.getSheetByName(CONFIG.SHEET_SALONS).getDataRange().getDisplayValues();
   const dre = /^(\d{2})\.(\d{2})\.(\d{4})$/;
   const salons = {};
   let month = '', daysInMonth = 0, maxDay = 0;
@@ -1130,7 +1130,7 @@ function readDayPlanRaw_(ss) {
   const sh = ss.getSheetByName(CONFIG.SHEET_DAYPLAN);
   const out = {};
   if (!sh) return out;
-  const v = sh.getDisplayValues();
+  const v = sh.getDataRange().getDisplayValues();
   let hr = -1;
   for (let r = 0; r < Math.min(v.length, 10) && hr < 0; r++) if (norm_(v[r][1]) === 'сим') hr = r;
   if (hr < 0) return out;
@@ -1147,7 +1147,7 @@ function readDayPlanRaw_(ss) {
 /* ---------- чтение листов продавцов ---------- */
 function readPlan_(ss) { return cached_('plan', TTL_, function () { return readPlanRaw_(ss); }); }
 function readPlanRaw_(ss) {
-  const v = ss.getSheetByName(CONFIG.SHEET_PLAN).getDisplayValues();
+  const v = ss.getSheetByName(CONFIG.SHEET_PLAN).getDataRange().getDisplayValues();
   let hr = -1, nc = -1;
   for (let r = 0; r < Math.min(v.length, 15) && hr < 0; r++)
     for (let c = 0; c < v[r].length; c++) if (String(v[r][c]).trim() === 'ФИО') { hr = r; nc = c; break; }
@@ -1182,7 +1182,7 @@ function readPlanRaw_(ss) {
 
 function readIncome_(ss) { return cached_('income', TTL_, function () { return readIncomeRaw_(ss); }); }
 function readIncomeRaw_(ss) {
-  const v = ss.getSheetByName(CONFIG.SHEET_INCOME).getDisplayValues();
+  const v = ss.getSheetByName(CONFIG.SHEET_INCOME).getDataRange().getDisplayValues();
   const dre = /^\d{2}\.\d{2}\.\d{4}$/;
   let hr = -1, nc = -1;
   for (let r = 0; r < Math.min(v.length, 15) && hr < 0; r++)
