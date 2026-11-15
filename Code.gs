@@ -125,9 +125,12 @@ function findUser_(list, login) {
   if (!t.length) return { status: 'none' };
   const exact = list.filter(function (a) { return a.key === t.join(' '); });
   if (exact.length === 1) return { status: 'ok', user: exact[0] };
-  const m = list.filter(function (a) { const p = a.key.split(' '); return t.every(function (x, i) { return p[i] === x; }); });
-  if (m.length === 1) return { status: 'ok', user: m[0] };
-  return { status: m.length ? 'ambiguous' : 'none' };
+  const pref = list.filter(function (a) { const p = a.key.split(' '); return t.every(function (x, i) { return p[i] === x; }); });
+  if (pref.length === 1) return { status: 'ok', user: pref[0] };
+  // «Имя Фамилия» и лишние слова (отчество): все введённые слова должны встречаться в ФИО
+  const any = list.filter(function (a) { const p = a.key.split(' '); return t.every(function (x) { return p.indexOf(x) >= 0; }); });
+  if (any.length === 1) return { status: 'ok', user: any[0] };
+  return { status: (pref.length || any.length) ? 'ambiguous' : 'none' };
 }
 function salt_() {
   const P = PropertiesService.getScriptProperties();
