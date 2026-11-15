@@ -28,10 +28,6 @@ const CONFIG = {
   SHEET_LINKS:   'Ссылки',
   SHEET_SVOD:    'Свод графика',              // часы сотрудника по салонам: основной салон = где больше всего часов
   SHEET_NEWS:    'Новости',                   // создаётся автоматически: ID, Дата, Автор, Роль, Заголовок, Текст, Статус, Модератор
-  SHEET_GROUPS:  'Группа товаров',            // сюда ежечасно выгружается отчёт DataLens «Товарные группы»
-  GROUPS_COLS:   11,                          // импорт пишет только A:K, столбцы L и правее не трогает
-  GROUPS_NUM_COL: 11,                         // K («Сумма») — числовой формат
-  GROUPS_NUM_FMT: '#,##0.00',
   LINK_KPI_KEY:  'kpi осс текущий месяц',     // название строки на вкладке «Ссылки» (регистр не важен)
   KPI_SHEET:     'Сотрудники по салонам',     // лист в KPI ОСС: A — менеджер, B — магазин
   SELLER_ROLES:  ['новичок', 'птт'],
@@ -98,7 +94,6 @@ function doPost(e) {
     else if (req.action === 'news_add') out = newsAdd_(req);
     else if (req.action === 'news_moderate') out = newsModerate_(req);
     else if (req.action === 'links_set') out = linksSet_(req);
-    else if (req.action === 'groups_import') out = groupsImport_(req);
     else out = { error: 'bad_request' };
   } catch (err) { out = { error: 'server', message: String(err) }; }
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
@@ -243,12 +238,7 @@ function newsSheet_(ss) {
   if (!sh) { sh = ss.insertSheet(CONFIG.SHEET_NEWS); sh.getRange(1, 1, 1, 8).setValues([NEWS_HEAD]); sh.setFrozenRows(1); }
   return sh;
 }
-function safeCell_(t, numeric) {
-  if (numeric) {
-    if (typeof t === 'number') return isFinite(t) ? t : '';
-    const n = num_(t);
-    return n === null ? '' : n;
-  }
+function safeCell_(t) {
   if (typeof t === 'number') return isFinite(t) ? t : '';
   t = String(t === null || t === undefined ? '' : t);
   return /^[=+\-@]/.test(t) ? "'" + t : t;
@@ -358,54 +348,6 @@ function linksSet_(req) {
   sh.getRange(row, 2).setValue(val);
   CacheService.getScriptCache().removeAll(['kpiShops']);
   return { ok: true };
-}
-
-/* ---------- импорт выгрузки DataLens «Товарные группы» ---------- */
-function groupsImportInit() {
-  const P = PropertiesService.getScriptProperties();
-  if (!P.getProperty('groupsImportKey')) P.setProperty('groupsImportKey', Utilities.getUuid().replace(/-/g, '').slice(0, 24));
-  Logger.log(P.getProperty('groupsImportKey'));
-  return P.getProperty('groupsImportKey');
-}
-function groupsImport_(req) {
-  const P = PropertiesService.getScriptProperties();
-  const key = P.getProperty('groupsImportKey');
-  if (!key) return { error: 'import_not_configured' };
-  if (String(req.key || '') !== key) return { error: 'forbidden' };
-  const rows = req.rows;
-  if (!Array.isArray(rows) || !rows.length) return { error: 'bad_request' };
-  if (rows.length > 20000) return { error: 'too_many_rows' };
-  const maxWidth = Math.max.apply(null, rows.map(function (r) { return Array.isArray(r) ? r.length : 0; }));
-  if (!(maxWidth > 0)) return { error: 'bad_request' };
-  const width = Math.min(maxWidth, CONFIG.GROUPS_COLS);
-  const numCol = CONFIG.GROUPS_NUM_COL - 1;
-  const lock = LockService.getScriptLock();
-  lock.waitLock(30000);
-  try {
-    const ss = ss_();
-    let sh = ss.getSheetByName(CONFIG.SHEET_GROUPS);
-    if (!sh) sh = ss.insertSheet(CONFIG.SHEET_GROUPS);
-    // на листе может быть объект-таблица Google: её строку заголовка очищать нельзя
-    const hdr = [];
-    for (let c = 0; c < width; c++) hdr.push(safeCell_(rows[0][c], false));
-    const cur = sh.getRange(1, 1, 1, width).getValues()[0].map(function (v) { return String(v); });
-    if (cur.join('\u0001') !== hdr.map(function (v) { return String(v); }).join('\u0001'))
-      sh.getRange(1, 1, 1, width).setValues([hdr]);
-    const lastRow = sh.getLastRow();
-    if (lastRow > 1) sh.getRange(2, 1, lastRow - 1, width).clearContent();
-    const values = rows.slice(1).map(function (r) {
-      const out = [];
-      for (let c = 0; c < width; c++) out.push(safeCell_(r[c], c === numCol));
-      return out;
-    });
-    if (values.length) sh.getRange(2, 1, values.length, width).setValues(values);
-    if (numCol < width) sh.getRange(2, CONFIG.GROUPS_NUM_COL, Math.max(values.length, 1), 1).setNumberFormat(CONFIG.GROUPS_NUM_FMT);
-    const updated = Utilities.formatDate(new Date(), 'Europe/Moscow', 'dd.MM.yyyy HH:mm');
-    P.setProperty('groupsUpdatedAt', updated);
-    return { ok: true, rows: values.length, cols: width, updated: updated };
-  } finally {
-    lock.releaseLock();
-  }
 }
 
 /* ---------- привязка салонов из KPI ОСС ---------- */
