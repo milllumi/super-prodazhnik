@@ -3367,6 +3367,7 @@ if (DEMO){ $('#demoHint').hidden=false; }
 let INSTALL_EVT = null;
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 function installHintText(){
+  if (!/^https?:$/.test(location.protocol)) return 'Сайт открыт локально (файл на компьютере) — установка так не работает. Откройте https://milllumi.github.io/super-prodazhnik/ в браузере и добавьте приложение оттуда.';
   const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua);
   if (/Firefox|FxiOS/i.test(ua)) return 'Firefox не ставит веб-приложения на рабочий стол. Откройте сайт в Chrome (Android) или Safari (iPhone) и добавьте оттуда.';
   if (ios) return /(Telegram|Instagram|FBAN|FBAV|VK|OKApp|WhatsApp|Snapchat|YaBrowser)/i.test(ua)

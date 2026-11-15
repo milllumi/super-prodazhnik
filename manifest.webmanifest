@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "SUPER PROдажник",
+  "name": "SUPER PROдажник by Miller",
   "short_name": "PROдажник",
-  "description": "Личный кабинет продавца и руководителя салона",
+  "description": "Результаты продаж, график, бонус и рейтинг",
   "lang": "ru",
   "dir": "ltr",
   "start_url": "./",
