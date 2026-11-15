@@ -599,6 +599,8 @@ h2.n3h{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
     </div>
     <button class="btn" id="btnLogin" type="submit">Далее</button>
     <div class="err" id="loginErr" role="alert"></div>
+    <button type="button" class="linkbtn" id="btnInstall" style="display:block;margin:16px auto 0" hidden>Установить приложение</button>
+    <p id="installHint" hidden style="font-size:13px;margin:10px 0 0;line-height:1.45;text-align:left"></p>
     <p id="demoHint" hidden style="font-size:13px;margin:14px 0 0">Демо: введите любую фамилию, при первом входе придумаете PIN из 4 цифр. «ТМ …» (например, ТМ Миллер) открывает вид территориального менеджера, «Руководитель» — вид РТТ/УТТ, «Гость» показывает отказ для тех, кого нет в списке.</p>
   </form>
 </section>
@@ -3361,7 +3363,34 @@ addEventListener('resize', ()=>{ clearTimeout(_rt); _rt = setTimeout(()=>{ if (M
 if (store.get('token')) start(); else showLogin();
 if (DEMO){ $('#demoHint').hidden=false; }
 
-if('serviceWorker' in navigator && location.protocol.startsWith('http')) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+/* --- установка как приложение (PWA): нативная кнопка там, где браузер её даёт, иначе — инструкция для текущего браузера --- */
+let INSTALL_EVT = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+function installHintText(){
+  const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua);
+  if (/Firefox|FxiOS/i.test(ua)) return 'Firefox не ставит веб-приложения на рабочий стол. Откройте сайт в Chrome (Android) или Safari (iPhone) и добавьте оттуда.';
+  if (ios) return /(Telegram|Instagram|FBAN|FBAV|VK|OKApp|WhatsApp|Snapchat|YaBrowser)/i.test(ua)
+    ? 'Сайт открыт во встроенном браузере — установка в нём не работает. Откройте ссылку в Safari, нажмите «Поделиться» → «На экран «Домой»».'
+    : 'В Safari нажмите «Поделиться» (квадрат со стрелкой) → «На экран «Домой»» → «Добавить». Значок появится на рабочем столе и сайт откроется без адресной строки.';
+  if (/Android/i.test(ua)) return 'В Chrome откройте меню ⋮ → «Установить приложение» (на некоторых версиях — «Добавить на главный экран»). Приложение откроется без адресной строки.';
+  if (/Edg\//.test(ua)) return 'В Edge откройте меню … → «Приложения» → «Установить этот сайт как приложение».';
+  return 'В Chrome нажмите значок установки справа в адресной строке или меню ⋮ → «Установить приложение». В Safari на Mac — «Файл» → «Добавить в Dock».';
+}
+function initInstall(){
+  const btn = $('#btnInstall'), hint = $('#installHint');
+  if (!btn || !hint) return;
+  if (isStandalone()) return;
+  btn.hidden = false;
+  btn.onclick = async () => {
+    if (INSTALL_EVT) { INSTALL_EVT.prompt(); try { await INSTALL_EVT.userChoice; } catch(e){} INSTALL_EVT = null; btn.hidden = true; hint.hidden = true; return; }
+    hint.textContent = installHintText(); hint.hidden = false;
+  };
+  addEventListener('appinstalled', () => { btn.hidden = true; hint.hidden = true; });
+}
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); INSTALL_EVT = e; });
+initInstall();
+
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
