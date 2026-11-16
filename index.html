@@ -1137,6 +1137,15 @@ function applyPre(force){
   if(p.att!=null&&ok('econ.c12'))S.econ.c12=p.att;
   if(p.kvp){if(p.kvp.phones!=null&&ok('econ.d10'))S.econ.d10=r1(p.kvp.phones);if(p.kvp.accserv!=null&&ok('econ.d12'))S.econ.d12=r1(p.kvp.accserv);if(p.kvp.ins!=null&&ok('econ.d13'))S.econ.d13=r1(p.kvp.ins)}
   if(p.sim)p.sim.forEach((v,i)=>{if(v!=null&&i<S.salons&&ok('bl.sim'+(i+1)))S.bl['sim'+(i+1)]=r1(v)});
+  /* экономический и операторский блоки — из KPI ОСС (прогноз выполнения, как в листах «Экономические KPI» и «Операторские…») */
+  const pv=x=>x==null||isNaN(x)?null:r1(x*100);
+  if(p.eco){const E=p.eco,set=(k,v)=>{if(v!=null&&ok(k)){const g=k.split('.');S[g[0]][g[1]]=v}};
+    set('econ.c10',pv(E.credit));set('econ.d10',pv(E.tel));set('econ.d11',pv(E.sell));set('econ.d12',pv(E.acc));set('econ.d13',pv(E.ins));set('econ.d14',pv(E.combo));
+    if(E.attach!=null&&ok('econ.c12'))S.econ.c12=Math.round(E.attach*100)/100}
+  if(p.st)p.st.forEach((x,i)=>{if(!x||i>=S.salons)return;const k=i+1,sb=(key,v)=>{if(v!=null&&ok(key))S.bl[key.slice(3)]=v};
+    sb('bl.sim'+k,pv(x.sim));sb('bl.dec1'+k,pv(x.dec1));sb('bl.dec2'+k,pv(x.dec2));sb('bl.act'+k,pv(x.act));
+    const so=(j,v)=>{if(v!=null&&ok('op.'+(i*3+j)))S.op[i*3+j]=v};
+    so(0,x.hb==null?null:r1(Math.min(100,x.hb/0.25*100)));so(1,pv(x.rev));so(2,pv(x.act))});
 }
 function sub(name){
   const s=name==='sum';
@@ -2166,11 +2175,15 @@ function metricCard(m){
     </div></div>`;
 }
 function dayPlanCard(d){
-  const now=new Date(), last=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(), left=Math.max(1,(d.cal&&d.cal.dim&&d.cal.today>0&&d.cal.today<99)?d.cal.dim-d.cal.today+1:last-now.getDate()+1);
-  const rows=d.metrics.map(m=>{const need=Math.max(0,m.planMonth-m.fact)/left;
-    return `<div class="dp-row num"><span class="n"><i style="background:${COLORS[m.key]}"></i>${esc(m.label)}</span><b>${fm(m,m.planDay)}</b><b style="color:${need>m.planDay*1.05?'var(--pink)':'var(--green)'}">${fm(m,need)}</b></div>`}).join('');
-  return `<div class="card fade"><h2>План на день</h2><div class="dp"><div class="dp-head"><span>Направление</span><span>По плану</span><span>Нужно сегодня</span></div>${rows}</div>
-    <div class="dp-note">«Нужно сегодня» — сколько продавать в день (сим — в штуках, остальное — в рублях) до конца месяца (${left} дн.), чтобы выполнить план. Красным выделено, если это больше плана на день.</div></div>`;
+  // линейный план = план месяца ÷ запланированные смены; план с отставанием = остаток плана ÷ оставшиеся смены (с сегодняшней)
+  const now=new Date(), last=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const daysLeft=Math.max(1,(d.cal&&d.cal.dim&&d.cal.today>0&&d.cal.today<99)?d.cal.dim-d.cal.today+1:last-now.getDate()+1);
+  const sc=d.schedule||{}, shifts=sc.planned>0?sc.planned:0, left=sc.left>0?sc.left:daysLeft;
+  const rows=d.metrics.map(m=>{
+    const lin = shifts ? m.planMonth/shifts : m.planDay, lag = Math.max(0,m.planMonth-m.fact)/left;
+    return `<div class="dp-row num"><span class="n"><i style="background:${COLORS[m.key]}"></i>${esc(m.label)}</span><b>${fm(m,lin)}</b><b style="color:${lag>lin*1.05?'var(--pink)':'var(--green)'}">${fm(m,lag)}</b></div>`}).join('');
+  return `<div class="card fade"><h2>План на день</h2><div class="dp"><div class="dp-head"><span>Направление</span><span>Линейный план</span><span>План с отставанием</span></div>${rows}</div>
+    <div class="dp-note">Линейный план — план месяца ÷ ${shifts?shifts+' запланированных смен':'дни месяца'}. План с отставанием — сколько продавать за смену, чтобы выполнить план: остаток плана ÷ ${left} ${sc.left>0?'оставшихся смен':'дн.'} (сим — в штуках, остальное — в рублях). Красным — если нужно продавать больше линейного плана.</div></div>`;
 }
 function ratingHTML(d){
   const medal = p => p<=3 ? `<span class="medal g${p}">${p}</span>` : p;
@@ -2440,7 +2453,11 @@ function calcPrefill(d){
   const pct = (...ks) => { let p=0,f=0; ks.forEach(k=>{const s=sum(k);p+=s.p;f+=s.f}); return p>0?f/p*100:null };
   return { grade: d.prefill&&d.prefill.grade||null, salons: Math.min(2, all.length)||1, hours: d.prefill&&d.prefill.hours, att: d.prefill&&d.prefill.att,
     kvp:{ phones:pct('phones'), accserv:pct('acc','serv'), ins:pct('ins') },
-    sim: all.slice(0,2).map(s=>{const x=s.dirs.find(z=>z.key==='sim');return x&&x.plan>0?x.fact/x.plan*100:null}) };
+    sim: all.slice(0,2).map(s=>{const x=s.dirs.find(z=>z.key==='sim');return x&&x.plan>0?x.fact/x.plan*100:null}),
+    eco: d.kpi&&d.kpi.eco||null,
+    st: (function(){const K=d.kpi&&d.kpi.stores||{},nm=t=>String(t||'').toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ').trim();
+      const names=(all.length?all.map(s=>s.name):(d.kpiShops||[])).slice(0,2);
+      return names.map((n,i)=>K[nm(n)]||K[nm((d.kpiShops||[])[i])]||null)})() };
 }
 let tmbKey = null;
 function ensureTmb(){
@@ -2649,6 +2666,8 @@ function demoManager(){
     canLinks:DEMO_TM(), roleTitle:DEMO_TM()?'ТМ':'РТТ',
     summary:DEMO_TM()?null:{name:'общий свод',head:[['Минимальный прогноз'],['Планирование на ','Общая'],['4','Сим','','','','Телефоны','','','','Аксессуары','','','','Услуги','','','','Страховки','','','','Кредиты'],['','План на день','Факт','Отставание','Прогноз','План на день','Факт','Отставание','Прогноз','План на день','Факт','Отставание','Прогноз','План на день','Факт','Отставание','Прогноз','План на день','Факт','Отставание','Прогноз','План на день']],found:3,
       rows:[['Миллер','87','336','163','67%','150325','887819','43651','84%','44723','250205','37138','84%','10616','71099','2680','88%','7548','57711','-57294','71%','85284'],['КЗН Зорге 75 БЛН','13','30','26','54%','18423','2580','50490','5%','3738','6906','8304','45%','1459','5695','2329','71%','713','450','-394','7%','9733'],['КЗН Мира 30а БЛН','4','25','5','85%','9200','89843','-5663','107%','3362','30902','-142','100%','1980','6363','3575','64%','580','9161','-9131','173%','6048']]},
+    kpi:{asOf:'15.11.2026',eco:{tel:.96,sell:1.2,acc:.88,ins:.9,credit:1.02,attach:2.4,combo:1.1},
+      stores:{'кзн зорге 75 блн':{name:'КЗН Зорге 75 БЛН',sim:.83,dec1:1.05,dec2:.9,hb:.19,rev:.78,act:.95},'кзн мира 30а блн':{name:'КЗН Мира 30а БЛН',sim:1.21,dec1:1.1,dec2:1.0,hb:.31,rev:1.05,act:1.2}}},
     prefill:{grade:'2',hours:112,att:2.1,vmr:34,credits:6}};
 }
 
@@ -3391,7 +3410,7 @@ function initInstall(){
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); INSTALL_EVT = e; });
 initInstall();
 
-if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
 </html>
