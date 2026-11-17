@@ -1,4 +1,4 @@
-const CACHE = 'prodazhnik-shell-v3';
+const CACHE = 'prodazhnik-shell-v4';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -17,7 +17,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   if (url.origin !== location.origin) return;
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req)
+    e.respondWith(fetch(req, { cache: 'no-cache' })
       .then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put('index.html', cp)); return r; })
       .catch(() => caches.match('index.html')));
     return;

@@ -17,16 +17,13 @@
  */
 const CONFIG = {
   SPREADSHEET_ID: '1F9giGlGwB2laFTTx4t9rwk1ZJc_Tmkv4IstY715HpSY',
-  SHEET_PLAN:    'До сотрудника ДЛ',          // рейтинг и личные результаты — из этого листа
   SHEET_SCHEDULE:'График',                    // плановые и оставшиеся смены
   KPI_BIND_SHEET:'закрепление',               // лист в KPI ОСС: привязка ТМ / УТТ / РТТ к салонам (регистр не важен)
   SHEET_SUMMARY: 'общий свод',                // страница «Общий свод» для РТТ / УТТ (ищется в этой книге, затем в KPI ОСС)
   SHEET_INCOME:  'Доход сотрудника',
   SHEET_ACCESS:  'Доступ',
   SHEET_SALONS:  'Детали продаж салоны',
-  SHEET_DAYPLAN: 'План на день',
   SHEET_LINKS:   'Ссылки',
-  SHEET_SVOD:    'Свод графика',              // часы сотрудника по салонам: основной салон = где больше всего часов
   SHEET_NEWS:    'Новости',                   // создаётся автоматически: ID, Дата, Автор, Роль, Заголовок, Текст, Статус, Модератор
   LINK_KPI_KEY:  'kpi осс текущий месяц',     // название строки на вкладке «Ссылки» (регистр не важен)
   KPI_SHEET:     'Сотрудники по салонам',     // лист в KPI ОСС: A — менеджер, B — магазин
@@ -49,10 +46,13 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 2400;                                  // кэш данных: 40 мин; триггер warmCache() обновляет его каждые 30 мин
+// эпоха кэша: поднимайте при выкладке, чтобы все клиенты сразу получили свежие данные, а не 40-минутный снимок
+const CACHE_EPOCH = 'e2';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
-function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + key); } catch (e) {} }
+function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
 function cached_(key, ttl, fn) {
+  key = CACHE_EPOCH + ':' + key;
   const c = CacheService.getScriptCache();
   if (!FRESH_) {
     try {
@@ -214,7 +214,7 @@ function installTrigger() {
 function warmCache() {
   FRESH_ = true;
   const ss = ss_();
-  try { readAccess_(ss); readSalonSheet_(ss); readDayPlan_(ss); readMonthPlan_(ss); readPlan_(ss); readIncome_(ss); readSchedule_(ss); } catch (e) {}
+  try { readAccess_(ss); readSalonSheet_(ss); readMonthPlan_(ss); readPlan_(ss); readIncome_(ss); readSchedule_(ss); } catch (e) {}
   try { kpiShopsDrop_(); } catch (e) {}
   const access = readAccess_(ss);
   try { kpiShops_(ss, access); kpiGrades_(ss); } catch (e) {}
@@ -784,7 +784,6 @@ function kpiPrefill_(ss, names) {
 /* ---------- руководитель (РТТ / УТТ / ТМ) ---------- */
 function managerData_(ss, sess, access) {
   const all = readSalonSheet_(ss);                         // { салон: { phones:{...}, acc:{...} ... } }
-  const dayPlan = readDayPlan_(ss);                        // { салон: { phones: N, ... } }
   const mplan = readMonthPlan_(ss);                        // { салон: { sim, phones, acc, serv, ins } } — план на МЕСЯЦ (лист «План»)
   const names = kpiShops_(ss, access)[sess.key] || [];             // салоны руководителя — из KPI ОСС
   const salons = [], unmatched = [];
@@ -802,13 +801,12 @@ function managerData_(ss, sess, access) {
     }
     if (!key) { unmatched.push(n); return; }
     const dirs = DIR_ORDER.filter(function (d) { return all.salons[key][d]; }).map(function (d) {
-      const x = all.salons[key][d], dp = dayPlan[key] && dayPlan[key][d];
+      const x = all.salons[key][d];
       const mp = mplan[norm_(key)] && mplan[norm_(key)][d];
       let plan = mp > 0 ? mp : 0, src = 'месяц';
       if (!plan) { plan = x.plan; src = 'на дату'; }               // запасной вариант: «факт + отставание» из деталей продаж
-      if ((!plan || plan <= 0) && dp > 0 && all.daysInMonth) { plan = dp * all.daysInMonth; src = 'день×дни'; }
       return { key: d, label: DIR_LABELS[d], unit: DIR_UNITS[d], plan: plan || 0, planSrc: src, fact: x.fact || 0,
-        planDay: plan && all.daysInMonth ? plan / all.daysInMonth : (dp || 0),
+        planDay: plan && all.daysInMonth ? plan / all.daysInMonth : 0,
         lag: x.plan > 0 ? x.plan - (x.fact || 0) : null,          // отставание от плана на текущую дату (как в таблице)
         trend: x.forecast,                                        // «Прогноз» из таблицы = выполнение плана на дату, %
         forecast: null, days: x.days };                           // прогноз на конец месяца считает страница: факт ÷ дни × дни месяца
@@ -911,7 +909,7 @@ function readMonthPlanRaw_(ss) {
 }
 
 /* ---------- Страницы отчётов для ТМ: лист целиком (значения как в таблице), разбор и оформление — на странице ---------- */
-const TM_REPORTS = { details: 'Детали продаж салоны', summary: 'общий свод', fact: 'Факт продаж', dl: 'До сотрудника ДЛ', sim: 'Детализация СИМ', dayplan: 'План на день', recon: 'Сопоставления 1с и рег' };
+const TM_REPORTS = { details: 'Детали продаж салоны', summary: 'общий свод', fact: 'Факт продаж', dl: 'Сотрудники ДЛ', sim: 'Детализация СИМ', recon: 'Сопоставления 1с и рег' };
 function tmReport_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
@@ -922,7 +920,6 @@ function tmReport_(req) {
 function tmReportRaw_(ss, name) {
   const title = TM_REPORTS[name];
   return cached_('rep:' + name, TTL_, function () {
-    if (name === 'dayplan') { const dp = dayPlanGrid_(ss); return { name: title, grid: dp.grid, left: dp.left, at: new Date().toISOString(), calc: true }; }
     const virt = { details: detailsGrid_, summary: summaryGrid_, fact: factGrid_, sim: simGrid_, dl: dlGrid_ }[name];      // эти страницы считаем на сайте из чеков
     if (virt) { let g0 = virt(ss); if (name === 'summary') g0 = summaryMonthPlan_(ss, g0); return { name: title, grid: g0, at: new Date().toISOString(), calc: true }; }       // «План на день» → «План на месяц»
     const sh = sheetByName_(ss, title);
@@ -1066,119 +1063,22 @@ function cardsGet_(req) {
   });
   return { cards: out, salons: names, month: all.month || '' };
 }
-function parseCards_(g) {
-  const cell = function (r, c) { return String((g[r] && g[r][c]) || '').trim(); };
-  const isDate = function (s) { return /^\d{2}\.\d{2}\.\d{4}$/.test(String(s).trim()); };
-  const bad = /^(дата|план на день|торговая точка\S*|значения|итого|закрытие)$/;
-  const SL = /^(отставание|прогноз|трафик)$/;
-  const MAIN = { 'телефоны': 1, 'аксессуары': 1, 'услуги': 1, 'страховки': 1, 'сим': 1 };
-  const out = []; let curDir = '';
-  for (let r = 0; r < g.length; r++) {
-    if (SALON_DIRS[norm_(cell(r, 2))] && num_(cell(r, 1)) !== null && norm_(cell(r + 1, 2)) === 'прогноз') curDir = cell(r, 2);
-    for (let c = 0; c < g[r].length; c++) {
-      const h = norm_(cell(r, c));
-      const viaDays = h === '' && isDate(cell(r + 1, c)) && !!cell(r, c + 1) && num_(cell(r, c + 1)) === null && !isDate(cell(r, c + 1)) && !isDate(cell(r, c - 1));
-      if (h !== 'дата' && h !== 'значения' && !viaDays) continue;       // шапка с «Дата» либо пустая ячейка над датами
-      const scs = [];
-      for (let k = c + 1; k < g[r].length; k++) {
-        const t = cell(r, k), nt = norm_(t);
-        if (!t) { if (scs.length || k - c > 2) break; continue; }
-        if (nt === 'итого' || nt === 'закрытие' || nt === 'дата' || nt === 'значения' || nt === 'план на день' || /^#/.test(t)) break;
-        scs.push(k);
-      }
-      if (!scs.length) continue;
-      // название и строки-подсказки («Отставание», «Прогноз», «Трафик») над шапкой
-      const cands = [], sums = []; let gap = 0;
-      for (let k = r - 1; k >= 0 && k >= r - 8; k--) {
-        const reg = [cell(k, c - 1), cell(k, c), cell(k, c + 1)].join('');
-        if (!reg && !scs.some(function (x) { return cell(k, x); })) { if (++gap > 1) break; continue; }
-        gap = 0;
-        const l = cell(k, c), nl = norm_(l);
-        if (SL.test(nl) && scs.some(function (x) { return num_(cell(k, x)) !== null; })) { sums.unshift({ label: l, vals: scs.map(function (x) { return num_(cell(k, x)); }) }); continue; }
-        if (l && num_(l) === null && !bad.test(nl) && cands.indexOf(l) < 0) cands.unshift(l);
-        if (k < r - 5) break;
-      }
-      let title = cands.filter(function (x, i) { return !cands.some(function (y, j) { return j !== i && y.length > x.length && y.toLowerCase().indexOf(x.toLowerCase()) >= 0; }); }).join(' · ');
-      if (c === 2 && MAIN[norm_(title)]) continue;                               // основные пять направлений — не берём
-      if (!title) title = (curDir ? curDir + ' · ' : '') + (sums.map(function (x) { return x.label.toLowerCase(); }).join(', ') || 'таблица');
-      const salons = scs.map(function (x) { return cell(r, x); });
-      if (h === 'значения') {
-        const rows = [];
-        for (let k = r + 1; k < g.length && k < r + 12; k++) { const lb = cell(k, c); if (!lb) break; rows.push({ label: lb, vals: scs.map(function (x) { return num_(cell(k, x)); }) }); }
-        if (rows.length) out.push({ title: 'Сводка: ' + rows.map(function (x) { return x.label; }).join(', '), dir: curDir, kind: 'pivot', pct: false, salons: salons, rows: rows, sums: [] });
-        continue;
-      }
-      const dr = []; let lastD = r;
-      for (let k = r + 1; k < g.length && k <= r + 45; k++) {
-        const t = cell(k, c);
-        if (isDate(t)) { dr.push(k); lastD = k; } else if (norm_(t) === 'итого') break; else if (dr.length && k > lastD + 3) break;
-      }
-      if (!dr.length) continue;
-      let pct = false;
-      const v = dr.map(function (k) { return scs.map(function (x) { const raw = cell(k, x); if (/%/.test(raw)) pct = true; return num_(raw); }); });
-      let tot = [];
-      for (let k = lastD + 1; k <= lastD + 4 && k < g.length; k++) if (norm_(cell(k, c)) === 'итого') { tot = scs.map(function (x) { return num_(cell(k, x)); }); break; }
-      out.push({ title: title, dir: curDir, kind: 'days', pct: pct, salons: salons, days: dr.map(function (k) { return cell(k, c); }),
-        plan: dr.map(function (k) { return num_(cell(k, c - 1)); }), v: v, tot: tot, sums: sums });
-    }
-  }
-  return out;
-}
 
-function readDayPlan_(ss) { return cached_('dayplan', TTL_, function () { return readDayPlanRaw_(ss); }); }
-function readDayPlanRaw_(ss) {
-  const sh = ss.getSheetByName(CONFIG.SHEET_DAYPLAN);
-  const out = {};
-  if (!sh) return out;
-  const v = sh.getDataRange().getDisplayValues();
-  let hr = -1;
-  for (let r = 0; r < Math.min(v.length, 10) && hr < 0; r++) if (norm_(v[r][1]) === 'сим') hr = r;
-  if (hr < 0) return out;
-  const map = { 'сим': 'sim', 'телефоны': 'phones', 'аксессуары': 'acc', 'услуги': 'serv', 'страховки': 'ins' };
-  for (let r = hr + 1; r < v.length; r++) {
-    const name = String(v[r][0]).trim();
-    if (!name) break;
-    out[name] = {};
-    for (let c = 1; c < v[hr].length; c++) { const k = map[norm_(v[hr][c])]; if (k) out[name][k] = num_(v[r][c]) || 0; }
-  }
-  return out;
-}
 
 /* ---------- чтение листов продавцов ---------- */
 function readPlan_(ss) { return cached_('plan', TTL_, function () { return readPlanRaw_(ss); }); }
-function readPlanRaw_(ss) {
-  const v = ss.getSheetByName(CONFIG.SHEET_PLAN).getDataRange().getDisplayValues();
-  let hr = -1, nc = -1;
-  for (let r = 0; r < Math.min(v.length, 15) && hr < 0; r++)
-    for (let c = 0; c < v[r].length; c++) if (String(v[r][c]).trim() === 'ФИО') { hr = r; nc = c; break; }
-  if (hr < 0) throw new Error('Не найден заголовок «ФИО» во вкладке ' + CONFIG.SHEET_PLAN);
-  const out = [];
-  for (let r = hr + 1; r < v.length; r++) {
-    const row = v[r], name = String(row[nc] || '').trim();
-    if (!name) break;
-    const g = function (o) { return num_(row[nc + o]); };
-    const metrics = METRICS.map(function (m, i) {
-      const planMonth = g(7 + i) || 0, fact0 = g(12 + i) || 0, ef = empFacts_(ss)[norm_(name)], fact = ef ? Math.round(ef[EMP_KEYS_[m.key]] || 0) : fact0;
-      const fRaw = String(row[nc + 21 + i] || '');
-      const fv = num_(fRaw);
-      let forecast = null, forecastPct = null;
-      if (fv !== null && (fact === fact0 || fact0 > 0)) {                         // прогноз листа пересчитываем под факт из чеков
-        const k = fact === fact0 ? 1 : fact / fact0;
-        if (/%/.test(fRaw)) { forecastPct = fv * k; forecast = planMonth * forecastPct / 100; }
-        else { forecast = fv * k; forecastPct = planMonth > 0 ? forecast / planMonth * 100 : null; }
-      }
-      return { key: m.key, label: m.label, planDay: Math.max(0, g(2 + i) || 0), planMonth: planMonth, fact: fact,
-        pct: planMonth > 0 ? fact / planMonth * 100 : 0, forecast: forecast, forecastPct: forecastPct };
+function readPlanRaw_(ss) {                                       // план, прогноз, место и рейтинг продавца — та же модель, что у ТМ во вкладке «Сотрудники ДЛ» (dlModel_), без листа «До сотрудника ДЛ»
+  return dlModel_(ss).rows.map(function (r) {
+    const metrics = METRICS.map(function (m) {
+      const k = EMP_KEYS_[m.key], pm = r.plan[k] || 0, fc = r.fc[k], f = r.fact[k] || 0;
+      return { key: m.key, label: m.label, planDay: Math.max(0, r.day[k] || 0), planMonth: pm, fact: Math.round(f),
+        pct: pm > 0 ? f / pm * 100 : 0, forecast: fc === null ? null : pm * fc, forecastPct: fc === null ? null : fc * 100 };
     });
-    out.push({
-      name: name, place: String(v[hr][nc - 1] || '').trim() === 'Место' ? num_(row[nc - 1]) : num_(row[0]),
-      rating: num_(row[nc + 26]), tt: String(row[1] || '').indexOf('#') === 0 ? '' : String(row[1] || ''),
-      hours: { plan: num_(row[2]) || 0, fact: num_(row[4]) || 0, fact1c: num_(row[3]) },
+    return { name: r.name, place: r.place, rating: r.score, tt: salonShort_(r.tt),
+      hours: { plan: r.planH || 0, fact: r.factH || 0, fact1c: r.wt },
       metrics: metrics,
-      quality: { vmr: g(17), credits: g(18), creditsRub: g(19), attach: g(20), simLeft: g(1) },
-    });
-  }
-  return out;
+      quality: { vmr: num_(r.vmr), credits: r.cn, creditsRub: r.cs, attach: r.att, simLeft: r.rem.sim } };
+  });
 }
 
 function readIncome_(ss) { return cached_('income', TTL_, function () { return readIncomeRaw_(ss); }); }
@@ -1648,25 +1548,6 @@ function dlRankAvg_(arr, i, desc) {                     // RANK.AVG: ничьи 
   for (let j = 0; j < arr.length; j++) { if (arr[j] === null) continue; if (arr[j] === x) eq++; else if (desc ? arr[j] > x : arr[j] < x) gt++; }
   return gt + (eq + 1) / 2;
 }
-/* ---------- «План на день» по торговым точкам: (план месяца − факт) ÷ оставшиеся дни, т.е. с учётом отставания ---------- */
-function dayPlanGrid_(ss) {
-  const m = readSalonSheet_(ss), dim = m.daysInMonth || 30, left = Math.max(1, dim - (m.daysPassed || 0));
-  const dirs = DL_DIRS_, names = Object.keys(m.salons || {});
-  const grid = [['Торговая точка'].concat(dirs.map(function (d) { return d[1]; }))];
-  const tot = dirs.map(function () { return 0; });
-  names.forEach(function (n) {
-    const row = [n];
-    dirs.forEach(function (d, i) {
-      const x = m.salons[n][d[0]];
-      if (!x || !(x.plan > 0)) { row.push(''); return; }
-      const v = Math.max(0, (x.plan - x.fact) / left);
-      tot[i] += v; row.push(String(Math.round(v)));
-    });
-    grid.push(row);
-  });
-  grid.push(['Итого'].concat(tot.map(function (v) { return String(Math.round(v)); })));
-  return { grid: grid, left: left };
-}
 function dlModel_(ss) {
   return cached_('dl:model', TTL_, function () {
     const sh = sheetByName_(ss, RAW_.GRAFIK); if (!sh) return { rows: [] };
@@ -1713,16 +1594,16 @@ function dlModel_(ss) {
         day[d[0]] = rem[d[0]] !== null && den > 0 ? Math.max(0, rem[d[0]]) / den : null;
         fc[d[0]] = plan[d[0]] > 0 && t.work > 0 && t.plan > 0 ? fact[d[0]] / t.work * t.plan / plan[d[0]] : null;
       });
-      return { k: k, name: e.name, tt: tt, planH: e.planH, wt: wt[k] === undefined ? null : wt[k], factH: t.fact, plan: plan, fact: fact, rem: rem, day: day, fc: fc,
+      return { k: k, name: e.name, role: e.role, rated: !/^(ртт|утт|тм)$/.test(norm_(e.role)), tt: tt, planH: e.planH, wt: wt[k] === undefined ? null : wt[k], factH: t.fact, plan: plan, fact: fact, rem: rem, day: day, fc: fc,
         vmr: vmr[k] || '', cn: (cr[k] || {}).n || 0, cs: (cr[k] || {}).sum || 0, att: att[k] === undefined || att[k] === null ? 0 : att[k] };
     });
     DL_DIRS_.forEach(function (d) {
-      const arr = rows.map(function (r) { return r.fc[d[0]]; });
+      const arr = rows.map(function (r) { return r.rated ? r.fc[d[0]] : null; });
       rows.forEach(function (r, i) { r['rk_' + d[0]] = arr[i] === null ? null : dlRankAvg_(arr, i, true); });
     });
     rows.forEach(function (r) {
       let s = 0, ok = true; DL_DIRS_.forEach(function (d) { if (r['rk_' + d[0]] === null) ok = false; else s += r['rk_' + d[0]]; });
-      r.score = ok ? s - r.att - r.cn : null;
+      r.score = ok && r.rated ? s - r.att - r.cn : null;
     });
     const sc = rows.map(function (r) { return r.score; });
     rows.forEach(function (r, i) { r.place = r.score === null ? null : dlRankAvg_(sc, i, false); });
