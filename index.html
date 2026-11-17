@@ -2141,8 +2141,14 @@ function lib(k){ return _lp[k]||(_lp[k]=new Promise((res,rej)=>{const s=document
 
 async function api(body){
   if (DEMO) return demoApi(body);
-  const r = await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
-  return r.json();
+  let last;
+  for (let i=0;i<2;i++){
+    let r;
+    try{ r = await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)}); }
+    catch(e){ last = e; if (i===0) await new Promise(s=>setTimeout(s,600)); continue; }
+    return r.json();
+  }
+  throw last;
 }
 
 /* ---------- вход / выход ---------- */
@@ -2193,6 +2199,7 @@ $('#loginForm').addEventListener('submit', async e=>{
     if (LMODE==='name'){
       r = await api({action:'start', login});
       if (r.status) loginStep(r.status, login);
+      else if (r.error==='no_access') $('#loginErr').textContent = 'Доступ не выдан для «'+login+'». Проверьте написание или попросите руководителя добавить вас в список «Доступ».';
       else $('#loginErr').textContent = LERR[r.error]||'Не удалось войти.';
     } else {
       const pin = $('#inPin').value;
@@ -2202,10 +2209,10 @@ $('#loginForm').addEventListener('submit', async e=>{
         r = await api({action: LMODE==='set'?'setpin':'login', login, pin});
         if (r.token){ store.set('token', r.token); store.set('login', login.toLowerCase()); DATA=null; loginStep('name'); start(); }
         else if (r.error==='already_set'){ loginStep('enter', login); $('#loginErr').textContent = LERR.already_set; }
-        else { $('#loginErr').textContent = LERR[r.error]||'Не удалось войти.'; if (r.error==='locked'||r.error==='no_access') loginStep('name'); }
+        else { const msg = r.error==='no_access' ? 'Доступ не выдан для «'+login+'». Проверьте написание или попросите руководителя добавить вас в список «Доступ».' : (LERR[r.error]||'Не удалось войти.'); if (r.error==='locked'||r.error==='no_access') loginStep('name'); $('#loginErr').textContent = msg; }
       }
     }
-  }catch(err){ $('#loginErr').textContent='Нет связи. Попробуйте ещё раз.'; }
+  }catch(err){ $('#loginErr').textContent='Сервер не ответил. Проверьте интернет и попробуйте ещё раз.'; }
   b.disabled = false;
 });
 $('#btnLogout').onclick = ()=>{ store.del('token'); if (store.get('demoMode')==='1'){ store.del('demoMode'); DEMO = !API_URL; } rpClear(); DATA=null; $('#content').hidden=true; $('#mgrView').hidden=true; $('#loading').hidden=false; showLogin(); };
@@ -3856,7 +3863,7 @@ function anBind(){
   new MutationObserver(()=>run(document)).observe(document.body,{childList:true,subtree:true}); })();
 
 /* при выпуске новой версии один раз чистим кэш данных в браузере — вход сохраняется */
-const CACHE_REV = '2026-11-17-3';
+const CACHE_REV = '2026-11-17-4';
 try { if (store.get('cacheRev') !== CACHE_REV) { rpClear(); store.set('cacheRev', CACHE_REV); } } catch(e) {}
 
 /* старт */
