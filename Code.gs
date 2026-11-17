@@ -47,7 +47,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 2400;                                  // кэш данных: 40 мин; триггер warmCache() обновляет его каждые 30 мин
 // эпоха кэша: поднимайте при выкладке, чтобы все клиенты сразу получили свежие данные, а не 40-минутный снимок
-const CACHE_EPOCH = 'e2';
+const CACHE_EPOCH = 'e3';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }

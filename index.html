@@ -154,7 +154,7 @@ h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
 /* ---------- меню: на ПК — вертикальная перетаскиваемая панель, сворачивается в кнопку; порядок кнопок — у каждого свой ---------- */
 .mbar,.mfab{display:none}
 .seg button.drag{opacity:.75;box-shadow:0 6px 18px rgba(0,0,0,.25);transform:scale(1.04);background:var(--card);z-index:2;position:relative}
-.seg.reord{touch-action:none}
+.seg.reord{touch-action:pan-x pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.seg.reord>button{touch-action:pan-x pan-y}
 .tabbar.menu-float{left:auto;right:auto;bottom:auto;width:212px;padding:8px 8px 8px;flex-direction:column;justify-content:flex-start;gap:6px;border:1px solid var(--line);border-radius:20px;box-shadow:0 14px 40px rgba(0,0,0,.18)}
 .tabbar.menu-float .mbar{display:flex;align-items:center;gap:6px;padding:2px 2px 0}
 .tabbar.menu-float .mgrip{flex:1;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted);cursor:grab;user-select:none;padding:6px 8px;border-radius:10px;touch-action:none}
@@ -379,6 +379,35 @@ em.up,em.dn{font-style:normal;font-size:11px;font-weight:700;padding:2px 7px;bor
 .mtable table tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--text) 4%,var(--card))}
 .mtable tr.tot td{border-top:2px solid var(--text);background:color-mix(in srgb,var(--text) 8%,var(--card))}
 .rp-t tbody tr:nth-child(even) td,.rc-t tbody tr:nth-child(even) td,.pt-t tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--text) 4%,var(--card))}
+/* ===== «жидкое стекло»: полупрозрачные размытые панели и кнопки с бликом; кнопки меню — в исходном виде ===== */
+:root{--g-bg:rgba(255,255,255,.46);--g-bg2:rgba(255,255,255,.62);--g-bd:rgba(255,255,255,.7);--g-sh:0 8px 28px rgba(31,38,135,.14),inset 0 1px 0 rgba(255,255,255,.85),inset 0 -1px 0 rgba(255,255,255,.25);--g-hi:linear-gradient(135deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.08) 42%,rgba(255,255,255,0) 60%);--g-f:blur(26px) saturate(190%)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--g-bg:rgba(44,44,50,.46);--g-bg2:rgba(70,70,80,.55);--g-bd:rgba(255,255,255,.16);--g-sh:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.05);--g-hi:linear-gradient(135deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.03) 42%,rgba(255,255,255,0) 60%)}}
+:root[data-theme=dark]{--g-bg:rgba(44,44,50,.46);--g-bg2:rgba(70,70,80,.55);--g-bd:rgba(255,255,255,.16);--g-sh:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.05);--g-hi:linear-gradient(135deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.03) 42%,rgba(255,255,255,0) 60%)}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(520px 380px at 12% 8%,rgba(10,132,255,.16),transparent 70%),radial-gradient(560px 420px at 92% 22%,rgba(191,90,242,.13),transparent 70%),radial-gradient(520px 420px at 60% 98%,rgba(255,159,10,.11),transparent 70%)}
+#app,#login{position:relative;z-index:1}
+/* панели */
+.top,.tabbar,.demo-banner{background:var(--g-bg);background-image:var(--g-hi);backdrop-filter:var(--g-f);-webkit-backdrop-filter:var(--g-f);border-color:var(--g-bd)}
+.top{box-shadow:inset 0 -1px 0 rgba(255,255,255,.3),0 4px 20px rgba(31,38,135,.06)}
+.tabbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 -4px 20px rgba(31,38,135,.06)}
+.tabbar.menu-float{background:var(--g-bg);background-image:var(--g-hi);border:1px solid var(--g-bd);box-shadow:var(--g-sh)}
+.tabbar.menu-float.collapsed{background:transparent;background-image:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.demo-banner{background:rgba(255,214,120,.55);color:#6b4200}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .demo-banner{background:rgba(120,80,10,.5);color:#ffd58a}}
+:root[data-theme=dark] .demo-banner{background:rgba(120,80,10,.5);color:#ffd58a}
+/* кнопки меню — исходный вид (центр, обычные отступы), стекло вместо серой подложки */
+.seg{background:var(--g-bg);background-image:var(--g-hi);border:1px solid var(--g-bd);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.tabbar.menu-float .seg{background:transparent;background-image:none;border:0;box-shadow:none}
+.tabbar.menu-float .seg button{text-align:center;padding:9px 14px;font-size:15px}
+.seg button{transition:background .2s,box-shadow .2s,transform .15s}
+.seg button.on{background:var(--g-bg2);background-image:var(--g-hi);box-shadow:var(--g-sh);border:1px solid var(--g-bd)}
+/* кнопки и чипы */
+.icon-btn,.chipb,.btn.ghost,.tabbar.menu-float .mcol{background:var(--g-bg);background-image:var(--g-hi);border:1px solid var(--g-bd);box-shadow:inset 0 1px 0 rgba(255,255,255,.7);backdrop-filter:var(--g-f);-webkit-backdrop-filter:var(--g-f)}
+.chipb,.btn.ghost{transition:transform .15s,box-shadow .2s,background .2s}
+.chipb:hover,.icon-btn:hover,.btn.ghost:hover{box-shadow:0 6px 18px rgba(31,38,135,.16),inset 0 1px 0 rgba(255,255,255,.85);transform:translateY(-1px)}
+.chipb:active,.icon-btn:active{transform:scale(.97)}
+.chipb[aria-pressed="true"],.btn:not(.ghost){background:linear-gradient(180deg,rgba(64,160,255,.95),rgba(10,132,255,.92));color:#fff;border:1px solid rgba(255,255,255,.45);box-shadow:0 8px 22px rgba(10,132,255,.38),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(0,0,0,.08)}
+.tabbar.menu-float.collapsed .mfab{background:linear-gradient(180deg,rgba(64,160,255,.95),rgba(10,132,255,.92));border:1px solid rgba(255,255,255,.5);box-shadow:0 10px 28px rgba(10,132,255,.45),inset 0 1px 0 rgba(255,255,255,.6)}
+.fcp{box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
 .btn.ghost{background:var(--track);color:var(--text);font-weight:600;font-size:16px}
 .demo-or{display:flex;align-items:center;gap:10px;margin:16px 0 12px;color:var(--muted);font-size:13px}.demo-or:before,.demo-or:after{content:"";flex:1;height:1px;background:var(--line)}
 .demo-roles{display:grid;gap:10px;margin-top:6px}.demo-roles .btn{text-align:left;display:flex;flex-direction:column;gap:2px;padding:14px 16px}.demo-roles .btn small{font-size:13px;font-weight:500;opacity:.75}
@@ -598,7 +627,7 @@ em.up,em.dn{font-style:normal;font-size:11px;font-weight:700;padding:2px 7px;bor
 .dr-t2 .gd{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--text);text-transform:none;letter-spacing:-.01em}
 .dr-t2 .gd i{width:10px;height:10px;border-radius:50%;flex:none}
 .dr-t2 thead tr:nth-child(2) th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:600;color:var(--muted);padding-top:2px}
-.dl-export .dr-t2{font-size:15.5px}.dl-export .dr-t2 th,.dl-export .dr-t2 td{padding:11px 12px}.dl-export .dr-t2 th.l{position:static;max-width:none;min-width:150px;white-space:nowrap}.dl-export .dr-t2 thead tr:nth-child(2) th{font-size:12.5px}.dl-export .dr-t2 td.pc .fcp{font-size:14px}
+.dl-export .dr-t2{font-size:14px}.dl-export .dr-t2 th,.dl-export .dr-t2 td{padding:7px 8px}.dl-export .dr-t2 th.l{position:static;max-width:none;min-width:120px;white-space:nowrap}.dl-export .dr-t2 thead tr:nth-child(2) th{font-size:12.5px}.dl-export .dr-t2 td.pc .fcp{font-size:14px}
 .dr-t2 th.l{position:sticky;left:0;z-index:2;background:var(--card);min-width:116px;max-width:150px;white-space:normal;line-height:1.2;text-align:left;font-weight:650;box-shadow:1px 0 0 var(--line)}
 .dr-t2 thead th.l{background:var(--bg);z-index:3}
 .dr-t2 td.pl{border-left:1px solid var(--line);min-width:72px}
@@ -632,6 +661,63 @@ h2.n3h{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
 .pt-t td.pc{text-align:center}.pt-t td.pc .fcp{padding:2px 9px;font-size:12.5px}
 .pt-t tbody tr:last-child th,.pt-t tbody tr:last-child td{border-bottom:0}
 
+/* ===== iOS 27: движение, свечение, кромка ===== */
+:root{--spring:cubic-bezier(.34,1.56,.64,1);--ease:cubic-bezier(.22,.9,.28,1);--rim-a:rgba(255,255,255,1);--rim-b:rgba(255,255,255,0);--rim-c:rgba(70,80,140,.16);--glow:10,132,255;--hov:rgba(10,132,255,.07)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--rim-a:rgba(255,255,255,.34);--rim-b:rgba(255,255,255,0);--rim-c:rgba(255,255,255,.1);--glow:64,156,255;--hov:rgba(255,255,255,.06)}}
+:root[data-theme=dark]{--rim-a:rgba(255,255,255,.34);--rim-b:rgba(255,255,255,0);--rim-c:rgba(255,255,255,.1);--glow:64,156,255;--hov:rgba(255,255,255,.06)}
+/* кромка-подсветка карточек (световой обод, как у стекла iOS) */
+:is(#content,#mgrView,#newsView,.pane) .card:not(#calc .card,#tmb .card){position:relative}
+:is(#content,#mgrView,#newsView,.pane) .card:not(#calc .card,#tmb .card)::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;z-index:2;
+ background:radial-gradient(260px circle at var(--mx,-200px) var(--my,-200px),rgba(var(--glow),.7),transparent 65%),linear-gradient(150deg,var(--rim-a),var(--rim-b) 42%,var(--rim-c));
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);mask-composite:exclude;opacity:.9;transition:opacity .4s}
+html.xp .card::before{display:none!important}
+/* нажатие и пружина */
+.chipb,.btn,.icon-btn,.seg button,.mcol,.mfab{transition:transform .5s var(--spring),background-color .25s,box-shadow .35s,filter .25s,color .2s}
+.chipb:active,.btn:active,.icon-btn:active,.seg button:active,.mfab:active{transform:scale(.94);transition-duration:.12s}
+@media (hover:hover){
+ .chipb:hover,.icon-btn:hover,.btn.ghost:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 6px 18px rgba(var(--glow),.18)}
+ .btn:not(.ghost):hover,.mfab:hover{transform:translateY(-1px);filter:brightness(1.06)}
+ :is(#content,#mgrView,.pane) .card:hover{background-image:radial-gradient(520px circle at var(--mx,50%) var(--my,0%),var(--hov),transparent 60%)}
+}
+/* свечение активных элементов */
+.chipb[aria-pressed="true"],.btn:not(.ghost),.mfab{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 6px 22px rgba(var(--glow),.45),0 0 0 .5px rgba(var(--glow),.6)}
+.seg button.on{box-shadow:var(--g-sh),0 4px 18px rgba(var(--glow),.2),0 0 0 .5px rgba(var(--glow),.28)}
+.chipb:focus-visible,.btn:focus-visible,.icon-btn:focus-visible,.seg button:focus-visible,.mcol:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(var(--glow),.55),0 0 20px rgba(var(--glow),.5)}
+/* шапка: усиливается при прокрутке */
+.top{transition:box-shadow .4s var(--ease),background-color .4s}
+.top.sc{box-shadow:inset 0 -1px 0 rgba(255,255,255,.35),0 10px 34px rgba(20,28,80,.16)}
+/* появление при прокрутке */
+@media (prefers-reduced-motion:no-preference){
+ .rv:not(.in){opacity:0}
+ .rv.in{animation:rvIn .85s var(--spring) calc(var(--i,0)*70ms) backwards}
+ @keyframes rvIn{0%{opacity:0;transform:translateY(30px) scale(.96);filter:blur(10px)}55%{opacity:1;filter:blur(0)}100%{opacity:1;transform:none;filter:none}}
+ .pane:not([hidden]){animation:paneIn .45s var(--ease) backwards}
+ @keyframes paneIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+ .fade{animation:rvIn .7s var(--spring) backwards}
+ .tabbar.menu-float:not(.menu-float-keep){animation:mnIn .6s var(--spring) backwards}
+ @keyframes mnIn{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:none}}
+}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1!important}.card::before{transition:none}}
+/* ===== iOS 27: меню — «линза» жидкого стекла, скользящая между кнопками ===== */
+#tabseg{position:relative;isolation:isolate}
+#tabseg>button{position:relative;z-index:1}
+#tabseg>button.on,.tabbar.menu-float #tabseg>button.on{background:transparent!important;box-shadow:none!important;border-color:transparent!important;backdrop-filter:none;-webkit-backdrop-filter:none}
+.seg-lens{position:absolute;left:0;top:0;width:0;height:0;border-radius:inherit;border-radius:12px;pointer-events:none;z-index:0;opacity:0;
+ background:var(--g-bg2);background-image:var(--g-hi),radial-gradient(120% 140% at 30% -20%,rgba(255,255,255,.55),transparent 55%);
+ border:1px solid var(--g-bd);box-shadow:var(--g-sh),0 6px 22px rgba(var(--glow),.28),0 0 0 .5px rgba(var(--glow),.3);
+ transition:transform .55s var(--spring),width .55s var(--spring),height .55s var(--spring),opacity .25s}
+.seg-lens.on{opacity:1}
+.seg-lens.mv{animation:lensSq .55s var(--ease)}
+@keyframes lensSq{0%{filter:brightness(1)}35%{filter:brightness(1.18) saturate(1.2)}100%{filter:none}}
+#tabseg>button{transition:transform .5s var(--spring),color .25s,opacity .25s}
+#tabseg>button.on{font-weight:700}
+@media (hover:hover){#tabseg>button:not(.on):hover{transform:scale(1.05);color:rgb(var(--glow))}}
+#tabseg>button:active{transform:scale(.93)!important;transition-duration:.12s}
+@media (prefers-reduced-motion:no-preference){
+ #tabseg.seg-in>button{animation:btnIn .6s var(--spring) calc(var(--k,0)*40ms) backwards}
+ @keyframes btnIn{from{opacity:0;transform:translateY(12px) scale(.88);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+}
+@media (prefers-reduced-motion:reduce){.seg-lens{transition:none}}
 </style>
 </head>
 <body>
@@ -3436,7 +3522,7 @@ async function cardToBlob(card){
   const wideO = [...card.querySelectorAll('.mtable,.rp-gridw,.dr-wide')];
   const extra = Math.max(0, ...wideO.map(e=>e.scrollWidth-e.clientWidth));
   const W = Math.ceil(r.width)+extra, H = Math.ceil(r.height);
-  const clone = card.cloneNode(true); inlineStyles(card, clone);
+  const clone = card.cloneNode(true); inlineStyles(card, clone); clone.classList.remove('rv','in'); clone.style.animation='none'; clone.style.opacity='1'; clone.style.filter='none'; clone.style.transform='none';
   [...clone.querySelectorAll('.mtable,.rp-gridw,.dr-wide')].forEach((e,i)=>{ const o=wideO[i]; e.style.overflow='visible'; e.style.width=o.scrollWidth+'px'; e.style.maxWidth='none'; });
   clone.querySelectorAll('.xt').forEach(n=>n.remove());
   clone.style.position='static'; clone.style.left='auto'; clone.style.top='auto'; clone.style.margin='0'; clone.style.width=W+'px'; clone.style.height=H+'px'; clone.style.boxSizing='border-box';
@@ -3454,14 +3540,14 @@ async function cardToBlob(card){
 }
 function rgbaOf(v){ const c=document.createElement('canvas').getContext('2d'); c.fillStyle='#000'; c.fillStyle=v; c.fillRect(0,0,1,1); const p=c.getImageData(0,0,1,1).data; return `rgba(${p[0]},${p[1]},${p[2]},${(p[3]/255).toFixed(3)})`; }
 async function cardToBlobH2C(card){
-  await lib('h2c');
+  await lib('h2c'); document.documentElement.classList.add('xp');
   const saved = [];
   card.querySelectorAll('*').forEach(el=>{ const st = el.getAttribute('style')||''; if (/color-mix|gradient/.test(st) || /fcp/.test(el.className&&el.className.baseVal===undefined?el.className:'')){ saved.push([el,st]); const cs=getComputedStyle(el); el.style.backgroundImage='none'; el.style.backgroundColor=rgbaOf(cs.getPropertyValue('--c')||cs.backgroundColor); } });
   try{
     const bodyBg = getComputedStyle(document.body).backgroundColor;
     const cv = await window.html2canvas(card,{backgroundColor:bodyBg, scale:Math.min(3,Math.max(2,devicePixelRatio||1)), ignoreElements:el=>el.hasAttribute&&el.hasAttribute('data-nocap')});
     return await new Promise((res,rej)=>cv.toBlob(b=>b?res(b):rej(new Error('blob')),'image/png'));
-  } finally { saved.forEach(([el,st])=>el.setAttribute('style',st)); }
+  } finally { document.documentElement.classList.remove('xp'); saved.forEach(([el,st])=>el.setAttribute('style',st)); }
 }
 /* «Сотрудники ДЛ»: 32 колонки в одну картинку нечитаемы — режем на три блока по ~12 колонок и печатаем крупнее */
 function dlParts(tbl){
@@ -3477,22 +3563,39 @@ function dlTableHTML(P, idx){
   const body=P.rows.map(r=>`<tr><th class="l">${esc(r.n)}</th>${idx.map(i=>r.c[i]).join('')}</tr>`).join('');
   return `<div class="mtable dr-wide" style="overflow:visible"><table class="dr-t2 dl-t"><thead><tr><th rowspan="2" class="l">Сотрудник</th>${top}</tr><tr>${sub}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
-async function dlExportBlob(card){
+async function dlExportBlobs(card){
   const P = dlParts(card.querySelector('.dl-t')), all = P.cols.map((_,i)=>i);
   const grp = g => all.filter(i=>P.cols[i].g===g), place = all.filter(i=>!P.cols[i].g && /Место/.test(P.cols[i].l));
-  // в картинку не попадают ТТ, часы и разница в часах; РТТ/УТТ (без места в рейтинге) не выводятся
+  // в картинки не попадают ТТ, часы и разница в часах; РТТ/УТТ (без места в рейтинге) не выводятся
   const pi = place[0]; if (pi!=null) P.rows = P.rows.filter(r=>String(r.c[pi]).replace(/<[^>]*>/g,'').trim());
-  const A = place.concat(grp('План на день'), grp('Прогноз'), grp('Итог')), B = place.concat(grp('План на месяц'), grp('Факт'), grp('Качество'));
-  const off = document.createElement('section'); off.className='card rp-dl dl-export'; off.setAttribute('style','position:fixed;left:-30000px;top:0;width:1300px;margin:0;padding:22px 24px');
-  const ey = card.querySelector('.eyebrow'), h2 = card.querySelector('h2');
-  off.innerHTML = `${ey?`<div class="eyebrow">${ey.innerHTML}</div>`:''}${h2?`<h2>${h2.innerHTML}</h2>`:''}${[A,B].filter(x=>x.length).map(x=>dlTableHTML(P,x)).join('<div style="height:20px"></div>')}`;
-  document.body.appendChild(off);
-  try{ return await cardToBlob(off); } finally { off.remove(); }
+  const parts = [
+    {t:'План на день · План на месяц · Факт', idx:place.concat(grp('План на день'), grp('План на месяц'), grp('Факт'))},
+    {t:'Качество · Прогноз · Итог', idx:place.concat(grp('Качество'), grp('Прогноз'), grp('Итог'))}
+  ].filter(p=>p.idx.length>place.length);
+  const ey = card.querySelector('.eyebrow'), h2 = card.querySelector('h2'), out = [];
+  for (const p of parts){
+    const off = document.createElement('section'); off.className='card rp-dl dl-export'; off.setAttribute('style','position:fixed;left:-30000px;top:0;width:max-content;max-width:none;margin:0;padding:16px 18px');
+    off.innerHTML = `${ey?`<div class="eyebrow">${ey.innerHTML} · ${p.t}</div>`:''}${h2?`<h2>${h2.innerHTML}</h2>`:''}${dlTableHTML(P,p.idx)}`;
+    document.body.appendChild(off);
+    try{ out.push(await cardToBlob(off)); } finally { off.remove(); }
+  }
+  return out;
 }
-const makeBlob = card => card.querySelector('.dl-t') ? dlExportBlob(card).catch(()=>cardToBlob(card)).catch(()=>cardToBlobH2C(card)) : cardToBlob(card).catch(()=>cardToBlobH2C(card));
+const makeBlob = card => cardToBlob(card).catch(()=>cardToBlobH2C(card));
 async function copyCard(card, btn){
   btn.classList.add('busy');
   try{
+    if (card.querySelector('.dl-t')){
+      // два отдельных снимка; в буфер помещается один, поэтому второй копируется следующим нажатием
+      const blobs = await dlExportBlobs(card), canC = !!(navigator.clipboard && window.ClipboardItem);
+      if (!blobs.length) throw new Error('empty');
+      if (canC){
+        const k = (card._dlStep||0) % blobs.length; card._dlStep = k+1;
+        try{ await navigator.clipboard.write([new ClipboardItem({'image/png': blobs[k]})]); xToast(blobs.length>1 ? `Скопирован снимок ${k+1} из ${blobs.length} — нажмите ещё раз для следующего` : 'Скопировано — вставляйте в чат'); return; }
+        catch(e){ if (e && e.name==='NotAllowedError') throw e; }
+      }
+      blobs.forEach((bl,i)=>saveBlob(bl, fileBase(card)+(blobs.length>1?' '+(i+1):'')+'.png')); xToast('Снимки сохранены файлами'); return;
+    }
     const canClip = !!(navigator.clipboard && window.ClipboardItem);
     if (canClip){
       try{ await navigator.clipboard.write([new ClipboardItem({'image/png': makeBlob(card)})]); xToast('Скопировано — вставляйте в чат'); return; }
@@ -3753,7 +3856,7 @@ function anBind(){
   new MutationObserver(()=>run(document)).observe(document.body,{childList:true,subtree:true}); })();
 
 /* при выпуске новой версии один раз чистим кэш данных в браузере — вход сохраняется */
-const CACHE_REV = '2026-11-17-2';
+const CACHE_REV = '2026-11-17-3';
 try { if (store.get('cacheRev') !== CACHE_REV) { rpClear(); store.set('cacheRev', CACHE_REV); } } catch(e) {}
 
 /* старт */
@@ -3789,6 +3892,61 @@ addEventListener('beforeinstallprompt', e => { e.preventDefault(); INSTALL_EVT =
 initInstall();
 
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+/* iOS 27: появление блоков при прокрутке, свечение за курсором, состояние шапки */
+(function(){
+  const root=document.documentElement;
+  try{
+    const top=document.querySelector('.top');
+    const onSc=()=>{ if(top) top.classList.toggle('sc', (window.scrollY||0)>8); };
+    addEventListener('scroll',onSc,{passive:true}); onSc();
+    if(matchMedia('(hover:hover)').matches){
+      let raf=0,ev=null;
+      document.addEventListener('pointermove',e=>{ ev=e; if(raf)return; raf=requestAnimationFrame(()=>{ raf=0;
+        const t=ev.target&&ev.target.closest&&ev.target.closest('.card,.chipb,.btn,.icon-btn,.seg button'); if(!t)return;
+        const r=t.getBoundingClientRect(); t.style.setProperty('--mx',(ev.clientX-r.left)+'px'); t.style.setProperty('--my',(ev.clientY-r.top)+'px'); }); },{passive:true});
+    }
+  }catch(_){}
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches||!('IntersectionObserver' in window)) return;
+  const SEL='.pane .card,#content .card,#mgrView .card,#newsView .card';
+  const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ const t=e.target; io.unobserve(t); requestAnimationFrame(()=>t.classList.add('in')); } }); },{threshold:.05,rootMargin:'0px 0px -5% 0px'});
+  function scan(){
+    let n=0;
+    document.querySelectorAll(SEL).forEach(el=>{
+      if(el.__rv||el.closest('#calc,#tmb')||(el.parentElement&&el.parentElement.closest('.rv')))return;
+      el.__rv=1; el.style.setProperty('--i',Math.min(n++,6)); el.classList.add('rv'); io.observe(el);
+    });
+    setTimeout(()=>document.querySelectorAll('.rv:not(.in)').forEach(el=>{ if(el.offsetParent!==null){ const r=el.getBoundingClientRect(); if(r.height>0&&r.top<innerHeight&&r.bottom>0) el.classList.add('in'); } }),1600);
+  }
+  let q=0; const sched=()=>{ if(q)return; q=requestAnimationFrame(()=>{ q=0; try{scan();}catch(_){} }); };
+  new MutationObserver(sched).observe(document.body,{childList:true,subtree:true});
+  sched();
+})();
+/* iOS 27: линза активной вкладки */
+(function(){
+  const seg=document.getElementById('tabseg'); if(!seg) return;
+  const lens=document.createElement('i'); lens.className='seg-lens'; seg.appendChild(lens);
+  let first=true;
+  function upd(anim){
+    try{
+      const on=seg.querySelector(':scope>button.on'); if(!on||!on.offsetWidth){ lens.classList.remove('on'); return; }
+      lens.style.width=on.offsetWidth+'px'; lens.style.height=on.offsetHeight+'px';
+      lens.style.transform=`translate(${on.offsetLeft}px,${on.offsetTop}px)`;
+      if(first){ lens.style.transition='none'; lens.classList.add('on'); void lens.offsetWidth; lens.style.transition=''; first=false; }
+      else{ lens.classList.add('on'); if(anim){ lens.classList.remove('mv'); void lens.offsetWidth; lens.classList.add('mv'); } }
+    }catch(_){}
+  }
+  new MutationObserver(m=>{
+    m=m.filter(x=>x.target!==lens); if(!m.length) return;
+    if(m.some(x=>x.target===seg&&x.type==='childList'&&[...x.addedNodes].some(n=>n!==lens&&n.nodeType===1))){
+      if(!lens.parentNode) seg.appendChild(lens);
+      [...seg.children].forEach((b,i)=>b.style&&b.style.setProperty('--k',i)); seg.classList.add('seg-in'); setTimeout(()=>seg.classList.remove('seg-in'),1100); first=true;
+    }
+    requestAnimationFrame(()=>upd(m.some(x=>x.type==='attributes')));
+  }).observe(seg,{childList:true,attributes:true,subtree:true,attributeFilter:['class']});
+  if('ResizeObserver' in window){ const ro=new ResizeObserver(()=>upd(false)); ro.observe(seg); ro.observe(document.getElementById('tabnav')||seg); }
+  addEventListener('resize',()=>upd(false)); seg.addEventListener('scroll',()=>{},{passive:true});
+  upd(false);
+})();
 </script>
 </body>
 </html>
