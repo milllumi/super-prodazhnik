@@ -911,7 +911,7 @@ function readMonthPlanRaw_(ss) {
 }
 
 /* ---------- Страницы отчётов для ТМ: лист целиком (значения как в таблице), разбор и оформление — на странице ---------- */
-const TM_REPORTS = { details: 'Детали продаж салоны', summary: 'общий свод', fact: 'Факт продаж', dl: 'До сотрудника ДЛ', sim: 'Детализация СИМ', recon: 'Сопоставления 1с и рег' };
+const TM_REPORTS = { details: 'Детали продаж салоны', summary: 'общий свод', fact: 'Факт продаж', dl: 'До сотрудника ДЛ', sim: 'Детализация СИМ', dayplan: 'План на день', recon: 'Сопоставления 1с и рег' };
 function tmReport_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
@@ -922,7 +922,8 @@ function tmReport_(req) {
 function tmReportRaw_(ss, name) {
   const title = TM_REPORTS[name];
   return cached_('rep:' + name, TTL_, function () {
-    const virt = { details: detailsGrid_, summary: summaryGrid_, fact: factGrid_, sim: simGrid_ }[name];      // эти страницы считаем на сайте из чеков
+    if (name === 'dayplan') { const dp = dayPlanGrid_(ss); return { name: title, grid: dp.grid, left: dp.left, at: new Date().toISOString(), calc: true }; }
+    const virt = { details: detailsGrid_, summary: summaryGrid_, fact: factGrid_, sim: simGrid_, dl: dlGrid_ }[name];      // эти страницы считаем на сайте из чеков
     if (virt) { let g0 = virt(ss); if (name === 'summary') g0 = summaryMonthPlan_(ss, g0); return { name: title, grid: g0, at: new Date().toISOString(), calc: true }; }       // «План на день» → «План на месяц»
     const sh = sheetByName_(ss, title);
     if (!sh) return { missing: true, name: title };
@@ -932,7 +933,6 @@ function tmReportRaw_(ss, name) {
     let lr = g.length; while (lr > 0 && !g[lr - 1].some(function (c) { return String(c).trim(); })) lr--;
     let lc = 0; g.forEach(function (r) { for (let i = r.length; i > lc; i--) if (String(r[i - 1]).trim()) { lc = i; break; } });
     g = g.slice(0, lr).map(function (r) { return r.slice(0, lc); });
-    if (name === 'dl') g = dlFacts_(ss, g);                         // факт продавцов — из чеков, а не из сводных «Детали продаж сотрудники»
     return { name: sh.getName(), grid: g, at: new Date().toISOString() };
   });
 }
@@ -1222,7 +1222,7 @@ function short_(full) { return String(full).trim().split(/\s+/).slice(0, 2).join
  * Всё складывается в кэш (gzip) так же, как остальные чтения; warmCache() прогревает его по триггеру.
  * ===================================================================================================================== */
 const RAW_ = { SHEET: 'Группа товаров', TM: 'Миллер', EXCL: 'Сим исключения', RATES: 'Надстройка', TARIFFS: 'Разбивка по тарифам', GRAFIK: 'График' };
-const ROLES_SVOD_ = { 'птт': 1, 'утт': 1, 'ртт': 1, 'новичок': 1 };
+const ROLES_SVOD_ = { 'сп': 1, 'птт': 1, 'утт': 1, 'ртт': 1, 'новичок': 1 };
 const SEASON_ = 0.9;                                    // «коэфф. сезонности»: янв–июнь 1,1 · июль–дек 0,9 (в таблице зашит 0,9)
 const CARD_DEFS_ = [                                    // направления «Деталей продаж салоны» (основные пять + карточки)
   { key: 'phones', label: 'Телефоны',    unit: 'rub', main: true, idx: 4 },
@@ -1625,15 +1625,128 @@ function simGrid_(ss) {
 /* ---------- факт продавцов («Детали продаж сотрудники» → чеки) ---------- */
 const EMP_KEYS_ = { sim: 'sim', smart: 'phones', acc: 'acc', serv: 'serv', ins: 'ins' };
 function empFacts_(ss) { const o = {}, e = salesModel_(ss).emp || {}; Object.keys(e).forEach(function (k) { o[norm_(k)] = e[k]; }); return o; }
-function dlFacts_(ss, g) {                              // лист «До сотрудника ДЛ» как есть, но колонки «Факт» (T:X) — из чеков
-  const ef = empFacts_(ss), out = g.map(function (r) { return r.slice(); });
-  let hr = -1, nc = -1;
-  for (let r = 0; r < Math.min(out.length, 15) && hr < 0; r++) for (let c = 0; c < out[r].length; c++) if (String(out[r][c]).trim() === 'ФИО') { hr = r; nc = c; break; }
-  if (hr < 0) return out;
-  for (let r = hr + 1; r < out.length; r++) {
-    const nm = String(out[r][nc] || '').trim(); if (!nm) continue;
-    const e = ef[norm_(nm)]; if (!e) continue;
-    ['sim', 'phones', 'acc', 'serv', 'ins'].forEach(function (k, i) { out[r][nc + 12 + i] = numTxt_(e[k]); });
-  }
+/* ---------- «До сотрудника ДЛ»: план на месяц / на день, отставание, прогноз и место — считаем на сайте, механика листа ----------
+   План сотрудника на месяц по направлению = Σ по салонам ( план салона на месяц [лист «План»] ÷ часы всех сотрудников салона × часы сотрудника в салоне ).
+   Часы — «График» CB:CJ (учитывается = 1, «Итог план по часам»). ТТ — салон, где у сотрудника больше всего часов.
+   План на день (отставание) = (план на месяц − факт) ÷ (плановых смен − отработанных смен); смены — «График» (AO / BZ).
+   Прогноз = факт ÷ отработанные смены × плановые смены ÷ план на месяц.  Рейтинг = Σ мест по прогнозу (5 направлений, лучший = 1) − аттачмент − кредиты.  Место — по рейтингу. */
+const DL_DIRS_ = [['sim', 'SIM'], ['phones', 'Телефоны'], ['acc', 'Аксессуары'], ['serv', 'Услуги'], ['ins', 'Страховки']];
+function salonWord_(s) {                                // «КЗН Ершова 62 БЛН ТЦ Арт Центр» → «ершова»
+  const w = norm_(s).replace(/\(.*?\)/g, ' ').split(/\s+/).filter(function (x) { return x && x !== 'кзн' && x !== 'блн' && !/^[\d\/а-я]?\d[\d\/а-я]*$/.test(x) && !/^\d/.test(x); });
+  return w[0] || norm_(s);
+}
+function salonShort_(s) { return String(s || '').replace(/^\s*КЗН\s+/i, '').replace(/\s+БЛН.*$/i, '').replace(/\s*\(.*?\)\s*/g, ' ').trim(); }
+function dlMonthPlanFor_(ss, salon) {                   // план салона на месяц; название в «График» и в «План» может отличаться оформлением
+  const mp = readMonthPlan_(ss), k = norm_(salon);
+  if (mp[k]) return mp[k];
+  const w = salonWord_(salon), ks = Object.keys(mp);
+  for (let i = 0; i < ks.length; i++) if (salonWord_(ks[i]) === w) return mp[ks[i]];
+  return null;
+}
+function dlRankAvg_(arr, i, desc) {                     // RANK.AVG: ничьи — среднее место
+  let gt = 0, eq = 0; const x = arr[i];
+  for (let j = 0; j < arr.length; j++) { if (arr[j] === null) continue; if (arr[j] === x) eq++; else if (desc ? arr[j] > x : arr[j] < x) gt++; }
+  return gt + (eq + 1) / 2;
+}
+/* ---------- «План на день» по торговым точкам: (план месяца − факт) ÷ оставшиеся дни, т.е. с учётом отставания ---------- */
+function dayPlanGrid_(ss) {
+  const m = readSalonSheet_(ss), dim = m.daysInMonth || 30, left = Math.max(1, dim - (m.daysPassed || 0));
+  const dirs = DL_DIRS_, names = Object.keys(m.salons || {});
+  const grid = [['Торговая точка'].concat(dirs.map(function (d) { return d[1]; }))];
+  const tot = dirs.map(function () { return 0; });
+  names.forEach(function (n) {
+    const row = [n];
+    dirs.forEach(function (d, i) {
+      const x = m.salons[n][d[0]];
+      if (!x || !(x.plan > 0)) { row.push(''); return; }
+      const v = Math.max(0, (x.plan - x.fact) / left);
+      tot[i] += v; row.push(String(Math.round(v)));
+    });
+    grid.push(row);
+  });
+  grid.push(['Итого'].concat(tot.map(function (v) { return String(Math.round(v)); })));
+  return { grid: grid, left: left };
+}
+function dlModel_(ss) {
+  return cached_('dl:model', TTL_, function () {
+    const sh = sheetByName_(ss, RAW_.GRAFIK); if (!sh) return { rows: [] };
+    const lr = Math.min(sh.getLastRow(), 400), g = sh.getRange(1, 1, lr, Math.min(sh.getLastColumn(), 88)).getDisplayValues();
+    const cE = colIdx_('E'), cAO = colIdx_('AO'), cAS = colIdx_('AS'), cBZ = colIdx_('BZ');
+    const cRole = colIdx_('CB'), cName = colIdx_('CC'), cSal = colIdx_('CD'), cPlanH = colIdx_('CE'), cUse = colIdx_('CI'), cCJ = colIdx_('CJ');
+    const sh_ = {};                                                      // смены и факт часов по ФИО (строки «График» — по одной на сотрудника и салон)
+    for (let r = 5; r < g.length; r++) {
+      const k = norm_(g[r][cE]); if (!k) continue;
+      const o = sh_[k] = sh_[k] || { plan: 0, work: 0, fact: 0 };
+      o.plan += num_(g[r][cAO]) || 0; o.work += num_(g[r][cBZ]) || 0; o.fact += num_(g[r][cAS]) || 0;
+    }
+    const emps = {}, order = [], salonH = {};
+    for (let r = 5; r < g.length; r++) {                                 // блок CB:CJ — часы по салонам
+      const role = norm_(g[r][cRole]), name = String(g[r][cName] || '').trim(), salon = String(g[r][cSal] || '').trim();
+      if (!name || !salon || !ROLES_SVOD_[role] || num_(g[r][cUse]) !== 1) continue;
+      const h = num_(g[r][cCJ]), hp = num_(g[r][cPlanH]); if (h === null || h <= 0) continue;
+      const k = norm_(name), e = emps[k] = emps[k] || (order.push(k), { name: name, role: g[r][cRole], hours: {}, planH: 0 });
+      e.hours[salon] = (e.hours[salon] || 0) + h; e.planH += hp || 0;
+      salonH[salon] = (salonH[salon] || 0) + h;
+    }
+    const num0 = function (s) { const n = num_(s); return n === null ? 0 : n; };
+    const wt = {}, w = sheetByName_(ss, 'Рабочее время сотрудников');
+    if (w) w.getDataRange().getDisplayValues().forEach(function (x) { const k = norm_(x[1]); if (k && wt[k] === undefined && num_(x[4]) !== null) wt[k] = num_(x[4]); });
+    const cr = {}, cs = sheetByName_(ss, 'Кредиты текущий месяц');
+    if (cs) cs.getDataRange().getDisplayValues().forEach(function (x) { const k = norm_(x[2]); if (!k) return; const o = cr[k] = cr[k] || { n: 0, sum: 0 }; o.n++; o.sum += num0(x[3]); });
+    const vmr = {}, vs = sheetByName_(ss, 'ВМР'), mon = new Date().getMonth() + 1;
+    if (vs) vs.getRange(4, 2, Math.max(1, Math.min(vs.getLastRow(), 400) - 3), 14).getDisplayValues().forEach(function (x) { const k = norm_(x[0]); if (k && vmr[k] === undefined) vmr[k] = String(x[mon - 6] || '').trim(); });
+    const att = {}, as = sheetByName_(ss, 'Показатели сотрудников');
+    if (as) {
+      const hv = as.getRange(3, 8, 1, 80).getDisplayValues()[0]; let ac = -1; hv.forEach(function (h, i) { if (ac < 0 && norm_(h) === 'аттачмент') ac = i; });
+      if (ac >= 0) as.getRange(4, 8, Math.max(1, Math.min(as.getLastRow(), 1000) - 3), ac + 1).getDisplayValues().forEach(function (x) { const k = norm_(x[0]); if (k && att[k] === undefined) att[k] = num_(x[ac]); });
+    }
+    const ef = empFacts_(ss), rows = order.map(function (k) {
+      const e = emps[k], t = sh_[k] || { plan: 0, work: 0, fact: 0 }, f = ef[k] || {};
+      let tt = '', best = -1; Object.keys(e.hours).forEach(function (s) { if (e.hours[s] > best) { best = e.hours[s]; tt = s; } });
+      const plan = {}, fact = {}, day = {}, rem = {}, fc = {};
+      const den = t.plan - t.work;
+      DL_DIRS_.forEach(function (d) {
+        let p = 0, any = false;
+        Object.keys(e.hours).forEach(function (s) { const sp = dlMonthPlanFor_(ss, s); if (sp && sp[d[0]] > 0 && salonH[s] > 0) { p += sp[d[0]] * e.hours[s] / salonH[s]; any = true; } });
+        plan[d[0]] = any ? p : null; fact[d[0]] = num0(f[d[0]]);
+        rem[d[0]] = plan[d[0]] === null ? null : plan[d[0]] - fact[d[0]];
+        day[d[0]] = rem[d[0]] !== null && den > 0 ? rem[d[0]] / den : null;
+        fc[d[0]] = plan[d[0]] > 0 && t.work > 0 && t.plan > 0 ? fact[d[0]] / t.work * t.plan / plan[d[0]] : null;
+      });
+      return { k: k, name: e.name, tt: tt, planH: e.planH, wt: wt[k] === undefined ? null : wt[k], factH: t.fact, plan: plan, fact: fact, rem: rem, day: day, fc: fc,
+        vmr: vmr[k] || '', cn: (cr[k] || {}).n || 0, cs: (cr[k] || {}).sum || 0, att: att[k] === undefined || att[k] === null ? 0 : att[k] };
+    });
+    DL_DIRS_.forEach(function (d) {
+      const arr = rows.map(function (r) { return r.fc[d[0]]; });
+      rows.forEach(function (r, i) { r['rk_' + d[0]] = arr[i] === null ? null : dlRankAvg_(arr, i, true); });
+    });
+    rows.forEach(function (r) {
+      let s = 0, ok = true; DL_DIRS_.forEach(function (d) { if (r['rk_' + d[0]] === null) ok = false; else s += r['rk_' + d[0]]; });
+      r.score = ok ? s - r.att - r.cn : null;
+    });
+    const sc = rows.map(function (r) { return r.score; });
+    rows.forEach(function (r, i) { r.place = r.score === null ? null : dlRankAvg_(sc, i, false); });
+    rows.sort(function (a, b) { return (a.place === null ? 1e9 : a.place) - (b.place === null ? 1e9 : b.place) || (a.name < b.name ? -1 : 1); });
+    return { rows: rows };
+  });
+}
+function dlGrid_(ss) {                                  // та же раскладка, что у листа «До сотрудника ДЛ» (ФИО — колонка H)
+  const m = dlModel_(ss).rows, n0 = function (x, d) { return x === null || x === undefined || !isFinite(x) ? '' : (d ? (Math.round(x * 10) / 10).toString().replace('.', ',') : String(Math.round(x))); };
+  const pc = function (x) { return x === null || x === undefined || !isFinite(x) ? '' : Math.round(x * 100) + '%'; };
+  const lab = DL_DIRS_.map(function (d) { return d[1]; });
+  const h0 = new Array(34).fill(''), h1 = new Array(34).fill('');
+  ['', 'ТТ', 'План, ч', 'Факт 1С, ч', 'Факт график, ч', 'Разница, ч', 'Место', 'ФИО', 'Остаток по SIM'].forEach(function (t, i) { h1[i] = t; });
+  lab.forEach(function (t, i) { h1[9 + i] = t; h1[14 + i] = t; h1[19 + i] = t; h1[28 + i] = t; });
+  h0[8] = 'План на день'; h0[14] = 'План на месяц'; h0[19] = 'Факт'; h0[24] = 'Качество'; h0[28] = 'Прогноз'; h0[33] = 'Итог';
+  h1[24] = 'ВМР'; h1[25] = 'Кредитов, шт'; h1[26] = 'Кредитов, руб'; h1[27] = 'Аттачмент'; h1[33] = 'Рейтинг';
+  const out = [h0, h1];
+  m.forEach(function (r) {
+    const row = new Array(34).fill('');
+    row[1] = salonShort_(r.tt); row[2] = n0(r.planH); row[3] = r.wt === null ? '' : n0(r.wt); row[4] = n0(r.factH); row[5] = r.wt === null ? '' : n0(r.factH - r.wt); row[6] = r.place === null ? '' : n0(r.place, 1); row[7] = r.name;
+    row[8] = n0(r.rem.sim);
+    DL_DIRS_.forEach(function (d, i) { row[9 + i] = n0(r.day[d[0]]); row[14 + i] = n0(r.plan[d[0]]); row[19 + i] = n0(r.fact[d[0]]); row[28 + i] = pc(r.fc[d[0]]); });
+    row[24] = r.vmr; row[25] = n0(r.cn); row[26] = n0(r.cs); row[27] = n0(r.att); row[33] = r.score === null ? '' : n0(r.score, 1);
+    out.push(row);
+  });
   return out;
 }
