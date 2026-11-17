@@ -1710,7 +1710,7 @@ function dlModel_(ss) {
         Object.keys(e.hours).forEach(function (s) { const sp = dlMonthPlanFor_(ss, s); if (sp && sp[d[0]] > 0 && salonH[s] > 0) { p += sp[d[0]] * e.hours[s] / salonH[s]; any = true; } });
         plan[d[0]] = any ? p : null; fact[d[0]] = num0(f[d[0]]);
         rem[d[0]] = plan[d[0]] === null ? null : plan[d[0]] - fact[d[0]];
-        day[d[0]] = rem[d[0]] !== null && den > 0 ? rem[d[0]] / den : null;
+        day[d[0]] = rem[d[0]] !== null && den > 0 ? Math.max(0, rem[d[0]]) / den : null;
         fc[d[0]] = plan[d[0]] > 0 && t.work > 0 && t.plan > 0 ? fact[d[0]] / t.work * t.plan / plan[d[0]] : null;
       });
       return { k: k, name: e.name, tt: tt, planH: e.planH, wt: wt[k] === undefined ? null : wt[k], factH: t.fact, plan: plan, fact: fact, rem: rem, day: day, fc: fc,
