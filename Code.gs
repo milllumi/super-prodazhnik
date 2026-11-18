@@ -47,7 +47,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 2400;                                  // кэш данных: 40 мин; триггер warmCache() обновляет его каждые 30 мин
 // эпоха кэша: поднимайте при выкладке, чтобы все клиенты сразу получили свежие данные, а не 40-минутный снимок
-const CACHE_EPOCH = 'e5';
+const CACHE_EPOCH = 'e6';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -92,8 +92,10 @@ function doPost(e) {
     else if (req.action === 'recon_get') out = reconGet_(req);
     else if (req.action === 'news_list') out = newsList_(req);
     else if (req.action === 'news_add') out = newsAdd_(req);
+    else if (req.action === 'news_file') out = newsFileGet_(req);
     else if (req.action === 'news_moderate') out = newsModerate_(req);
     else if (req.action === 'links_set') out = linksSet_(req);
+    else if (req.action === 'auth_log') out = authLogGet_(req);
     else out = { error: 'bad_request' };
   } catch (err) { out = { error: 'server', message: String(err) }; }
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
@@ -178,6 +180,7 @@ function setpin_(req) {
     cacheDrop_('access');
     sh.getRange(f.user.row, 4).setValue('PIN задан ' + Utilities.formatDate(new Date(), 'Europe/Moscow', 'dd.MM.yyyy HH:mm'));
   } finally { lock.releaseLock(); }
+  authLog_(f.user, 'PIN задан', req.dev);
   return newToken_(f.user);
 }
 function login_(req) {
@@ -188,7 +191,8 @@ function login_(req) {
   if (isLocked_(f.user)) return { error: 'locked' };
   if (!hasPin_(f.user)) return { error: 'need_pin' };
   const stored = PropertiesService.getScriptProperties().getProperty('pin:' + f.user.key);
-  if (hash_(f.user, String(req.pin || '').trim()) !== stored) { fail_(f.user); return { error: 'bad_credentials' }; }
+  if (hash_(f.user, String(req.pin || '').trim()) !== stored) { fail_(f.user); authLog_(f.user, 'ошибка PIN', req.dev); return { error: 'bad_credentials' }; }
+  authLog_(f.user, 'вход', req.dev);
   return newToken_(f.user);
 }
 
@@ -200,6 +204,7 @@ function data_(req) {
   const access = readAccess_(ss);
   const user = access.filter(function (a) { return a.key === key; })[0];
   if (!user) return { error: 'auth' };                // убрали из списка «Доступ» — доступ закрыт сразу
+  try { const vk = 'vis:' + key, cc = CacheService.getScriptCache(); if (!cc.get(vk)) { cc.put(vk, '1', 3600); authLog_(user, 'визит', req.dev); } } catch (e) {}
   return cached_('u:' + key, TTL_, function () {
     const d = user.manager ? managerData_(ss, user, access) : sellerData_(ss, user, access);
     d.updated = new Date().toISOString(); return d;
@@ -231,11 +236,11 @@ function warmCache() {
 function kpiShopsDrop_() { CacheService.getScriptCache().remove('kpiShops2'); CacheService.getScriptCache().remove('kpiGrades'); }
 
 /* ---------- новости: ТМ публикует сам, остальные предлагают → модерация ТМ ---------- */
-const NEWS_HEAD = ['ID', 'Дата', 'Автор', 'Роль', 'Заголовок', 'Текст', 'Статус', 'Модератор'];
+const NEWS_HEAD = ['ID', 'Дата', 'Автор', 'Роль', 'Заголовок', 'Текст', 'Статус', 'Модератор', 'Вложения'];
 const ST_PUB = 'опубликовано', ST_MOD = 'на модерации', ST_REJ = 'отклонено';
 function newsSheet_(ss) {
   let sh = ss.getSheetByName(CONFIG.SHEET_NEWS);
-  if (!sh) { sh = ss.insertSheet(CONFIG.SHEET_NEWS); sh.getRange(1, 1, 1, 8).setValues([NEWS_HEAD]); sh.setFrozenRows(1); }
+  if (!sh) { sh = ss.insertSheet(CONFIG.SHEET_NEWS); sh.getRange(1, 1, 1, 9).setValues([NEWS_HEAD]); sh.setFrozenRows(1); }
   return sh;
 }
 function safeCell_(t) { t = String(t); return /^[=+\-@]/.test(t) ? "'" + t : t; }
@@ -249,7 +254,8 @@ function newsList_(req) {
     const r = v[i]; if (!r[0]) continue;
     const st = norm_(r[6]), mine = norm_(r[2]) === u.key;
     if (st !== ST_PUB && !tm && !mine) continue;               // чужие предложения видит только ТМ
-    items.push({ id: r[0], date: r[1], author: short_(r[2]), role: r[3], title: r[4], text: r[5], status: st, mine: mine });
+    let files = []; try { files = r[8] ? JSON.parse(r[8]) : []; } catch (e) {}
+    items.push({ id: r[0], date: r[1], author: short_(r[2]), role: r[3], title: r[4], text: r[5], status: st, mine: mine, files: files });
   }
   items.reverse();
   return { canModerate: tm, items: items.slice(0, 120) };
@@ -272,8 +278,11 @@ function newsAdd_(req) {
     const row = sh.getLastRow() + 1;
     const id = Utilities.getUuid().slice(0, 8);
     const when = Utilities.formatDate(new Date(), 'Europe/Moscow', 'dd.MM.yyyy HH:mm');
-    const rg = sh.getRange(row, 1, 1, 8); rg.setNumberFormat('@');
-    rg.setValues([[id, when, u.name, u.roleTitle, safeCell_(title), safeCell_(text), tm ? ST_PUB : ST_MOD, tm ? u.name : '']]);
+    const meta = saveFiles_(ss, id, req.files);
+    if (meta === null) return { error: 'bad_file' };
+    if (!sh.getRange(1, 9).getValue()) sh.getRange(1, 9).setValue('Вложения');
+    const rg = sh.getRange(row, 1, 1, 9); rg.setNumberFormat('@');
+    rg.setValues([[id, when, u.name, u.roleTitle, safeCell_(title), safeCell_(text), tm ? ST_PUB : ST_MOD, tm ? u.name : '', meta.length ? JSON.stringify(meta) : '']]);
     return { ok: true, status: tm ? ST_PUB : ST_MOD };
   } finally { lock.releaseLock(); }
 }
@@ -288,7 +297,7 @@ function newsModerate_(req) {
   try {
     const sh = newsSheet_(ss), v = sh.getDataRange().getDisplayValues();
     for (let i = 1; i < v.length; i++) if (String(v[i][0]) === String(req.id)) {
-      if (d === 'delete') sh.deleteRow(i + 1);
+      if (d === 'delete') { sh.deleteRow(i + 1); dropFiles_(ss, String(req.id)); }
       else { sh.getRange(i + 1, 7).setValue(d === 'approve' ? ST_PUB : ST_REJ); sh.getRange(i + 1, 8).setValue(u.name); }
       return { ok: true };
     }
@@ -1642,4 +1651,76 @@ function dlGrid_(ss) {                                  // та же раскл�
     out.push(row);
   });
   return out;
+}
+
+/* ---------- журнал входов (виден только ТМ) ---------- */
+const AUTHLOG_SHEET = 'Журнал входов';
+function authLog_(user, event, dev) {
+  try {
+    const ss = ss_();
+    let sh = ss.getSheetByName(AUTHLOG_SHEET);
+    if (!sh) { sh = ss.insertSheet(AUTHLOG_SHEET); sh.appendRow(['Время', 'Сотрудник', 'Роль', 'Событие', 'Устройство']); sh.setFrozenRows(1); }
+    sh.appendRow([new Date(), user.name, user.roleTitle, event, safeCell_(String(dev || '').slice(0, 60))]);
+  } catch (e) {}
+}
+function authLogGet_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  if (u.roleTitle !== 'ТМ') return { error: 'forbidden' };
+  const sh = ss.getSheetByName(AUTHLOG_SHEET), rows = [];
+  if (sh && sh.getLastRow() > 1) {
+    const n = Math.min(4000, sh.getLastRow() - 1), v = sh.getRange(sh.getLastRow() - n + 1, 1, n, 5).getValues();
+    v.forEach(function (r) { if (r[0] instanceof Date) rows.push([Utilities.formatDate(r[0], 'Europe/Moscow', "yyyy-MM-dd'T'HH:mm:ss'+03:00'"), String(r[1]), String(r[2]), String(r[3]), String(r[4])]); });
+  }
+  const props = PropertiesService.getScriptProperties();
+  const users = readAccess_(ss).map(function (a) { return { name: a.name, role: a.roleTitle, pin: !!props.getProperty('pin:' + a.key) }; });
+  return { rows: rows, users: users, now: new Date().toISOString() };
+}
+
+/* ---------- вложения новостей (хранятся кусками base64 на листе «Вложения новостей») ---------- */
+const FILES_SHEET = 'Вложения новостей', FILE_CHUNK = 40000, FILE_MAX = 3, FILE_B64_MAX = 1400000, FILE_B64_TOTAL = 2800000;
+const FILE_MIME = /^(image\/(jpeg|png|webp|gif)|application\/(pdf|msword|vnd\.openxmlformats-officedocument\.[a-z.]+|vnd\.ms-(excel|powerpoint)|zip)|text\/(plain|csv))$/;
+function filesSheet_(ss) {
+  let sh = ss.getSheetByName(FILES_SHEET);
+  if (!sh) { sh = ss.insertSheet(FILES_SHEET); sh.getRange(1, 1, 1, 4).setValues([['ID файла', 'ID новости', 'Часть', 'Данные (base64)']]); sh.setFrozenRows(1); }
+  return sh;
+}
+function saveFiles_(ss, newsId, files) {
+  if (!files || !files.length) return [];
+  if (!Array.isArray(files) || files.length > FILE_MAX) return null;
+  let total = 0; const meta = [], rows = [];
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i] || {}, data = String(f.data || ''), mime = String(f.mime || '');
+    if (!FILE_MIME.test(mime) || !/^[A-Za-z0-9+\/=]+$/.test(data) || data.length > FILE_B64_MAX) return null;
+    total += data.length; if (total > FILE_B64_TOTAL) return null;
+    const fid = Utilities.getUuid().slice(0, 10), name = String(f.name || 'файл').replace(/[\\/:*?"<>|\r\n]/g, '_').slice(0, 80);
+    for (let p = 0, n = 0; p < data.length; p += FILE_CHUNK, n++) rows.push([fid, newsId, n, data.substr(p, FILE_CHUNK)]);
+    meta.push({ id: fid, name: name, mime: mime, size: Math.round(data.length * 3 / 4) });
+  }
+  const sh = filesSheet_(ss), r0 = sh.getLastRow() + 1;
+  sh.getRange(r0, 1, rows.length, 4).setNumberFormat('@').setValues(rows);
+  return meta;
+}
+function dropFiles_(ss, newsId) {
+  const sh = ss.getSheetByName(FILES_SHEET); if (!sh || sh.getLastRow() < 2) return;
+  const v = sh.getRange(2, 2, sh.getLastRow() - 1, 1).getValues();
+  for (let i = v.length - 1; i >= 0; i--) if (String(v[i][0]) === newsId) sh.deleteRow(i + 2);
+}
+function newsFileGet_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  const fid = String(req.id || ''), sh = ss.getSheetByName(FILES_SHEET);
+  if (!sh || sh.getLastRow() < 2) return { error: 'not_found' };
+  const v = sh.getRange(2, 1, sh.getLastRow() - 1, 4).getValues(), parts = [];
+  let nid = '';
+  v.forEach(function (r) { if (String(r[0]) === fid) { nid = String(r[1]); parts.push([Number(r[2]), String(r[3])]); } });
+  if (!parts.length) return { error: 'not_found' };
+  const nv = newsSheet_(ss).getDataRange().getDisplayValues(); let ok = false, meta = null;
+  for (let i = 1; i < nv.length; i++) if (String(nv[i][0]) === nid) {
+    ok = norm_(nv[i][6]) === ST_PUB || u.roleTitle === 'ТМ' || norm_(nv[i][2]) === u.key;
+    try { meta = JSON.parse(nv[i][8] || '[]').filter(function (m) { return m.id === fid; })[0]; } catch (e) {}
+  }
+  if (!ok || !meta) return { error: 'forbidden' };
+  parts.sort(function (a, b) { return a[0] - b[0]; });
+  return { name: meta.name, mime: meta.mime, data: parts.map(function (p) { return p[1]; }).join('') };
 }
