@@ -47,7 +47,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 2400;                                  // кэш данных: 40 мин; триггер warmCache() обновляет его каждые 30 мин
 // эпоха кэша: поднимайте при выкладке, чтобы все клиенты сразу получили свежие данные, а не 40-минутный снимок
-const CACHE_EPOCH = 'e3';
+const CACHE_EPOCH = 'e4';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -909,7 +909,7 @@ function readMonthPlanRaw_(ss) {
 }
 
 /* ---------- Страницы отчётов для ТМ: лист целиком (значения как в таблице), разбор и оформление — на странице ---------- */
-const TM_REPORTS = { details: 'Детали продаж салоны', summary: 'общий свод', fact: 'Факт продаж', dl: 'Сотрудники ДЛ', sim: 'Детализация СИМ', recon: 'Сопоставления 1с и рег' };
+const TM_REPORTS = { details: 'Детали продаж салоны', summary: 'общий свод', fact: 'Факт продаж', dl: 'Сотрудники ДЛ', sim: 'Детализация СИМ', recon: 'Сопоставления 1с и рег', vmr: 'отчет по вмр ММБ' };
 function tmReport_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
@@ -922,9 +922,10 @@ function tmReportRaw_(ss, name) {
   return cached_('rep:' + name, TTL_, function () {
     const virt = { details: detailsGrid_, summary: summaryGrid_, fact: factGrid_, sim: simGrid_, dl: dlGrid_ }[name];      // эти страницы считаем на сайте из чеков
     if (virt) { let g0 = virt(ss); if (name === 'summary') g0 = summaryMonthPlan_(ss, g0); return { name: title, grid: g0, at: new Date().toISOString(), calc: true }; }       // «План на день» → «План на месяц»
-    const sh = sheetByName_(ss, title);
+    let sh = sheetByName_(ss, title);
+    if (!sh && name === 'vmr') sh = ss.getSheets().filter(function (x) { return /отч[её]т.*вмр/i.test(x.getName()); })[0] || null;   // «отчет по вмр ММБ» — допускаем небольшие отличия в названии
     if (!sh) return { missing: true, name: title };
-    const rows = Math.min(sh.getLastRow(), 800), cols = Math.min(sh.getLastColumn(), 130);
+    const rows = Math.min(sh.getLastRow(), name === 'vmr' ? 6000 : 800), cols = Math.min(sh.getLastColumn(), 130);
     if (rows < 1 || cols < 1) return { missing: true, name: title };
     let g = sh.getRange(1, 1, rows, cols).getDisplayValues();
     let lr = g.length; while (lr > 0 && !g[lr - 1].some(function (c) { return String(c).trim(); })) lr--;
