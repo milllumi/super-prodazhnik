@@ -47,7 +47,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 2400;                                  // кэш данных: 40 мин; триггер warmCache() обновляет его каждые 30 мин
 // эпоха кэша: поднимайте при выкладке, чтобы все клиенты сразу получили свежие данные, а не 40-минутный снимок
-const CACHE_EPOCH = 'e4';
+const CACHE_EPOCH = 'e5';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -909,6 +909,15 @@ function readMonthPlanRaw_(ss) {
 }
 
 /* ---------- Страницы отчётов для ТМ: лист целиком (значения как в таблице), разбор и оформление — на странице ---------- */
+// ВМР: сырые проверки берутся из отдельной таблицы (лист «Лист1»). ID можно переопределить в свойствах скрипта: VMR_SPREADSHEET_ID.
+const VMR_SPREADSHEET_ID = '1Y0erbIsvDKxKALsvk2MC3cW0bUcgN2XfhA2uoPzyzqY';
+function vmrSheet_() {
+  try {
+    const id = PropertiesService.getScriptProperties().getProperty('VMR_SPREADSHEET_ID') || VMR_SPREADSHEET_ID;
+    const book = SpreadsheetApp.openById(id), all = book.getSheets();
+    return all.filter(function (x) { return norm_(x.getName()) === norm_('Лист1'); })[0] || all[0] || null;
+  } catch (e) { return null; }   // нет доступа — используем лист «отчет по вмр ММБ» в основной таблице
+}
 const TM_REPORTS = { details: 'Детали продаж салоны', summary: 'общий свод', fact: 'Факт продаж', dl: 'Сотрудники ДЛ', sim: 'Детализация СИМ', recon: 'Сопоставления 1с и рег', vmr: 'отчет по вмр ММБ' };
 function tmReport_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
@@ -922,7 +931,9 @@ function tmReportRaw_(ss, name) {
   return cached_('rep:' + name, TTL_, function () {
     const virt = { details: detailsGrid_, summary: summaryGrid_, fact: factGrid_, sim: simGrid_, dl: dlGrid_ }[name];      // эти страницы считаем на сайте из чеков
     if (virt) { let g0 = virt(ss); if (name === 'summary') g0 = summaryMonthPlan_(ss, g0); return { name: title, grid: g0, at: new Date().toISOString(), calc: true }; }       // «План на день» → «План на месяц»
-    let sh = sheetByName_(ss, title);
+    let sh = null;
+    if (name === 'vmr') sh = vmrSheet_();                                   // выгрузка ВМР — напрямую из таблицы по ссылке (см. VMR_SPREADSHEET_ID)
+    if (!sh) sh = sheetByName_(ss, title);
     if (!sh && name === 'vmr') sh = ss.getSheets().filter(function (x) { return /отч[её]т.*вмр/i.test(x.getName()); })[0] || null;   // «отчет по вмр ММБ» — допускаем небольшие отличия в названии
     if (!sh) return { missing: true, name: title };
     const rows = Math.min(sh.getLastRow(), name === 'vmr' ? 6000 : 800), cols = Math.min(sh.getLastColumn(), 130);
