@@ -1,4 +1,7 @@
-const CACHE = 'prodazhnik-shell-v7';
+// Push (OneSignal). Без интернета это просто не загрузится — оболочка работает как раньше.
+try { importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js'); } catch (e) {}
+
+const CACHE = 'prodazhnik-shell-v8';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -23,4 +26,10 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(caches.match(req).then(r => r || fetch(req)));
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    .then(l => l.length ? l[0].focus() : self.clients.openWindow('./')));
 });

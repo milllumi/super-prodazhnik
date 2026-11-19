@@ -859,6 +859,19 @@ html.xp .card::before{display:none!important}
 .n-files{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.n-img{max-width:min(100%,420px);max-height:320px;border-radius:14px;cursor:zoom-in;display:block;background:var(--g-bg2);min-height:60px;min-width:90px}
 .n-file{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;border:1px solid var(--g-bd);background:var(--g-bg2);color:inherit;font:inherit;font-size:13px;cursor:pointer}.n-file small{color:var(--muted)}
 .n-lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.82);display:grid;place-items:center;cursor:zoom-out}.n-lb img{max-width:94vw;max-height:92vh;border-radius:12px}
+
+.rv-box .vm-ctl{margin:6px 0 10px}.rv-box .vm-chart{margin:4px 0 8px}
+.vmrc{display:grid;gap:20px}
+@media(max-width:1023px){#wrap.role-seller .vmrc{display:none}#wrap.role-seller[data-tab="vmr"] .vmrc{display:grid}#wrap.role-seller[data-tab="vmr"] .mainc,#wrap.role-seller[data-tab="vmr"] .pointc,#wrap.role-seller[data-tab="vmr"] .bonusc,#wrap.role-seller[data-tab="vmr"] .side{display:none}}
+@media(min-width:1024px){#wrap.role-seller .vmrc{grid-column:1}}
+
+.bell-w{position:relative;display:inline-flex}.bell-d{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;padding:0 4px;border-radius:99px;background:var(--pink,#ff375f);color:#fff;font-size:10.5px;font-weight:800;display:grid;place-items:center;pointer-events:none;box-shadow:0 0 0 2px var(--card)}.bell-d[hidden]{display:none}
+.nt-list{display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow:auto;margin-top:6px}
+.nt-i{display:flex;gap:10px;text-align:left;padding:10px;border-radius:14px;border:1px solid var(--g-bd);background:var(--g-bg2);color:inherit;font:inherit;cursor:pointer}.nt-i.new{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,var(--g-bg2))}
+.nt-i b{display:block;font-size:13.5px}.nt-i small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}.nt-i em{font-style:normal;color:var(--muted);font-size:11px}
+.nt-k{flex:none;align-self:flex-start;padding:2px 8px;border-radius:99px;font-size:10.5px;font-weight:800;background:color-mix(in srgb,var(--muted) 22%,transparent)}.nt-vmr{background:color-mix(in srgb,var(--orange) 28%,transparent)}.nt-release{background:color-mix(in srgb,var(--green) 28%,transparent)}
+.nt-toast{position:fixed;z-index:130;top:70px;right:16px;max-width:320px;padding:12px 14px;border-radius:18px;background:var(--g-bg);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border:1px solid var(--g-bd);box-shadow:var(--g-sh);cursor:pointer;opacity:0;transform:translateY(-10px);transition:opacity .35s,transform .45s var(--spring)}.nt-toast.in{opacity:1;transform:none}.nt-toast b{display:block;font-size:13.5px}.nt-toast span{font-size:12.5px;color:var(--muted)}
+@media(max-width:640px){.nt-toast{left:12px;right:12px;max-width:none}}
 </style>
 </head>
 <body>
@@ -912,6 +925,7 @@ html.xp .card::before{display:none!important}
     <span class="sp"></span>
     <span class="pill" id="upd"></span>
     <button class="icon-btn" id="btnNews" title="Новости" aria-label="Новости"><svg viewBox="0 0 24 24"><path d="M4 5h13a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2z"/><path d="M19 9h1a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2"/><path d="M8 9h7M8 13h7M8 16h4"/></svg><i class="dot" id="newsDot" hidden></i></button>
+    <span class="bell-w"><button class="icon-btn" id="btnBell" title="Уведомления" aria-label="Уведомления"><svg viewBox="0 0 24 24"><path d="M6 17h12l-1.5-2.2V10a4.5 4.5 0 0 0-9 0v4.8L6 17z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></button><i class="bell-d" id="bellDot" hidden></i></span>
     <button class="icon-btn" id="btnTheme" title="Оформление" aria-label="Оформление"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="15.5" cy="10" r="1.2"/><path d="M12 21c-1.5 0-2-1-1.5-2.2.6-1.4-.2-2.8-1.7-2.8"/></svg></button>
     <button class="icon-btn" id="btnRefresh" title="Обновить"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
     <button class="icon-btn" id="btnLogout" title="Выйти"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
@@ -929,6 +943,7 @@ html.xp .card::before{display:none!important}
       <div class="stack mainc" id="mainc"></div>
       <div class="stack pointc" id="pointc"></div>
       <div class="stack bonusc" id="bonusc"></div>
+      <div class="stack vmrc" id="vmrc"></div>
       <aside class="side"><div class="card" id="ratingCard"></div></aside>
     </div>
 
@@ -945,6 +960,7 @@ html.xp .card::before{display:none!important}
       <section class="pane" data-pane="dl" id="m-dl" hidden></section>
       <section class="pane" data-pane="dayplan" id="m-dayplan" hidden></section>
       <section class="pane" data-pane="auth" id="m-auth" hidden></section>
+      <section class="pane" data-pane="vmr" id="m-vmr" hidden></section>
       <section class="pane" data-pane="cards" id="m-cards" hidden></section>
       <section class="pane" data-pane="recon" id="m-recon" hidden></section>
       <section class="pane" data-pane="links" id="m-links" hidden></section>
@@ -2298,6 +2314,8 @@ async function api(body){
 /* ---------- вход / выход ---------- */
 function applyDemoUI(){ const on=!!DEMO && !$('#app').hidden; document.body.classList.toggle('isdemo',on); document.body.classList.toggle('demo-tm',on&&DEMO_TM()); const b=$('#demoBanner'); if (b) b.hidden=!on; }
 function showLogin(msg){
+  try{ NOTIFS = []; NOTIF_KNOWN.clear(); NOTIF_FIRST = true; bellDraw(); const np = $('#notifPanel'); if (np) np.hidden = true; }catch(e){}
+  try{ MYVMR = null; ANCACHE = {}; }catch(e){}
   try{ THEME = Object.assign({}, THEME_DEF); themeApply(false); }catch(e){}
   $('#app').hidden = true; $('#login').hidden = false; applyDemoUI(); demoStep(false); $('#loginErr').textContent = msg||'';
 }
@@ -2365,7 +2383,7 @@ $('#btnRefresh').onclick = ()=>{ if (WRAP.dataset.tab==='reports') loadReports(t
 
 /* ---------- вкладки ---------- */
 const TABS = {
-  seller:  [['main','Результаты'],['point','Точка'],['bonus','Бонус'],['rating','Рейтинг']],
+  seller:  [['main','Результаты'],['point','Точка'],['vmr','ВМР'],['bonus','Бонус'],['rating','Рейтинг']],
   manager: [['results','Месяц'],['dayres','Итоги дня'],['days','По дням'],['forecast','Прогноз'],['bonus','Бонус']],
 };
 let TABSET = '', PREV_TAB = null;
@@ -2378,7 +2396,7 @@ function tabsFor(role,d){
     if (d.summary) t.splice(4,0,['summary','Общий свод']);
     if (d.canLinks){ t[bi()]=['tmbonus','Бонус ТМ']; t.splice(5,0,['reports','Отчёты']); t.splice(6,0,['dl','Сотрудники ДЛ']); t.splice(7,0,['dayplan','План на день']); t.splice(8,0,['auth','Входы']); t.push(['links','Ссылки']); if (DEMO) for (let i=t.length-1;i>=0;i--) if (t[i][0]==='tmbonus'||t[i][0]==='links') t.splice(i,1); }
   }
-  if (role==='manager' && d){ const i=t.findIndex(x=>x[0]==='forecast'); if (i>=0) t.splice(i+1,0,['analytics','Аналитика']); }
+  if (role==='manager' && d){ const i=t.findIndex(x=>x[0]==='forecast'); if (i>=0) t.splice(i+1,0,['analytics','Аналитика']); if (!d.canLinks && i>=0) t.splice(i+2,0,['vmr','ВМР']); }
   return t;
 }
 function buildTabs(role,d){ menuInit(); try{ themeLoad(); }catch(e){}
@@ -2402,13 +2420,14 @@ function setTab(t){
   document.querySelectorAll('.pane').forEach(p=>p.hidden = p.dataset.pane!==t);
   if (t==='bonus') ensureCalc();
   if (t==='tmbonus') ensureTmb();
-  { const mh=$('#mgrHead'); if (mh) mh.hidden = (t==='tmbonus'||t==='links'||t==='dl'||t==='dayplan'||t==='analytics'||t==='auth'); }
+  { const mh=$('#mgrHead'); if (mh) mh.hidden = (t==='tmbonus'||t==='links'||t==='dl'||t==='dayplan'||t==='analytics'||t==='auth'||t==='vmr'); }
   if (t==='links') loadLinks();
   if (t==='reports') loadReports();
   if (t==='dl') loadDL();
   if (t==='analytics') loadAnalytics();
   if (t==='dayplan') loadDayPlan();
   if (t==='auth') loadAuth();
+  if (t==='vmr') loadMyVmr();
   if (t==='cards') cardsLoad($('#m-cards'));
   if (t==='recon') reconLoad($('#m-recon'));
   if (t==='news'){ applyView(); loadNews(); }
@@ -2445,7 +2464,7 @@ async function load(silent, fresh){
     if (d.error) throw new Error(d.error);
     LAST = Date.now();
     paint(d); store.set('dc', JSON.stringify({tk:token.slice(-12), d}));
-    if (!load.once){ load.once=1; setTimeout(checkNewsDot, 2500); setTimeout(()=>{ lib('chart').catch(()=>{}); lib('h2c').catch(()=>{}); lib('pdf').catch(()=>{}); }, 6000); }
+    if (!load.once){ load.once=1; setTimeout(checkNewsDot, 2500); setTimeout(notifPoll, 3500); setTimeout(()=>{ lib('chart').catch(()=>{}); lib('h2c').catch(()=>{}); lib('pdf').catch(()=>{}); }, 6000); }
   }catch(e){
     if(!silent) $('#loading').textContent='Не удалось загрузить данные. Нажмите «Обновить».';
   }finally{ btn.classList.remove('spin'); }
@@ -2600,6 +2619,7 @@ function renderSeller(d){
   $('#bonusc').innerHTML = `<div class="card hero fade"><div><div class="eyebrow">Бонус за месяц</div><div class="hero-big num" style="margin-top:8px">${fmt(d.bonus.total)}<small>₽</small></div></div><div class="hero-row num"><div><b>${d.bonus.shifts}</b><span>Отработано смен</span></div><div><b>${fmt(d.bonus.avgDaily)} ₽</b><span>В среднем за смену</span></div></div></div>`+bonusGroupsHTML(d)+`<div class="card fade"><h2>Бонус по дням</h2>${bars(d.bonus.days, d.bonus.avgDaily, 'среднее', rub)}</div>`;
   $('#pointc').innerHTML = pointHTML(d);
   $('#ratingCard').innerHTML = ratingHTML(d);
+  if (!MYVMR) loadMyVmr();
   $('#loading').hidden = true; $('#content').hidden = false;
   animate();
 }
@@ -2923,6 +2943,12 @@ async function loadLinks(){
 /* ---------- ДЕМО-данные (работают, пока API_URL пуст) ---------- */
 function demoApi(b){
   if (b.action==='auth_log') return Promise.resolve(demoAuthLog());
+  if (b.action==='notif_list'){ const t = Date.now(), tm = DEMO_TM(), items = [{id:'d1',t:new Date(t-36e5).toISOString(),kind:'release',title:'🚀 Скорее беги в приложение!',text:'Там новая штука появилась 👀',tab:'news'}];
+    if (ROLE==='manager') items.unshift({id:'d2',t:new Date(t-6e5).toISOString(),kind:'vmr',title:'👥 Анкета на твоего сотрудника',text:'На твоего сотрудника Зайцева Полина (Мира 30а) пришла анкета с результатом ⚠️ 74%',tab:'vmr'}); else items.unshift({id:'d3',t:new Date(t-6e5).toISOString(),kind:'vmr',title:'📋 Пришла анкета ВМР',text:'На тебя пришла анкета с результатом ⚠️ 78%',tab:'vmr'});
+    return Promise.resolve({items:items}); }
+  if (b.action==='vmr_mine'){ const g = demoVmrGrid(), hi = g.findIndex(r=>r.indexOf('ТТ')>=0), H = g[hi], iT = H.indexOf('ТТ'), iF = H.indexOf('Фио сотрудника'), body = g.slice(hi+1);
+    let keep; if (ROLE==='manager'){ const t3 = [...new Set(body.map(r=>r[iT]))].slice(0,3); keep = body.filter(r=>t3.includes(r[iT])); } else { const sn = String(store.get('demoName')||'').split(/\s+/)[0]; keep = body.filter(r=>String(r[iF]).split(' ')[0]===sn); if (!keep.length) keep = body.filter(r=>r[iF]===body[0][iF]); }
+    return Promise.resolve({name:'отчет по вмр ММБ', grid:g.slice(0,hi+1).concat(keep)}); }
   const MG = ['рук','тюрин','ашрапова','нигматулин','тм','утт'];
   const l=(b.login||'').trim().toLowerCase(), pk='demoPin:'+l;
   if (b.action==='start'){
@@ -4043,7 +4069,7 @@ function anBind(){
   new MutationObserver(()=>run(document)).observe(document.body,{childList:true,subtree:true}); })();
 
 /* при выпуске новой версии один раз чистим кэш данных в браузере — вход сохраняется */
-const CACHE_REV = '2026-11-19-1';
+const CACHE_REV = '2026-11-19-2';
 try { if (store.get('cacheRev') !== CACHE_REV) { rpClear(); store.set('cacheRev', CACHE_REV); } } catch(e) {}
 
 /* старт */
@@ -4148,13 +4174,14 @@ function vmrParse(g){
   const hi = g.findIndex(r=>r.some(c=>String(c).trim()==='ТТ') && r.some(c=>/^оценка$/i.test(String(c).trim())));
   if (hi<0) return null;
   const H = g[hi].map(c=>String(c).trim()), ix = n=>H.findIndex(c=>c.toLowerCase()===n);
-  const c = {tm:ix('тм'), tt:ix('тт'), m:ix('месяц'), sc:ix('сценарий'), fio:ix('фио сотрудника'), pos:ix('должность'), s:ix('оценка'), d:ix('дата проверки'), link:ix('ссылка на видео')};
+  const c = {tm:ix('тм'), tt:ix('тт'), m:ix('месяц'), sc:ix('сценарий'), fio:ix('фио сотрудника'), pos:ix('должность'), s:ix('оценка'), d:ix('дата проверки'), link:ix('ссылка на видео'), w:ix('неделя')};
   if (c.tt<0 || c.s<0) return null;
   const crc = {}; H.forEach((h,i)=>{ const m = h.match(/^(\d+(?:\.\d+)?)\.?\s/); if (m && crc[m[1]]==null) crc[m[1]] = i; });
   const g2 = (r,i) => i<0 ? '' : String(r[i]==null?'':r[i]).trim(), rows = [];
   g.slice(hi+1).forEach(r=>{ const tt = g2(r,c.tt), s = vmrNum(r[c.s]); if (!tt || s==null) return;
     const cr = {}; VMR_CR.forEach(([k])=>{ const v = crc[k]==null ? '' : g2(r,crc[k]); cr[k] = v==='1' ? 1 : v==='0' ? 0 : null; });
-    rows.push({tm:g2(r,c.tm), tt, m:Number(g2(r,c.m))||0, scen:g2(r,c.sc), fio:g2(r,c.fio), pos:g2(r,c.pos), d:g2(r,c.d), s, cr, link:g2(r,c.link)}); });
+    const dt = (g2(r,c.d).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/)||[]); const dd = dt[1] ? new Date(Date.UTC(+dt[3],+dt[2]-1,+dt[1])) : null;
+    rows.push({tm:g2(r,c.tm), tt, m:Number(g2(r,c.m))||(dd?dd.getUTCMonth()+1:0), w:Number(g2(r,c.w))||0, dt:dd, scen:g2(r,c.sc), fio:g2(r,c.fio), pos:g2(r,c.pos), d:g2(r,c.d), s, cr, link:g2(r,c.link)}); });
   return rows;
 }
 function vmrFiltered(rows, withMonth){ const me = (VMRS.tm||'all').toLowerCase();
@@ -4170,7 +4197,7 @@ function vmrLine(ms){   // ms: [{m, avg, n}] — линия средней оц�
   const bars = ms.map((z,i)=>{ const bh = (H-T-B)*0.28*z.n/mxn; return `<rect x="${x(i)-14}" y="${H-B-bh}" width="28" height="${bh}" rx="6" class="vm-bar"/>`; }).join('');
   const pts = ms.map((z,i)=>`${x(i).toFixed(1)},${y(z.avg).toFixed(1)}`).join(' ');
   const area = ms.length>1 ? `<polygon points="${x(0).toFixed(1)},${H-B} ${pts} ${x(ms.length-1).toFixed(1)},${H-B}" fill="url(#vmg)" opacity=".5"/>` : '';
-  const dots = ms.map((z,i)=>`<circle cx="${x(i)}" cy="${y(z.avg)}" r="6" fill="var(--card)" stroke="${stCol(z.avg)}" stroke-width="3"/><text x="${x(i)}" y="${y(z.avg)-13}" text-anchor="middle" class="vm-vl" style="fill:${stCol(z.avg)}">${fmt(z.avg)}%</text><text x="${x(i)}" y="${H-20}" text-anchor="middle" class="vm-ax" style="fill:var(--text)">${MN_RU[z.m]||z.m}</text><text x="${x(i)}" y="${H-6}" text-anchor="middle" class="vm-ax">${z.n} пров.</text>`).join('');
+  const dots = ms.map((z,i)=>`<circle cx="${x(i)}" cy="${y(z.avg)}" r="6" fill="var(--card)" stroke="${stCol(z.avg)}" stroke-width="3"/><text x="${x(i)}" y="${y(z.avg)-13}" text-anchor="middle" class="vm-vl" style="fill:${stCol(z.avg)}">${fmt(z.avg)}%</text><text x="${x(i)}" y="${H-20}" text-anchor="middle" class="vm-ax" style="fill:var(--text)">${z.l||MN_RU[z.m]||z.m}</text><text x="${x(i)}" y="${H-6}" text-anchor="middle" class="vm-ax">${z.n} пров.</text>`).join('');
   return `<svg viewBox="0 0 ${W} ${H}" class="vm-svg" role="img" aria-label="Динамика оценки ВМР по месяцам"><defs><linearGradient id="vmg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0a84ff" stop-opacity=".35"/><stop offset="1" stop-color="#0a84ff" stop-opacity="0"/></linearGradient></defs>${grid}${bars}${area}<polyline points="${pts}" fill="none" stroke="#0a84ff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
 }
 function vmrDonut(parts){   // parts: [{n, v, c}]
@@ -4236,7 +4263,7 @@ function anVmr(all){
     <tbody>${emp.map(r=>`<tr><th class="l" title="${esc(r.n)}">${esc(short2(r.n))}</th>${r.pm.map(v=>vmrCell(v)).join('')}${vmrCell(r.tot)}<td>${r.cnt}</td></tr>`).join('')}<tr class="tot"><th class="l">Итого</th>${mT.map(v=>vmrCell(v)).join('')}${vmrCell(vmrAv(base.map(r=>r.s)))}<td>${base.length}</td></tr></tbody></table></div></div>`;
   // --- разбор: самые слабые проверки
   const worstC = cur.filter(r=>r.s<ST_WARN).sort((a,b)=>a.s-b.s).slice(0,12);
-  const rev = worstC.length ? `<div class="card fade"><div class="eyebrow">Разбор</div><h2>Проверки на разбор</h2><div class="vm-rev">${worstC.map(r=>{ const miss = VMR_CR.filter(([k])=>r.cr[k]===0).map(([k,l])=>l); return `<div class="vm-ri"><i style="background:${stCol(r.s)}">${fmt(r.s)}%</i><div><b>${esc(short2(r.fio)||'—')}</b> · ${esc(vmrTT(r.tt))}<small>${esc(r.scen||'')}${r.d?' · '+esc(r.d):''}</small>${miss.length?`<div class="vm-miss">${miss.map(m=>`<em>${esc(m)}</em>`).join('')}</div>`:''}</div>${/^https?:/i.test(r.link)?`<a class="chipb" href="${esc(r.link)}" target="_blank" rel="noopener">Видео</a>`:''}</div>`; }).join('')}</div><div class="note-s" style="margin-top:8px">Проверки с оценкой ниже ${ST_WARN}%, от худших. Красные теги — невыполненные пункты чек-листа.</div></div>` : '';
+  const rev = vmrRevCard(base,'tm');
   return `<div class="stack">${head}${dyn}${t1}${t2}${t3}${t4}${rev}</div>`;
 }
 function vmrBind(){
@@ -4253,6 +4280,7 @@ function vmrBind(){
       VMRS.dd = true; rr(); const l = $('#anVmr .vm-list'); if (l) l.scrollTop = sc;
     });
   }
+  { const rc = el.querySelector('.rv-card'); if (rc) rvBind(rc, 'tm', ()=>vmrFiltered(ANCACHE.vmrRows,false)); }
   if (!vmrBind.g){ vmrBind.g = 1;
     document.addEventListener('pointerdown', e=>{ if (VMRS.dd && !(e.target.closest && e.target.closest('.vm-dd'))){ VMRS.dd = false; const d = $('#anVmr .vm-dd'); if (d) d.classList.remove('open'); } });
     document.addEventListener('keydown', e=>{ if (e.key==='Escape' && VMRS.dd){ VMRS.dd = false; const d = $('#anVmr .vm-dd'); if (d) d.classList.remove('open'); } });
@@ -4268,7 +4296,7 @@ function demoVmrGrid(){
   for (let m = 8; m <= 11; m++) tts.forEach(([tt,b],ti)=>{ const n = 2 + Math.floor(rnd()*4); for (let i=0;i<n;i++){
     const u = rnd(), sc = u<.45 ? 'Обслуживание' : u<.9 ? 'Подключение' : 'Продажа', bias = Math.min(.99, b + (m-9.5)*.02 + (rnd()-.5)*.12), day = 1 + Math.floor(rnd()*27);
     let ok = 0, tot = 0; const vals = K.map(([k,p])=>{ if ((k==='12' && rnd()<.7) || (k==='6.3' && rnd()<.4)) return ''; const v = rnd() < Math.max(0, Math.min(.995, 1-(1-p)*(2.2-1.6*bias))) ? 1 : 0; ok += v; tot++; return String(v); });
-    rows.push(['Демо','Казань БЛН','Билайн',me,tt,String(m),String(30+m*4),String(day).padStart(2,'0')+'.'+String(m).padStart(2,'0')+'.2026','ПТТ',emps[Math.floor(rnd()*emps.length)],'',sc,'ВМР'].concat(vals,[(ok/Math.max(1,tot)*100).toFixed(2).replace('.',',')+'%','']));
+    rows.push(['Демо','Казань БЛН','Билайн',me,tt,String(m),String((()=>{ const d = new Date(Date.UTC(2026,m-1,day)), t = new Date(d); t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7)); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t-y0)/864e5+1)/7); })()),String(day).padStart(2,'0')+'.'+String(m).padStart(2,'0')+'.2026','ПТТ',emps[Math.floor(rnd()*emps.length)],'',sc,'ВМР'].concat(vals,[(ok/Math.max(1,tot)*100).toFixed(2).replace('.',',')+'%','']));
   } });
   return [[''], head].concat(rows);
 }
@@ -4474,6 +4502,112 @@ function nfShow(root){
   root.querySelectorAll('button[data-dl]').forEach(b=>b.onclick = async ()=>{ const r = await nfFetch(b.dataset.dl); if (!r||!r.data) return; const bin = atob(r.data), u8 = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) u8[i] = bin.charCodeAt(i); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([u8],{type:r.mime})); a.download = r.name||'file'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); });
 }
 function nfHtml(x){ const fl = x.files||[]; if (!fl.length) return ''; return '<div class="n-files">'+fl.map(f=>/^image\/(jpeg|png|webp|gif)$/.test(f.mime)?`<img class="n-img" alt="${esc(f.name)}" data-fid="${esc(f.id)}">`:`<button type="button" class="n-file" data-dl="${esc(f.id)}">📄 ${esc(f.name)} <small>${nfSize(f.size)}</small></button>`).join('')+'</div>'; }
+
+/* =================== ВМР: «Проверки на разбор» с фильтром по месяцам и неделям и динамикой (ТМ / РТТ-УТТ / ПТТ-СП) =================== */
+const REV = {tm:{m:'all',w:'all',sc:'all',t:'all',all:false}, me:{m:'all',w:'all',sc:'all',t:'all',all:false}};
+let MYVMR = null;
+const rvD = d => d ? String(d.getUTCDate()).padStart(2,'0')+'.'+String(d.getUTCMonth()+1).padStart(2,'0') : '';
+function rvWeek(rows,w){ const r = rows.find(x=>x.w===w && x.dt); if (!r) return w+' нед'; const mon = new Date(r.dt.getTime() - ((r.dt.getUTCDay()+6)%7)*864e5), sun = new Date(mon.getTime()+6*864e5); return w+' нед · '+rvD(mon)+'–'+rvD(sun); }
+function rvItem(r, who){ const miss = VMR_CR.filter(([k])=>r.cr[k]===0).map(([k,l])=>l);
+  return `<div class="vm-ri"><i style="background:${stCol(r.s)}">${fmt(r.s)}%</i><div><b>${esc(who ? (short2(r.fio)||'—') : vmrTT(r.tt))}</b>${who?' · '+esc(vmrTT(r.tt)):''}<small>${esc(r.scen||'')}${r.d?' · '+esc(r.d):''}${r.w?' · '+r.w+' нед':''}</small>${miss.length?`<div class="vm-miss">${miss.map(m=>`<em>${esc(m)}</em>`).join('')}</div>`:''}</div>${/^https?:/i.test(r.link)?`<a class="chipb" href="${esc(r.link)}" target="_blank" rel="noopener">Видео</a>`:''}</div>`; }
+function vmrRevInner(base, k){
+  const S = REV[k], isMe = k==='me', mgr = isMe && ROLE==='manager';
+  const ttc = {}; base.forEach(r=>{ ttc[r.tt] = (ttc[r.tt]||0)+1; }); const tts = Object.keys(ttc).sort((a,b)=>ttc[b]-ttc[a]);
+  if (S.t!=='all' && !ttc[S.t]) S.t = 'all';
+  const b1 = base.filter(r=>S.t==='all'||r.tt===S.t).filter(r=>S.sc==='all'||r.scen===S.sc);
+  const months = [...new Set(b1.map(r=>r.m).filter(Boolean))].sort((a,b)=>a-b);
+  if (S.m!=='all' && !months.includes(S.m)) S.m = 'all';
+  const inM = b1.filter(r=>S.m==='all'||r.m===S.m), wk = {}; inM.forEach(r=>{ if (r.w) (wk[r.w]=wk[r.w]||[]).push(r); });
+  const weeks = Object.keys(wk).map(Number).sort((a,b)=>a-b);
+  if (S.w!=='all' && !weeks.includes(S.w)) S.w = 'all';
+  const cur = inM.filter(r=>S.w==='all'||r.w===S.w);
+  const ser = (S.m==='all' ? months.map(m=>({l:MN_RU[m]||m, a:b1.filter(r=>r.m===m)})) : weeks.map(w=>({l:'Н'+w, a:wk[w]}))).map(z=>({l:z.l, a:z.a, avg:vmrAv(z.a.map(r=>r.s)), n:z.a.length}));
+  const ctl = `<div class="vm-ctl">${mgr&&tts.length>1?`<div class="chips" role="group" aria-label="Торговая точка"><button class="chipb" data-rv="t" data-v="all" aria-pressed="${S.t==='all'}">Все ТТ</button>${tts.map(t=>`<button class="chipb" data-rv="t" data-v="${esc(t)}" aria-pressed="${S.t===t}">${esc(vmrTT(t))}</button>`).join('')}</div>`:''}
+    <div class="chips" role="group" aria-label="Месяц"><button class="chipb" data-rv="m" data-v="all" aria-pressed="${S.m==='all'}">Все месяцы</button>${months.map(m=>`<button class="chipb" data-rv="m" data-v="${m}" aria-pressed="${S.m===m}">${MN_RU[m]||m}</button>`).join('')}</div>
+    <div class="chips" role="group" aria-label="Неделя"><button class="chipb" data-rv="w" data-v="all" aria-pressed="${S.w==='all'}">Все недели</button>${weeks.map(w=>`<button class="chipb" data-rv="w" data-v="${w}" aria-pressed="${S.w===w}">${esc(rvWeek(inM,w))}</button>`).join('')}</div>
+    <div class="chips" role="group" aria-label="Сценарий"><button class="chipb" data-rv="sc" data-v="all" aria-pressed="${S.sc==='all'}">Все сценарии</button>${VMR_SC.map(x=>`<button class="chipb" data-rv="sc" data-v="${x}" aria-pressed="${S.sc===x}">${x}</button>`).join('')}</div>
+    <div class="chips" role="group" aria-label="Показать"><button class="chipb" data-rv="all" data-v="0" aria-pressed="${!S.all}">Только на разбор</button><button class="chipb" data-rv="all" data-v="1" aria-pressed="${S.all}">Все проверки</button></div></div>`;
+  if (!cur.length) return `${ctl}<div class="empty" style="margin-top:12px">По выбранным фильтрам проверок нет.</div>`;
+  const avg = vmrAv(cur.map(r=>r.s)), low = cur.filter(r=>r.s<ST_WARN), dl = ser.length>1 ? ser[ser.length-1].avg-ser[ser.length-2].avg : null;
+  const kp = (t,v,sub,c) => `<div class="vm-k"><span>${t}</span><b style="${c?'color:'+c:''}">${v}</b><small>${sub}</small></div>`;
+  const kpis = `<div class="vm-ks">${kp('Средняя оценка', fmt(avg,1)+'%', dl==null?'':`<em class="${dl>=0?'up':'dn'}">${dl>=0?'+':''}${fmt(dl,1)} п.п. к пред. периоду</em>`, stCol(avg))}${kp('Проверок', fmt(cur.length), S.w!=='all'?'за выбранную неделю':S.m!=='all'?'за выбранный месяц':'за всё время')}${kp('На разбор', fmt(low.length), `ниже ${ST_WARN}%: ${fmt(low.length/cur.length*100)}%`, low.length?stCol(0):'var(--green)')}${kp('Лучшая', fmt(Math.max(...cur.map(r=>r.s)))+'%', 'максимум за период')}</div>`;
+  const chart = ser.length ? `<h3 class="an-h3">Динамика · ${S.m==='all'?'по месяцам':'по неделям, '+(MN_RU[S.m]||S.m)}</h3><div class="vm-chart">${vmrLine(ser.map(z=>({m:0,l:z.l,avg:z.avg,n:z.n})))}</div>` : '';
+  let piv = '';
+  if (mgr && tts.length>1 && ser.length){ const rowsT = tts.filter(t=>S.t==='all'||t===S.t).map(t=>({t, v:ser.map(z=>vmrAv(z.a.filter(r=>r.tt===t).map(r=>r.s))), c:ser.reduce((a,z)=>a+z.a.filter(r=>r.tt===t).length,0)})).sort((a,b)=>(vmrAv(a.v.filter(x=>x!=null))||0)-(vmrAv(b.v.filter(x=>x!=null))||0));
+    piv = `<h3 class="an-h3">ТТ × ${S.m==='all'?'месяцы':'недели'}</h3><div class="mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">ТТ</th>${ser.map(z=>`<th class="g"><span class="gd">${esc(z.l)}</span></th>`).join('')}<th class="g"><span class="gd">Проверок</span></th></tr></thead><tbody>${rowsT.map(r=>`<tr><th class="l" title="${esc(r.t)}">${esc(vmrTT(r.t))}</th>${r.v.map(v=>vmrCell(v)).join('')}<td>${r.c}</td></tr>`).join('')}</tbody></table></div>`; }
+  const list = (S.all ? cur.slice().sort((a,b)=>(b.dt||0)-(a.dt||0)) : low.slice().sort((a,b)=>a.s-b.s)), shown = list.slice(0,30);
+  const lst = `<h3 class="an-h3">${S.all?'Все проверки':'Проверки на разбор'} · ${list.length}</h3>${shown.length?`<div class="vm-rev">${shown.map(r=>rvItem(r, k==='tm'||mgr)).join('')}</div>`:'<div class="empty">Проверок ниже '+ST_WARN+'% нет — отлично!</div>'}${list.length>shown.length?`<div class="note-s">Показаны ${shown.length} из ${list.length}. Сузьте период фильтрами выше.</div>`:''}<div class="note-s" style="margin-top:8px">«На разбор» — проверки с оценкой ниже ${ST_WARN}%, от худших. Красные теги — невыполненные пункты чек-листа. Недели — по календарной неделе года из выгрузки.</div>`;
+  return ctl+kpis+chart+piv+lst;
+}
+function vmrRevCard(base, k){
+  const t = k==='tm' ? ['Разбор','Проверки на разбор'] : ROLE==='manager' ? ['ВМР · мои торговые точки','Проверки ВМР по моим ТТ'] : ['ВМР · мои проверки','Мои проверки ВМР'];
+  return `<div class="card fade rv-card" data-rvk="${k}"><div class="eyebrow">${t[0]}</div><h2>${t[1]}</h2><div class="rv-box">${vmrRevInner(base,k)}</div></div>`;
+}
+function rvBind(root, k, getBase){
+  const box = root.querySelector('.rv-box'); if (!box) return;
+  const rr = () => { box.innerHTML = vmrRevInner(getBase(), k); rvBind(root, k, getBase); };
+  box.querySelectorAll('[data-rv]').forEach(b=>b.onclick = () => { const f = b.dataset.rv, v = b.dataset.v; REV[k][f] = (f==='m'||f==='w') ? (v==='all'?'all':Number(v)) : f==='all' ? v==='1' : v; if (f==='m') REV[k].w = 'all'; rr(); });
+}
+async function loadMyVmr(force){
+  const host = $(ROLE==='manager' ? '#m-vmr' : '#vmrc'); if (!host) return;
+  if (!MYVMR || force){ host.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем проверки ВМР…</div>'; try{ const r = await api({action:'vmr_mine', token:store.get('token')}); MYVMR = r && r.grid ? {rows:vmrParse(r.grid)||[]} : {err:r&&r.error||'x', missing:r&&r.missing}; }catch(e){ MYVMR = {err:'net'}; } }
+  if (!MYVMR.rows) { host.innerHTML = `<div class="card empty">${MYVMR.missing?'Выгрузка ВМР не найдена.':'Не удалось загрузить проверки ВМР.'}</div>`; return; }
+  if (!MYVMR.rows.length){ host.innerHTML = `<div class="card fade"><div class="eyebrow">ВМР</div><h2>${ROLE==='manager'?'Проверки по вашим ТТ':'Ваши проверки'}</h2><div class="empty">Проверок пока нет.</div></div>`; return; }
+  host.innerHTML = `<div class="stack">${vmrRevCard(MYVMR.rows,'me')}</div>`; rvBind(host.querySelector('.rv-card'), 'me', ()=>MYVMR.rows);
+}
+
+/* =================== Уведомления (колокольчик): обновления сайта и новые проверки ВМР =================== */
+let NOTIFS = [], NOTIF_FIRST = true; const NOTIF_KNOWN = new Set();
+const nSeenKey = () => 'nseen:'+(store.get('login')||'guest');
+const nUnread = () => { const seen = store.get(nSeenKey())||''; return NOTIFS.filter(n=>n.t>seen); };
+const nAgo = t => { const m = Math.round((Date.now()-new Date(t))/60000); if (m<2) return 'только что'; if (m<60) return m+' мин назад'; const h = Math.round(m/60); if (h<24) return h+' ч назад'; const d = Math.floor(m/1440); return d===1 ? 'вчера' : d+' дн. назад'; };
+function bellDraw(){ const b = $('#bellDot'); if (!b) return; const n = nUnread().length; b.hidden = !n; b.textContent = n>9 ? '9+' : String(n); const p = $('#notifPanel'); if (p && !p.hidden) bellPanel(true); }
+function bellPanel(keepOpen){
+  let p = $('#notifPanel');
+  if (!p){ p = document.createElement('div'); p.id = 'notifPanel'; p.className = 'th-pan nt-pan'; p.hidden = true; p.setAttribute('role','dialog'); p.setAttribute('aria-label','Уведомления'); document.body.appendChild(p);
+    document.addEventListener('pointerdown', e=>{ if (!p.hidden && !e.target.closest('#notifPanel,#btnBell')) p.hidden = true; });
+    document.addEventListener('keydown', e=>{ if (e.key==='Escape') p.hidden = true; }); }
+  const seen = store.get(nSeenKey())||'', perm = ('Notification' in window) ? Notification.permission : 'denied';
+  p.innerHTML = `<div class="th-h"><div><b>🔔 Уведомления</b><small>новости, обновления и анкеты ВМР</small></div><button type="button" class="icon-btn" id="ntX" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="nt-list">${NOTIFS.length ? NOTIFS.map(n=>`<button type="button" class="nt-i${n.t>seen?' new':''}" data-nid="${esc(n.id)}"><span class="nt-k nt-${esc(n.kind||'x')}">${n.kind==='vmr'?'📋':(n.kind==='release'||n.kind==='news')?'🚀':'🔔'}</span><span><b>${esc(n.title)}</b><small>${esc(n.text)}</small><em>${nAgo(n.t)}</em></span></button>`).join('') : '<div class="empty">Пока уведомлений нет.</div>'}</div>
+    <div class="th-f"><button type="button" class="btn ghost" id="ntRead">Отметить прочитанными</button>${perm==='default'?'<button type="button" class="btn ghost" id="ntPerm">🔔 Включить push</button>':`<small>${perm==='granted'?'Системные уведомления включены':'Системные уведомления выключены в браузере'}</small>`}</div>`;
+  p.querySelector('#ntX').onclick = () => { p.hidden = true; };
+  p.querySelector('#ntRead').onclick = () => { if (NOTIFS.length) store.set(nSeenKey(), NOTIFS[0].t); bellDraw(); bellPanel(true); };
+  const pm = p.querySelector('#ntPerm'); if (pm) pm.onclick = () => { try{ Promise.resolve(pushAsk()).then(()=>bellPanel(true)); }catch(e){} };
+  p.querySelectorAll('[data-nid]').forEach(b=>b.onclick = () => { const n = NOTIFS.find(x=>x.id===b.dataset.nid); if (!n) return; p.hidden = true; if (NOTIFS[0] && n.t>=(store.get(nSeenKey())||'')) {}
+    try{ if (n.tab==='news') $('#btnNews').click(); else if ($('#tabseg').querySelector('[data-tab="'+n.tab+'"]')) setTab(n.tab); }catch(e){} });
+  if (!keepOpen) p.hidden = false;
+}
+function bellToast(n){
+  const t = document.createElement('div'); t.className = 'nt-toast'; t.innerHTML = `<b>${esc(n.title)}</b><span>${esc(n.text)}</span>`; t.onclick = () => { t.remove(); bellPanel(); };
+  document.body.appendChild(t); setTimeout(()=>t.classList.add('in'),20); setTimeout(()=>{ t.classList.remove('in'); setTimeout(()=>t.remove(),400); }, 7000);
+  try{ if ('Notification' in window && Notification.permission==='granted'){ const o = {body:n.text, icon:'icons/icon-192.png', tag:'pro-'+n.id};
+    if (navigator.serviceWorker && navigator.serviceWorker.ready) navigator.serviceWorker.ready.then(r=>r.showNotification(n.title,o)).catch(()=>{ new Notification(n.title,o); }); else new Notification(n.title,o); } }catch(e){}
+}
+async function notifPoll(){
+  const token = store.get('token'); if (!token || $('#app').hidden) return;
+  let r; try{ r = await api({action:'notif_list', token}); }catch(e){ return; }
+  if (!r || !r.items) return;
+  NOTIFS = r.items; if (r.me) pushInit(r.me);
+  const fresh = NOTIFS.filter(n=>!NOTIF_KNOWN.has(n.id)); NOTIFS.forEach(n=>NOTIF_KNOWN.add(n.id));
+  if (!NOTIF_FIRST) nUnread().filter(n=>fresh.includes(n)).slice(0,3).forEach(bellToast);
+  NOTIF_FIRST = false; bellDraw();
+}
+(function(){ const b = $('#btnBell'); if (b) b.onclick = () => { const p = $('#notifPanel'); if (p && !p.hidden) p.hidden = true; else bellPanel(); };
+  setInterval(()=>{ if (!document.hidden) notifPoll(); }, 180000);
+  document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) notifPoll(); }); })();
+
+/* ---- push-уведомления (OneSignal): вставьте App ID из панели OneSignal; пока пусто — работают только уведомления внутри сайта ---- */
+const OS_APP_ID = '';
+let OS_READY = null;
+function pushInit(me){
+  if (!OS_APP_ID || DEMO || !me) return;
+  if (OS_READY){ OS_READY.then(OS=>OS.login(me)).catch(()=>{}); return; }
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OS_READY = new Promise(res=>{ OneSignalDeferred.push(async OS=>{ try{ await OS.init({appId:OS_APP_ID, serviceWorkerPath:'sw.js', serviceWorkerParam:{scope:'./'}, notifyButton:{enable:false}}); await OS.login(me); res(OS); }catch(e){ res({Notifications:{}}); } }); });
+  const sc = document.createElement('script'); sc.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js'; sc.defer = true; document.head.appendChild(sc);
+}
+function pushAsk(){ if (OS_READY) return OS_READY.then(OS=>OS.Notifications.requestPermission && OS.Notifications.requestPermission()); return Notification.requestPermission(); }
 </script>
 </body>
 </html>

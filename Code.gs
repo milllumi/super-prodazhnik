@@ -47,7 +47,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 2400;                                  // кэш данных: 40 мин; триггер warmCache() обновляет его каждые 30 мин
 // эпоха кэша: поднимайте при выкладке, чтобы все клиенты сразу получили свежие данные, а не 40-минутный снимок
-const CACHE_EPOCH = 'e6';
+const CACHE_EPOCH = 'e7';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -96,6 +96,8 @@ function doPost(e) {
     else if (req.action === 'news_moderate') out = newsModerate_(req);
     else if (req.action === 'links_set') out = linksSet_(req);
     else if (req.action === 'auth_log') out = authLogGet_(req);
+    else if (req.action === 'vmr_mine') out = vmrMine_(req);
+    else if (req.action === 'notif_list') out = notifList_(req);
     else out = { error: 'bad_request' };
   } catch (err) { out = { error: 'server', message: String(err) }; }
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
@@ -204,6 +206,7 @@ function data_(req) {
   const access = readAccess_(ss);
   const user = access.filter(function (a) { return a.key === key; })[0];
   if (!user) return { error: 'auth' };                // убрали из списка «Доступ» — доступ закрыт сразу
+  try { maintain_(ss); } catch (e) {}
   try { const vk = 'vis:' + key, cc = CacheService.getScriptCache(); if (!cc.get(vk)) { cc.put(vk, '1', 3600); authLog_(user, 'визит', req.dev); } } catch (e) {}
   return cached_('u:' + key, TTL_, function () {
     const d = user.manager ? managerData_(ss, user, access) : sellerData_(ss, user, access);
@@ -283,6 +286,7 @@ function newsAdd_(req) {
     if (!sh.getRange(1, 9).getValue()) sh.getRange(1, 9).setValue('Вложения');
     const rg = sh.getRange(row, 1, 1, 9); rg.setNumberFormat('@');
     rg.setValues([[id, when, u.name, u.roleTitle, safeCell_(title), safeCell_(text), tm ? ST_PUB : ST_MOD, tm ? u.name : '', meta.length ? JSON.stringify(meta) : '']]);
+    if (tm) notifyMany_(ss, [{ to: '*', kind: 'news', title: '🚀 Скорее беги в приложение!', text: 'Там новая штука появилась 👀', tab: 'news' }]);
     return { ok: true, status: tm ? ST_PUB : ST_MOD };
   } finally { lock.releaseLock(); }
 }
@@ -298,7 +302,7 @@ function newsModerate_(req) {
     const sh = newsSheet_(ss), v = sh.getDataRange().getDisplayValues();
     for (let i = 1; i < v.length; i++) if (String(v[i][0]) === String(req.id)) {
       if (d === 'delete') { sh.deleteRow(i + 1); dropFiles_(ss, String(req.id)); }
-      else { sh.getRange(i + 1, 7).setValue(d === 'approve' ? ST_PUB : ST_REJ); sh.getRange(i + 1, 8).setValue(u.name); }
+      else { sh.getRange(i + 1, 7).setValue(d === 'approve' ? ST_PUB : ST_REJ); sh.getRange(i + 1, 8).setValue(u.name); if (d === 'approve') notifyMany_(ss, [{ to: '*', kind: 'news', title: '🚀 Скорее беги в приложение!', text: 'Там новая штука появилась 👀', tab: 'news' }]); }
       return { ok: true };
     }
     return { error: 'not_found' };
@@ -484,9 +488,9 @@ function readScheduleRaw_(ss) {
     const blk = v[r].blk, o = out[norm_(name)] = out[norm_(name)] || { planned: 0, done: 0, left: 0, days: {} };
     for (let c = 9; c < v[r].length; c++) {
       const d = c - 8; if (d > 31) break;
-      const code = String(v[r][c]).trim(); if (!code) continue;
+      const code = String(v[r][c]).trim().replace(/\u0406/g, 'I').replace(/\u0425/g, 'X').replace(/\u0456/g, 'i').replace(/\u0445/g, 'x'); if (!code) continue;
       const isShift = shift.test(code);
-      if (isShift || code === 'З' || code === 'з' || /^(О|Б|У|Т|ГУ|И|С|М)$/i.test(code)) (o.days[d] = o.days[d] || []).push([blk ? blk.salon : '', isShift ? code.toUpperCase() : code.toUpperCase(), isShift && blk ? (blk.legend[code.toUpperCase()] || '') : '']);
+      if (isShift || /^[^\d\s]{1,3}$/.test(code)) (o.days[d] = o.days[d] || []).push([blk ? blk.salon : '', code.toUpperCase(), isShift && blk ? (blk.legend[code.toUpperCase()] || '') : '']);
       if (!isShift) continue;
       o.planned++;
       if (d < today) o.done++; else o.left++;            // сегодняшняя смена ещё не попала в факт продаж — считаем её «осталось»
@@ -496,22 +500,31 @@ function readScheduleRaw_(ss) {
 }
 // График на 3 дня (сегодня, завтра, послезавтра): смена, время, точка; «З» (замена) или выход на другую точку → «Замена» и точка работы
 const CODE_NAMES_ = { 'О': 'Отпуск', 'Б': 'Больничный', 'У': 'Уволен', 'Т': 'Тренинг', 'ГУ': 'Генуборка', 'И': 'Инвентаризация', 'С': 'Стажировка', 'М': 'Командировка' };
+function sameSalon_(a, b) {
+  const opOf = function (t) { const m = norm_(t).match(/(^|\s)(мтс|мф|блн)(\s|$)/); return m ? m[2] : ''; };
+  if (opOf(a) && opOf(b) && opOf(a) !== opOf(b)) return false;                    // «Ямашева 71а МТС» ≠ «Ямашева 71а БЛН»
+  const clean = function (t) { return norm_(t).replace(/\b(кзн|блн|тц|трц|тк)\b/g, ' ').replace(/\s+/g, ' ').trim(); };
+  const x = clean(a), y = clean(b); if (!x || !y) return false;
+  return x === y || (Math.min(x.length, y.length) > 4 && (x.indexOf(y) >= 0 || y.indexOf(x) >= 0));
+}
 function next3_(sched, person, mainSalon) {
-  const cal = sched.cal; if (!cal.today || cal.today > 31 || !cal.month) return [];
-  const WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'], out = [], main = norm_(mainSalon || '');
+  const cal = sched.cal; if (!cal.month || !cal.year) return [];
+  const WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'], out = [];
+  // «сегодня» считаем в момент запроса (кэш графика живёт долго), по московскому времени
+  const nowS = Utilities.formatDate(new Date(), 'Europe/Moscow', 'yyyy-M-d').split('-').map(Number);
   for (let i = 0; i < 3; i++) {
-    const d = cal.today + i, dt = new Date(cal.year, cal.month - 1, d);
-    const o = { date: ('0' + dt.getDate()).slice(-2) + '.' + ('0' + (dt.getMonth() + 1)).slice(-2), wd: WD[dt.getDay()], day: i === 0 ? 'сегодня' : (i === 1 ? 'завтра' : 'послезавтра') };
-    if (d > cal.dim) { o.kind = 'nodata'; out.push(o); continue; }
+    const dt = new Date(Date.UTC(nowS[0], nowS[1] - 1, nowS[2] + i)), y = dt.getUTCFullYear(), m = dt.getUTCMonth() + 1, d = dt.getUTCDate();
+    const o = { date: ('0' + d).slice(-2) + '.' + ('0' + m).slice(-2), wd: WD[dt.getUTCDay()], day: i === 0 ? 'сегодня' : (i === 1 ? 'завтра' : 'послезавтра') };
+    if (y !== cal.year || m !== cal.month) { o.kind = 'nodata'; out.push(o); continue; }       // лист «График» — на другой месяц
     const e = (person && person.days && person.days[d]) || [];
-    const shifts = e.filter(function (x) { return /^(I|II|III|IV|V|VI|VII|VIII|IX|X)$/.test(x[1]); });
-    const zs = e.filter(function (x) { return x[1] === 'З'; });
-    const oth = e.filter(function (x) { return x[1] !== 'З' && !/^(I|II|III|IV|V|VI|VII|VIII|IX|X)$/.test(x[1]); });
+    const isSh = function (x) { return /^(I|II|III|IV|V|VI|VII|VIII|IX|X)$/.test(x[1]); };
+    const shifts = e.filter(isSh), zs = e.filter(function (x) { return x[1] === 'З'; });
+    const oth = e.filter(function (x) { return x[1] !== 'З' && !isSh(x); });
     if (shifts.length) {
       const s0 = shifts[0]; o.kind = 'shift'; o.shift = s0[1]; o.time = s0[2]; o.salon = s0[0];
-      if (zs.length || (main && norm_(s0[0]) !== main && main.indexOf(norm_(s0[0])) < 0)) { o.repl = true; o.from = zs.length ? zs[0][0] : mainSalon; }
+      if (zs.length || (mainSalon && !sameSalon_(s0[0], mainSalon))) { o.repl = true; o.from = zs.length ? zs[0][0] : mainSalon; }
     } else if (zs.length) { o.kind = 'repl'; o.repl = true; o.from = zs[0][0]; }
-    else if (oth.length) { o.kind = 'other'; o.label = CODE_NAMES_[oth[0][1]] || oth[0][1]; }
+    else if (oth.length) { o.kind = 'other'; o.label = CODE_NAMES_[oth[0][1]] || ('Отметка «' + oth[0][1] + '» в графике'); }
     else o.kind = 'off';
     out.push(o);
   }
@@ -603,7 +616,7 @@ function sellerData_(ss, sess, access) {
     place: rating.filter(function (r) { return r.me; })[0].place, total: rating.length,
     tt: me.tt || (kpiShops_(ss, access)[meKey] || []).join(' · '), hours: me.hours, metrics: me.metrics, quality: me.quality, score: Math.round(me.score),
     schedule: mySched ? { planned: mySched.planned, done: mySched.done, left: mySched.left } : null, cal: sched.cal,
-    next3: next3_(sched, mySched, me.tt || (kpiShops_(ss, access)[meKey] || [])[0] || ''),
+    next3: next3_(sched, mySched, primarySalon_(ss, meKey, me.tt || (kpiShops_(ss, access)[meKey] || [])[0] || '')),
     pointRes: salonResults_(ss, primarySalon_(ss, meKey, me.tt || (kpiShops_(ss, access)[meKey] || [])[0] || '')),
     bonus: { total: total, shifts: shifts, avgDaily: shifts ? total / shifts : 0, days: worked, groups: inc.groups || null, groupsTotal: inc.gtotal === undefined ? null : inc.gtotal },
     rating: rating,
@@ -1723,4 +1736,150 @@ function newsFileGet_(req) {
   if (!ok || !meta) return { error: 'forbidden' };
   parts.sort(function (a, b) { return a[0] - b[0]; });
   return { name: meta.name, mime: meta.mime, data: parts.map(function (p) { return p[1]; }).join('') };
+}
+
+/* ---------- ВМР для РТТ/УТТ (по их ТТ) и ПТТ/СП (только их проверки) ---------- */
+function vmrMine_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  if (u.roleTitle === 'ТМ') return { error: 'forbidden' };                       // у ТМ — полный отчёт на вкладке «Аналитика»
+  const rep = tmReportRaw_(ss, 'vmr');
+  if (!rep || !rep.grid) return rep || { missing: true };
+  const g = rep.grid; let hi = -1;
+  for (let r = 0; r < Math.min(g.length, 15); r++) {
+    const h = g[r].map(norm_);
+    if (h.indexOf('тт') >= 0 && h.indexOf('оценка') >= 0) { hi = r; break; }
+  }
+  if (hi < 0) return { grid: [] };
+  const H = g[hi].map(norm_), iTT = H.indexOf('тт'), iFio = H.indexOf('фио сотрудника');
+  let pred;
+  if (u.manager) {
+    const shops = kpiShops_(ss, readAccess_(ss))[u.key] || [];
+    pred = function (r) { return shops.some(function (sh) { return sameSalon_(r[iTT], sh); }); };
+  } else {
+    pred = function (r) { return iFio >= 0 && norm_(r[iFio]) === u.key; };
+  }
+  return { name: rep.name, scope: u.manager ? 'tt' : 'me', grid: g.slice(0, hi + 1).concat(g.slice(hi + 1).filter(pred)) };
+}
+
+/* =================== Уведомления и новости об обновлениях =================== */
+const NOTIF_SHEET = 'Уведомления';
+// ВАЖНО: при каждом обновлении сайта добавляйте сюда запись (новая версия `v`) — она сама станет новостью и уведомлением для всех.
+const RELEASES = [
+  { v: '2026-11-19', title: 'Обновление: цвета, фон, входы, вложения и разбор ВМР',
+    text: 'Что нового:\n• Оформление — кнопка-палитра в шапке: свои цвета, статусы, тема и фон (цвет или своя картинка).\n• Вкладка «Входы» для ТМ — история авторизации по каждому сотруднику.\n• Новости — можно прикладывать файлы и вставлять картинки из буфера.\n• «Проверки на разбор» (ВМР) — фильтр по месяцам и неделям и динамика: у ТМ — по всем, у РТТ/УТТ — по их ТТ, у ПТТ/СП — по их проверкам.\n• В аналитике темпа добавлен «Весь товарооборот».\n• Исправлен «График на 3 дня».\n• Уведомления (колокольчик): об обновлениях и о новых проверках ВМР.' }
+];
+function h_(t) { return Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(t))).slice(0, 10); }
+function notifSheet_(ss) {
+  let sh = ss.getSheetByName(NOTIF_SHEET);
+  if (!sh) { sh = ss.insertSheet(NOTIF_SHEET); sh.getRange(1, 1, 1, 7).setValues([['ID', 'Время', 'Кому', 'Тип', 'Заголовок', 'Текст', 'Вкладка']]); sh.setFrozenRows(1); }
+  return sh;
+}
+function notifyMany_(ss, list) {            // list: [{to, kind, title, text, tab}] — to: ключ сотрудника или '*'
+  if (!list.length) return;
+  const sh = notifSheet_(ss), now = new Date().toISOString();
+  const rows = list.map(function (n) { return [Utilities.getUuid().slice(0, 8), now, n.to, n.kind || '', safeCell_(n.title || ''), safeCell_(n.text || ''), n.tab || '']; });
+  sh.getRange(sh.getLastRow() + 1, 1, rows.length, 7).setNumberFormat('@').setValues(rows);
+  try { pushSend_(list); } catch (e) {}
+}
+/* ---------- настоящие push-уведомления через OneSignal (REST). Нужны свойства скрипта ONESIGNAL_APP_ID и ONESIGNAL_API_KEY ---------- */
+function pushSend_(list) {
+  const props = PropertiesService.getScriptProperties(), app = props.getProperty('ONESIGNAL_APP_ID'), key = props.getProperty('ONESIGNAL_API_KEY');
+  if (!app || !key || !list.length) return;
+  const reqs = list.slice(0, 60).map(function (n) {
+    const body = { app_id: app, target_channel: 'push', headings: { en: n.title, ru: n.title }, contents: { en: n.text, ru: n.text } };
+    if (PUSH_URL_()) body.url = PUSH_URL_();
+    if (n.to === '*') body.included_segments = ['Total Subscriptions']; else body.include_aliases = { external_id: [n.to] };
+    return { url: 'https://api.onesignal.com/notifications', method: 'post', contentType: 'application/json', headers: { Authorization: 'Key ' + key }, payload: JSON.stringify(body), muteHttpExceptions: true };
+  });
+  UrlFetchApp.fetchAll(reqs);
+}
+function PUSH_URL_() { return PropertiesService.getScriptProperties().getProperty('SITE_URL') || ''; }
+function notifList_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  try { maintain_(ss); } catch (e) {}
+  const sh = ss.getSheetByName(NOTIF_SHEET), items = [];
+  if (sh && sh.getLastRow() > 1) {
+    const n = Math.min(400, sh.getLastRow() - 1), v = sh.getRange(sh.getLastRow() - n + 1, 1, n, 7).getValues(), lim = new Date(Date.now() - 30 * 864e5).toISOString();
+    for (let i = v.length - 1; i >= 0 && items.length < 40; i--) {
+      const r = v[i], to = String(r[2]);
+      if ((to === '*' || to === u.key) && String(r[1]) >= lim) items.push({ id: String(r[0]), t: String(r[1]), kind: String(r[3]), title: String(r[4]), text: String(r[5]), tab: String(r[6]) });
+    }
+  }
+  return { items: items, now: new Date().toISOString(), me: u.key };
+}
+// Фоновое обслуживание (не чаще раза в 5 минут): релизы → новость + уведомление всем; ВМР → уведомления сотруднику и РТТ/УТТ
+function maintain_(ss) {
+  const cc = CacheService.getScriptCache();
+  if (cc.get('maint')) return;
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(3000)) return;
+  try {
+    cc.put('maint', '1', 300);
+    try { releasesSync_(ss); } catch (e) {}
+    try { vmrWatch_(ss); } catch (e) {}
+  } finally { lock.releaseLock(); }
+}
+function releasesSync_(ss) {
+  const props = PropertiesService.getScriptProperties(), done = (props.getProperty('rel_done') || '').split(',').filter(String);
+  const todo = RELEASES.filter(function (r) { return done.indexOf(r.v) < 0; });
+  if (!todo.length) return;
+  const sh = newsSheet_(ss), when = Utilities.formatDate(new Date(), 'Europe/Moscow', 'dd.MM.yyyy HH:mm'), notes = [];
+  todo.forEach(function (r) {
+    const row = sh.getLastRow() + 1, rg = sh.getRange(row, 1, 1, 9); rg.setNumberFormat('@');
+    rg.setValues([['rel-' + r.v, when, 'SUPER PROдажник', 'Обновление', safeCell_(r.title), safeCell_(r.text), ST_PUB, 'авто', '']]);
+    notes.push({ to: '*', kind: 'release', title: '🚀 Скорее беги в приложение!', text: 'Там новая штука появилась 👀', tab: 'news' });
+    done.push(r.v);
+  });
+  notifyMany_(ss, notes);
+  props.setProperty('rel_done', done.join(','));
+}
+const VMR_SNAP = 'Снимок ВМР';
+function vmrWatch_(ss) {
+  const rep = tmReportRaw_(ss, 'vmr'); if (!rep || !rep.grid) return;
+  const g = rep.grid; let hi = -1;
+  for (let r = 0; r < Math.min(g.length, 15); r++) { const h = g[r].map(norm_); if (h.indexOf('тт') >= 0 && h.indexOf('оценка') >= 0) { hi = r; break; } }
+  if (hi < 0) return;
+  const H = g[hi].map(norm_), iTT = H.indexOf('тт'), iFio = H.indexOf('фио сотрудника'), iS = H.indexOf('оценка'), iD = H.indexOf('дата проверки'), iSc = H.indexOf('сценарий');
+  if (iTT < 0 || iS < 0) return;
+  const cur = {}, order = [];
+  g.slice(hi + 1).forEach(function (r) {
+    if (!String(r[iTT]).trim() || !String(r[iS]).trim()) return;
+    const k = h_([r[iTT], iFio >= 0 ? r[iFio] : '', iD >= 0 ? r[iD] : '', iSc >= 0 ? r[iSc] : ''].join('|'));
+    if (!cur[k]) order.push(k);
+    cur[k] = { h: h_(r.join('|')), r: r };
+  });
+  let sh = ss.getSheetByName(VMR_SNAP), first = false;
+  if (!sh) { sh = ss.insertSheet(VMR_SNAP); first = true; try { sh.hideSheet(); } catch (e) {} }
+  const old = {};
+  if (!first && sh.getLastRow() > 0) sh.getRange(1, 1, sh.getLastRow(), 2).getValues().forEach(function (v) { old[String(v[0])] = String(v[1]); });
+  else first = true;
+  const changed = order.filter(function (k) { return old[k] !== cur[k].h; });
+  const save = function () {
+    sh.clearContents();
+    if (order.length) sh.getRange(1, 1, order.length, 2).setNumberFormat('@').setValues(order.map(function (k) { return [k, cur[k].h]; }));
+  };
+  if (first || !changed.length || changed.length > 300) { if (first || changed.length) save(); return; }   // первый запуск и массовая перезаливка — без уведомлений
+  const access = readAccess_(ss), shops = kpiShops_(ss, access);
+  const mgrs = access.filter(function (a) { return a.manager && a.roleTitle !== 'ТМ'; }), emps = {};
+  access.forEach(function (a) { if (!a.manager) emps[a.key] = a; });
+  const box = {};                                                    // ключ получателя → { me: [], tt: [] }
+  const add = function (key, kind, it) { (box[key] = box[key] || { me: [], tt: [] })[kind].push(it); };
+  changed.forEach(function (k) {
+    const r = cur[k].r, it = { tt: String(r[iTT]), fio: iFio >= 0 ? String(r[iFio]) : '', d: iD >= 0 ? String(r[iD]) : '', sc: iSc >= 0 ? String(r[iSc]) : '', s: parseFloat(String(r[iS]).replace('%', '').replace(',', '.')) || 0, isNew: !old[k] };
+    const ek = norm_(it.fio); if (emps[ek]) add(ek, 'me', it);
+    mgrs.forEach(function (m) { if ((shops[m.key] || []).some(function (sh2) { return sameSalon_(it.tt, sh2); })) add(m.key, 'tt', it); });
+  });
+  const shortTT = function (t) { return String(t).replace(/^КЗН\s+/, '').replace(/\s+(БЛН|МТС|МФ)\b.*$/, '').trim() || t; };
+  const out = [], em = function (x) { return x >= 100 ? '🏆' : x >= 85 ? '✅' : '⚠️'; };
+  Object.keys(box).forEach(function (key) {
+    const b = box[key];
+    if (b.me.length > 5) out.push({ to: key, kind: 'vmr', tab: 'vmr', title: '📋 Новые анкеты ВМР', text: 'На тебя пришло анкет: ' + b.me.length + ' — загляни в приложение 👀' });
+    else b.me.forEach(function (x) { out.push({ to: key, kind: 'vmr', tab: 'vmr', title: '📋 Пришла анкета ВМР', text: 'На тебя пришла анкета с результатом ' + em(x.s) + ' ' + Math.round(x.s) + '%' }); });
+    if (b.tt.length > 5) out.push({ to: key, kind: 'vmr', tab: 'vmr', title: '👥 Анкеты по твоим сотрудникам', text: 'На твоих сотрудников пришло анкет: ' + b.tt.length + ' — загляни в приложение 👀' });
+    else b.tt.forEach(function (x) { out.push({ to: key, kind: 'vmr', tab: 'vmr', title: '👥 Анкета на твоего сотрудника', text: 'На твоего сотрудника ' + (x.fio.split(' ').slice(0, 2).join(' ') || '—') + ' (' + shortTT(x.tt) + ') пришла анкета с результатом ' + em(x.s) + ' ' + Math.round(x.s) + '%' }); });
+  });
+  notifyMany_(ss, out);
+  save();
 }
