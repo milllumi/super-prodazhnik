@@ -47,7 +47,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 2400;                                  // кэш данных: 40 мин; триггер warmCache() обновляет его каждые 30 мин
 // эпоха кэша: поднимайте при выкладке, чтобы все клиенты сразу получили свежие данные, а не 40-минутный снимок
-const CACHE_EPOCH = 'e7';
+const CACHE_EPOCH = 'e8';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -210,7 +210,7 @@ function data_(req) {
   try { const vk = 'vis:' + key, cc = CacheService.getScriptCache(); if (!cc.get(vk)) { cc.put(vk, '1', 3600); authLog_(user, 'визит', req.dev); } } catch (e) {}
   return cached_('u:' + key, TTL_, function () {
     const d = user.manager ? managerData_(ss, user, access) : sellerData_(ss, user, access);
-    d.updated = new Date().toISOString(); return d;
+    d.leaders = leaders_(ss, access); d.updated = new Date().toISOString(); return d;
   });
 }
 // Триггер «по времени» (каждые 30 минут): один раз запустите installTrigger() — дальше таблица читается в фоне, а сайт отвечает из кэша.
@@ -619,7 +619,7 @@ function sellerData_(ss, sess, access) {
     next3: next3_(sched, mySched, primarySalon_(ss, meKey, me.tt || (kpiShops_(ss, access)[meKey] || [])[0] || '')),
     pointRes: salonResults_(ss, primarySalon_(ss, meKey, me.tt || (kpiShops_(ss, access)[meKey] || [])[0] || '')),
     bonus: { total: total, shifts: shifts, avgDaily: shifts ? total / shifts : 0, days: worked, groups: inc.groups || null, groupsTotal: inc.gtotal === undefined ? null : inc.gtotal },
-    rating: rating,
+    rating: rating, ratings: ratingsFor_(sellers, meKey),
   };
 }
 
@@ -750,7 +750,9 @@ function ecoCols_(g) {                                         // индексы
     accPlan: find('Аксесс', 'План, руб'), acc: find('Акс + Усл', 'Прогн, %'), insPlan: find('Страховки', 'План, руб'), ins: find('Страховки', 'Вып доли %'),
     attach: find('Аттачмент', ''), credPlan: find('Кредиты', 'План, руб'), cred: find('Кредиты', 'Выпол-е,%', 0),
     sellPlan: find('Sell_Out + TI', 'План'), sell: find('Sell_Out + TI', 'Выполнение'),
-    comboPlan: find('Комбо', 'План шт Комбо'), combo: find('Комбо', 'Прогноз вып доли Комбо') };
+    comboPlan: find('Комбо', 'План шт Комбо'), combo: find('Комбо', 'Прогноз вып доли Комбо'),
+    trPlan: find('Трафик', 'План, чел'), trFact: find('Трафик', 'Факт, чел'), trDev: find('Трафик', 'Откл, %'),
+    cvPlan: find('Конв', 'План, %'), cvFact: find('Конв', 'Факт, %') };
 }
 function opColsTargets_(g) {                                   // «Операторские таргеты»: колонки по подписям второй строки заголовка
   let h = -1; for (let r = 0; r < Math.min(g.length, 120); r++) if (String(g[r][0] || '').trim() === 'ТМ' && String(g[r][7] || '').trim() === 'Наименование ТТ') { h = r; break; }
@@ -803,6 +805,42 @@ function kpiPrefill_(ss, names) {
   return out;
 }
 
+/* ---------- «Салоны рядом»: смежные салоны (тот же адрес, другой бренд: БЛН / МТС / МФ / Т2) + трафик, прогнозы — из KPI ОСС ---------- */
+const NEAR_BRANDS_ = ['блн', 'мтс', 'мф', 'т2'];
+function brandOf_(t) { const m = norm_(t).replace(/(^|\s)тд(?=\s|$)/g, ' т2').match(/(^|\s)(блн|мтс|мф|т2)(?=\s|$)/); return m ? m[2] : ''; }
+function baseOf_(t) { return norm_(t).replace(/(^|\s)(блн|мтс|мф|т2|тд)(?=\s|$)/g, ' ').replace(/\s+/g, ' ').trim(); }
+function nearSalons_(ss, names) {
+  const kb = kpiBook_(ss); if (!kb || !names || !names.length) return null;
+  const eco = readResSheet_(kb, 'Экономические KPI', 'res:eco'), ec = ecoCols_(eco); if (!ec) return null;
+  let hdr = -1; for (let r = 0; r < eco.length; r++) if (String(eco[r][0] || '').trim() === 'ТМ' && String(eco[r][3] || '').trim() === 'Бренд') { hdr = r; break; }
+  if (hdr < 0) return null;
+  const dim = Number(eco[1] && eco[1][0]) || 0, passed = Number(eco[1] && eco[1][4]) || 0;   // A2 — дней в месяце, E2 — прошло дней
+  const g = function (row, i) { return i != null && i >= 0 ? pctVal_(row[i]) : null; };
+  const rows = [];
+  for (let r = hdr + 2; r < eco.length; r++) {
+    const nm = String(eco[r][7] || '').trim(); if (!nm || /^закрыт/i.test(nm) || nm === 'ТЦ' || nm === 'Стрит') continue;
+    const br = brandOf_(String(eco[r][3] || '').trim()) || brandOf_(nm); if (!br) continue;
+    rows.push({ name: nm, brand: br, base: baseOf_(nm), row: eco[r] });
+  }
+  const item = function (x) {
+    const w = x.row, fact = g(w, ec.trFact), plan = g(w, ec.trPlan);
+    return { name: x.name, brand: x.brand, code: String(w[4] || '').trim(), mgr: String(w[2] || '').trim(),
+      tr: { plan: plan, fact: fact, dev: g(w, ec.trDev), fc: (fact != null && passed > 0 && dim > 0) ? Math.round(fact / passed * dim) : null },
+      cv: { plan: g(w, ec.cvPlan), fact: g(w, ec.cvFact) },
+      fc: { tel: g(w, ec.tel), acc: g(w, ec.acc), ins: g(w, ec.ins), combo: g(w, ec.combo) } };
+  };
+  const out = [], seen = {};
+  names.forEach(function (n) {
+    const own = rows.filter(function (x) { return norm_(x.name) === norm_(n); })[0];
+    const base = own ? own.base : baseOf_(n), ob = own ? own.brand : brandOf_(n);
+    if (seen[base + '|' + ob]) return; seen[base + '|' + ob] = 1;
+    const near = rows.filter(function (x) { return x.base === base && x.brand !== ob; });
+    if (!near.length) return;
+    out.push({ salon: n, own: own ? item(own) : null, near: near.map(item) });
+  });
+  return { groups: out, asOf: String((eco[1] && eco[1][7]) || '').trim(), dim: dim, passed: passed };
+}
+
 /* ---------- руководитель (РТТ / УТТ / ТМ) ---------- */
 function managerData_(ss, sess, access) {
   const all = readSalonSheet_(ss);                         // { салон: { phones:{...}, acc:{...} ... } }
@@ -845,6 +883,7 @@ function managerData_(ss, sess, access) {
     summary: summaryPage_(ss, salons.map(function (x) { return x.name; }).concat(names), String(sess.name).split(' ')[0]),
     today: readSchedule_(ss).cal.today,
     kpi: (function () { try { return kpiPrefill_(ss, names); } catch (e) { return { stores: {}, eco: null, error: String(e && e.message || e) }; } })(),   // экономика и операторка из KPI ОСС для калькулятора бонуса
+    near: (function () { try { return nearSalons_(ss, names); } catch (e) { return null; } })(),   // смежные салоны другого бренда + трафик и прогнозы из KPI ОСС
     canLinks: sess.roleTitle === 'ТМ',
     prefill: me ? { grade: grade, hours: me.hours.fact, att: me.quality.attach, vmr: me.quality.vmr, credits: me.quality.credits } : { grade: grade },
   };
@@ -1766,6 +1805,12 @@ function vmrMine_(req) {
 const NOTIF_SHEET = 'Уведомления';
 // ВАЖНО: при каждом обновлении сайта добавляйте сюда запись (новая версия `v`) — она сама станет новостью и уведомлением для всех.
 const RELEASES = [
+  { v: '2026-11-22', title: 'Салоны рядом: смежные салоны, трафик и профиль iOS 16',
+    text: 'Что нового:\n• «Салоны рядом»: смежные салоны (тот же адрес, другие бренды МТС / МФ / Т2) с трафиком, конверсией и прогнозами по телефонам, аксессуарам, страховкам и комбо — из KPI ОСС.\n• Прогноз трафика на конец месяца.\n• В «Оформлении» — профиль интерфейса «iOS 16»: классический плоский вид, системные цвета, переключатели и простая анимация. Включается одной кнопкой.' },
+  { v: '2026-11-21', title: 'Рейтинг по направлениям и титулы лидеров',
+    text: 'Что нового:\n• Рейтинг команды: общий и отдельно по сим, телефонам, аксессуарам, услугам и страховкам.\n• Топ-5 — единая рамка «лидеры продаж».\n• Первое место по направлению — титул везде, где видно имя: «ценитель своего времени», «железный человек», «любитель побрякушек», «на страже защиты», «алло, я на связи».' },
+  { v: '2026-11-20', title: 'Разбор ВМР: порог 80% и полная анкета',
+    text: 'Что нового:\n• «На разбор» теперь — результат ниже 80%.\n• По клику на проверку открывается полная анкета: каждый критерий, итоговая оценка и комментарий проверяющего.\n• Для ТМ и РТТ/УТТ в быстром просмотре — отметки «🎁 Комбо» и «💳 Рассрочка» и динамика их предложения по периодам и ТТ.' },
   { v: '2026-11-19', title: 'Обновление: цвета, фон, входы, вложения и разбор ВМР',
     text: 'Что нового:\n• Оформление — кнопка-палитра в шапке: свои цвета, статусы, тема и фон (цвет или своя картинка).\n• Вкладка «Входы» для ТМ — история авторизации по каждому сотруднику.\n• Новости — можно прикладывать файлы и вставлять картинки из буфера.\n• «Проверки на разбор» (ВМР) — фильтр по месяцам и неделям и динамика: у ТМ — по всем, у РТТ/УТТ — по их ТТ, у ПТТ/СП — по их проверкам.\n• В аналитике темпа добавлен «Весь товарооборот».\n• Исправлен «График на 3 дня».\n• Уведомления (колокольчик): об обновлениях и о новых проверках ВМР.' }
 ];
@@ -1872,7 +1917,7 @@ function vmrWatch_(ss) {
     mgrs.forEach(function (m) { if ((shops[m.key] || []).some(function (sh2) { return sameSalon_(it.tt, sh2); })) add(m.key, 'tt', it); });
   });
   const shortTT = function (t) { return String(t).replace(/^КЗН\s+/, '').replace(/\s+(БЛН|МТС|МФ)\b.*$/, '').trim() || t; };
-  const out = [], em = function (x) { return x >= 100 ? '🏆' : x >= 85 ? '✅' : '⚠️'; };
+  const out = [], em = function (x) { return x >= 100 ? '🏆' : x >= 80 ? '✅' : '⚠️'; };
   Object.keys(box).forEach(function (key) {
     const b = box[key];
     if (b.me.length > 5) out.push({ to: key, kind: 'vmr', tab: 'vmr', title: '📋 Новые анкеты ВМР', text: 'На тебя пришло анкет: ' + b.me.length + ' — загляни в приложение 👀' });
@@ -1882,4 +1927,22 @@ function vmrWatch_(ss) {
   });
   notifyMany_(ss, out);
   save();
+}
+
+/* ---------- рейтинг по направлениям и «лидеры» (первое место по группе) ---------- */
+function ratingsFor_(sellers, meKey) {
+  const out = {};
+  METRICS.forEach(function (m) {
+    const l = sellers.map(function (s) { return { s: s, m: s.metrics.filter(function (x) { return x.key === m.key; })[0] }; })
+      .filter(function (o) { return o.m && o.m.planMonth > 0; })
+      .sort(function (a, b) { return b.m.pct - a.m.pct || b.m.fact - a.m.fact; });
+    out[m.key] = l.map(function (o, i) { return { place: i + 1, name: short_(o.s.name), score: Math.round(o.m.pct), me: norm_(o.s.name) === meKey }; });
+  });
+  return out;
+}
+function leaders_(ss, access) {
+  const allowed = {}; access.forEach(function (a) { if (!a.manager) allowed[a.key] = true; });
+  const sellers = readPlan_(ss).filter(function (s) { return allowed[norm_(s.name)]; }), r = ratingsFor_(sellers, ''), out = {};
+  Object.keys(r).forEach(function (k) { if (r[k].length && r[k][0].score > 0) out[k] = r[k][0].name; });
+  return out;
 }
