@@ -4748,7 +4748,7 @@ async function notifPoll(){
   document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) notifPoll(); }); })();
 
 /* ---- push-уведомления (OneSignal): вставьте App ID из панели OneSignal; пока пусто — работают только уведомления внутри сайта ---- */
-const OS_APP_ID = '';
+const OS_APP_ID = '330588fe-17f0-459d-80bf-36d95f9b9cb3';
 let OS_READY = null;
 function pushInit(me){
   if (!OS_APP_ID || DEMO || !me) return;
