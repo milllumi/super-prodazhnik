@@ -4196,7 +4196,7 @@ function anBind(){
   new MutationObserver(()=>run(document)).observe(document.body,{childList:true,subtree:true}); })();
 
 /* при выпуске новой версии один раз чистим кэш данных в браузере — вход сохраняется */
-const CACHE_REV = '2026-11-20-1';
+const CACHE_REV = '2026-11-21-1';
 try { if (store.get('cacheRev') !== CACHE_REV) { rpClear(); store.set('cacheRev', CACHE_REV); } } catch(e) {}
 
 /* старт */
@@ -4754,7 +4754,7 @@ function pushInit(me){
   if (!OS_APP_ID || DEMO || !me) return;
   if (OS_READY){ OS_READY.then(OS=>OS.login(me)).catch(()=>{}); return; }
   window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OS_READY = new Promise(res=>{ OneSignalDeferred.push(async OS=>{ try{ await OS.init({appId:OS_APP_ID, serviceWorkerPath:'sw.js', serviceWorkerParam:{scope:'./'}, notifyButton:{enable:false}}); await OS.login(me); res(OS); }catch(e){ res({Notifications:{}}); } }); });
+  OS_READY = new Promise(res=>{ OneSignalDeferred.push(async OS=>{ try{ await OS.init({appId:OS_APP_ID, serviceWorkerPath:'super-prodazhnik/sw.js', serviceWorkerParam:{scope:'/super-prodazhnik/'}, notifyButton:{enable:false}}); await OS.login(me); res(OS); }catch(e){ res({Notifications:{}}); } }); });
   const sc = document.createElement('script'); sc.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js'; sc.defer = true; document.head.appendChild(sc);
 }
 function pushAsk(){ if (OS_READY) return OS_READY.then(OS=>OS.Notifications.requestPermission && OS.Notifications.requestPermission()); return Notification.requestPermission(); }
