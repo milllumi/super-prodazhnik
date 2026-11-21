@@ -1829,7 +1829,8 @@ function notifyMany_(ss, list) {            // list: [{to, kind, title, text, ta
 }
 /* ---------- настоящие push-уведомления через OneSignal (REST). Нужны свойства скрипта ONESIGNAL_APP_ID и ONESIGNAL_API_KEY ---------- */
 function pushSend_(list) {
-  const props = PropertiesService.getScriptProperties(), app = props.getProperty('ONESIGNAL_APP_ID'), key = props.getProperty('ONESIGNAL_API_KEY');
+  const props = PropertiesService.getScriptProperties(), cfg = (typeof PUSH_CFG_ !== 'undefined' && PUSH_CFG_) || {};
+  const app = props.getProperty('ONESIGNAL_APP_ID') || cfg.appId || '', key = props.getProperty('ONESIGNAL_API_KEY') || cfg.apiKey || '';
   if (!app || !key || !list.length) return;
   const reqs = list.slice(0, 60).map(function (n) {
     const body = { app_id: app, target_channel: 'push', headings: { en: n.title, ru: n.title }, contents: { en: n.text, ru: n.text } };
@@ -1839,7 +1840,7 @@ function pushSend_(list) {
   });
   UrlFetchApp.fetchAll(reqs);
 }
-function PUSH_URL_() { return PropertiesService.getScriptProperties().getProperty('SITE_URL') || ''; }
+function PUSH_URL_() { const cfg = (typeof PUSH_CFG_ !== 'undefined' && PUSH_CFG_) || {}; return PropertiesService.getScriptProperties().getProperty('SITE_URL') || cfg.siteUrl || ''; }
 function notifList_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
