@@ -27,7 +27,7 @@ const CONFIG = {
   SHEET_NEWS:    'Новости',                   // создаётся автоматически: ID, Дата, Автор, Роль, Заголовок, Текст, Статус, Модератор
   LINK_KPI_KEY:  'kpi осс текущий месяц',     // название строки на вкладке «Ссылки» (регистр не важен)
   KPI_SHEET:     'Сотрудники по салонам',     // лист в KPI ОСС: A — менеджер, B — магазин
-  SELLER_ROLES:  ['новичок', 'птт'],
+  SELLER_ROLES:  ['новичок', 'птт', 'сп'],
   MANAGER_ROLES: ['ртт', 'утт', 'тм'],
   TOKEN_TTL: 6 * 3600,
   MAX_FAILS: 5,                               // неверных PIN подряд до блокировки на 10 минут
@@ -46,7 +46,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 2400;                                  // кэш данных: 40 мин; триггер warmCache() обновляет его каждые 30 мин
-const CACHE_EPOCH = 'e9';
+const CACHE_EPOCH = 'e10';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -121,16 +121,31 @@ function readAccessRaw_(ss) {
   return out;
 }
 function findUser_(list, login) {
-  const t = norm_(login).split(' ').filter(String);
+  const toks = function (s) {
+    return String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/[^0-9a-zа-я\- ]+/g, ' ')
+      .replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  };
+  const t = toks(login);
   if (!t.length) return { status: 'none' };
-  const exact = list.filter(function (a) { return a.key === t.join(' '); });
-  if (exact.length === 1) return { status: 'ok', user: exact[0] };
-  const pref = list.filter(function (a) { const p = a.key.split(' '); return t.every(function (x, i) { return p[i] === x; }); });
-  if (pref.length === 1) return { status: 'ok', user: pref[0] };
-  // «Имя Фамилия» и лишние слова (отчество): все введённые слова должны встречаться в ФИО
-  const any = list.filter(function (a) { const p = a.key.split(' '); return t.every(function (x) { return p.indexOf(x) >= 0; }); });
-  if (any.length === 1) return { status: 'ok', user: any[0] };
-  return { status: (pref.length || any.length) ? 'ambiguous' : 'none' };
+  if (list.some(function (a) { return a.key === norm_(login); })) {
+    const ex = list.filter(function (a) { return a.key === norm_(login); });
+    if (ex.length === 1) return { status: 'ok', user: ex[0] };
+  }
+  const items = list.map(function (a) { return { user: a, p: toks(a.name) }; });
+  const pick = function (rule) {
+    const m = items.filter(rule);
+    if (m.length === 1) return { status: 'ok', user: m[0].user };
+    return m.length ? { status: 'ambiguous' } : null;
+  };
+  const like = function (x, p) {           // точное слово или инициал из списка («И.» ~ «Иван»)
+    return p.indexOf(x) >= 0 || p.some(function (y) { return y.length === 1 && x.indexOf(y) === 0; });
+  };
+  return pick(function (it) { return t.every(function (x, i) { return it.p[i] === x; }); })                 // «Фамилия Имя» — начало ФИО
+      || pick(function (it) { return t.every(function (x) { return it.p.indexOf(x) >= 0; }); })           // те же слова в любом порядке
+      || pick(function (it) { return t.every(function (x) { return like(x, it.p); }); })                  // инициалы вместо полного имени
+      || pick(function (it) { return t.length >= 2 && it.p[0] === t[0] && it.p[1] === t[1]; })             // лишнее слово (отчество) не из списка
+      || (t.length === 1 ? pick(function (it) { return it.p[0] === t[0]; }) : null)                       // только фамилия, если она одна
+      || { status: 'none' };
 }
 function salt_() {
   const P = PropertiesService.getScriptProperties();
