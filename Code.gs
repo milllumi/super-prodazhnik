@@ -46,8 +46,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 2400;                                  // кэш данных: 40 мин; триггер warmCache() обновляет его каждые 30 мин
-// эпоха кэша: поднимайте при выкладке, чтобы все клиенты сразу получили свежие данные, а не 40-минутный снимок
-const CACHE_EPOCH = 'e8';
+const CACHE_EPOCH = 'e9';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -90,6 +89,7 @@ function doPost(e) {
     else if (req.action === 'tm_report') out = tmReport_(req);
     else if (req.action === 'cards_get') out = cardsGet_(req);
     else if (req.action === 'recon_get') out = reconGet_(req);
+    else if (req.action === 'pulse_data') out = pulseData_(req);
     else if (req.action === 'news_list') out = newsList_(req);
     else if (req.action === 'news_add') out = newsAdd_(req);
     else if (req.action === 'news_file') out = newsFileGet_(req);
@@ -97,6 +97,7 @@ function doPost(e) {
     else if (req.action === 'links_set') out = linksSet_(req);
     else if (req.action === 'auth_log') out = authLogGet_(req);
     else if (req.action === 'vmr_mine') out = vmrMine_(req);
+    else if (req.action === 'attach') out = attachReport_(req);
     else if (req.action === 'notif_list') out = notifList_(req);
     else out = { error: 'bad_request' };
   } catch (err) { out = { error: 'server', message: String(err) }; }
@@ -108,7 +109,7 @@ function doGet() { return ContentService.createTextOutput('ok'); }
 function readAccess_(ss) { return cached_('access', 300, function () { return readAccessRaw_(ss); }); }
 function readAccessRaw_(ss) {
   const sh = ss.getSheetByName(CONFIG.SHEET_ACCESS);
-  const rows = sh.getDataRange().getDisplayValues(), out = [];
+  const rows = sh.getDisplayValues(), out = [];
   for (let i = 0; i < rows.length; i++) {
     const role = norm_(rows[i][0]), name = String(rows[i][1] || '').trim();
     if (!name) continue;
@@ -341,7 +342,7 @@ function linksGet_(req) {
   if (!u) return { error: 'auth' };
   if (u.roleTitle !== 'ТМ') return { error: 'forbidden' };
   const sh = ss.getSheetByName(CONFIG.SHEET_LINKS);
-  const v = sh.getDataRange().getDisplayValues(), out = [];
+  const v = sh.getDisplayValues(), out = [];
   for (let i = 0; i < v.length; i++) if (String(v[i][0]).trim()) out.push({ row: i + 1, name: String(v[i][0]).trim(), value: String(v[i][1] || '') });
   return { links: out };
 }
@@ -363,7 +364,7 @@ function linksSet_(req) {
 function kpiSpreadsheetId_(ss) {
   const sh = ss.getSheetByName(CONFIG.SHEET_LINKS);
   if (!sh) return null;
-  const v = sh.getDataRange().getDisplayValues();
+  const v = sh.getDisplayValues();
   for (let i = 0; i < v.length; i++) {
     if (norm_(v[i][0]) === CONFIG.LINK_KPI_KEY) {
       const m = /\/d\/([\w-]{20,})/.exec(String(v[i][1])) || /^([\w-]{25,})$/.exec(String(v[i][1]).trim());
@@ -805,6 +806,38 @@ function kpiPrefill_(ss, names) {
   return out;
 }
 
+/* ---------- Weekly Pulse (ТМ): инвентаризации и блоки «Экономических KPI» (L4L, M2M, трафик, конверсия, средняя цена, кредит) ---------- */
+// ID таблицы инвентаризаций можно переопределить в свойствах скрипта: INV_SPREADSHEET_ID.
+const INV_SPREADSHEET_ID = '1TxmgRko5O3h5gSPKUT-AlBRP4xZKbmQ9tSGI9Sbuzzs';
+function pulseData_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  if (u.roleTitle !== 'ТМ') return { error: 'forbidden' };
+  return cached_('pulse:' + u.key, TTL_, function () {
+    const out = { inv: null, eco: null };
+    try {
+      const id = PropertiesService.getScriptProperties().getProperty('INV_SPREADSHEET_ID') || INV_SPREADSHEET_ID;
+      const sh = SpreadsheetApp.openById(id).getSheetByName('Лист1') || SpreadsheetApp.openById(id).getSheets()[0];
+      const g = sh.getDataRange().getDisplayValues().filter(function (r) { return r.some(function (c) { return String(c).trim(); }); });
+      out.inv = g.map(function (r) { return r.slice(0, 40); });
+    } catch (e) { out.invErr = String(e && e.message || e); }
+    try {
+      const kb = kpiBook_(ss), eco = kb ? readResSheet_(kb, 'Экономические KPI', 'res:eco') : null;
+      if (eco) {
+        let hdr = -1; for (let r = 0; r < Math.min(eco.length, 60); r++) if (String(eco[r][0] || '').trim() === 'ТМ' && String(eco[r][3] || '').trim() === 'Бренд') { hdr = r; break; }
+        if (hdr >= 0) {
+          const grp = eco[hdr], sub = eco[hdr + 1] || [], cols = []; let cur = '';
+          for (let i = 0; i < grp.length; i++) { if (String(grp[i] || '').trim()) cur = String(grp[i]).trim(); cols.push(cur + '|' + String(sub[i] || '').trim()); }
+          const rows = [];
+          for (let r = hdr + 2; r < eco.length; r++) { const nm = String(eco[r][7] || '').trim(); if (!nm || /^закрыт/i.test(nm)) continue; rows.push(eco[r].map(function (c) { return typeof c === 'number' ? c : String(c == null ? '' : c); })); }
+          out.eco = { cols: cols, rows: rows, dim: Number(eco[1] && eco[1][0]) || 0, passed: Number(eco[1] && eco[1][4]) || 0, asOf: String((eco[1] && eco[1][7]) || '').trim() };
+        }
+      }
+    } catch (e) { out.ecoErr = String(e && e.message || e); }
+    return out;
+  });
+}
+
 /* ---------- «Салоны рядом»: смежные салоны (тот же адрес, другой бренд: БЛН / МТС / МФ / Т2) + трафик, прогнозы — из KPI ОСС ---------- */
 const NEAR_BRANDS_ = ['блн', 'мтс', 'мф', 'т2'];
 function brandOf_(t) { const m = norm_(t).replace(/(^|\s)тд(?=\s|$)/g, ' т2').match(/(^|\s)(блн|мтс|мф|т2)(?=\s|$)/); return m ? m[2] : ''; }
@@ -1240,6 +1273,10 @@ function saleFlags_(r, excl) {
     barakat: w[8] !== undefined && lcase_(w[8]) === '"баракат"' ? 1 : 0,        // «Детализация СИМ» → «Баракат»
   };
 }
+function hourOf_(v) {                                  // час чека: из Date или из строки «дд.мм.гггг ч:мм:сс»
+  if (v instanceof Date) return v.getHours();
+  const m = String(v || '').match(/\s(\d{1,2}):/); return m ? Number(m[1]) : -1;
+}
 // Чтение сырья (кэш): строки чеков + список исключений
 function salesRows_(ss) {
   return cached_('sales:rows', TTL_, function () {
@@ -1251,7 +1288,8 @@ function salesRows_(ss) {
       const d = dstr_(x[7], tz), b = String(x[1] || '').trim();
       if (!d || !b) return;
       rows.push({ g: String(x[0] || '').trim(), n: b, tm: String(x[3] || '').trim(), s: String(x[4] || '').trim(), e: String(x[5] || '').trim(),
-        d: d, q: Number(x[9]) || 0, k: Number(x[10]) || 0 });
+        d: d, q: Number(x[9]) || 0, k: Number(x[10]) || 0,
+        c: String(x[6] || '').trim(), h: hourOf_(x[7]), p: String(x[8] || '').trim() });
     });
     const excl = {}, es = sheetByName_(ss, RAW_.EXCL);
     if (es) es.getRange(1, 1, Math.max(1, es.getLastRow()), 2).getValues().forEach(function (x, i) {
@@ -1777,6 +1815,85 @@ function newsFileGet_(req) {
   return { name: meta.name, mime: meta.mime, data: parts.map(function (p) { return p[1]; }).join('') };
 }
 
+
+/* ---------- Attachment: проникновение допродаж в чеки со смартфоном ---------- */
+const ATT_ = { PHONE_MIN: 4000, ITEM_MIN: 100, GROUPS: { 'Аксессуары': 1, 'Услуги': 1, 'Страхование и защита': 1 }, MAXCHECKS: 5000 };
+const ATT_CATS_ = [
+  { k: 'film', t: 'Плёнка / стекло' }, { k: 'case', t: 'Чехол' }, { k: 'chg', t: 'Зарядка / кабель' },
+  { k: 'audio', t: 'Наушники / колонки' }, { k: 'acc', t: 'Прочие аксессуары' }, { k: 'serv', t: 'Услуги' }, { k: 'ins', t: 'Страховки' }
+];
+function attCat_(r) {
+  if (r.g === 'Услуги') return 'serv';
+  if (r.g === 'Страхование и защита') return 'ins';
+  const n = lcase_(r.n);
+  if (/плен|стекл/.test(n)) return 'film';
+  if (/чехол|бампер|накладк/.test(n)) return 'case';
+  if (/кабел|сзу|зарядн|адаптер|аккумул|powerbank|power bank/.test(n)) return 'chg';
+  if (/наушник|колонк|гарнитур|airpods/.test(n)) return 'audio';
+  return 'acc';
+}
+function attIsPhone_(r) {
+  if (!(r.g === '' || r.g === 'Телефоны и планшеты') || r.q <= 0) return false;
+  const n = lcase_(r.n);
+  if (/кнопоч|планшет/.test(n)) return false;
+  return (r.k / r.q) >= ATT_.PHONE_MIN;
+}
+// Разбор по чекам: rows уже отфильтрованы по роли
+function attachModel_(rows, mgrOf) {
+  const ck = {};
+  rows.forEach(function (r) {
+    if (!r.c) return;
+    const key = r.c + '|' + r.s, o = ck[key] = ck[key] || { m: mgrOf ? mgrOf(r.s) : '', c: r.c, s: r.s, e: r.e, d: r.d, h: r.h, p: r.p, ph: null, it: [] };
+    if (attIsPhone_(r)) { if (!o.ph) o.ph = { n: r.n, k: r.k, q: r.q, mx: r.k }; else { if (r.k > o.ph.mx) { o.ph.n = r.n; o.ph.mx = r.k; } o.ph.k += r.k; o.ph.q += r.q; } return; }
+    if (ATT_.GROUPS[r.g] && r.q > 0 && (r.k / r.q) >= ATT_.ITEM_MIN) o.it.push({ c: attCat_(r), n: r.n, k: r.k, q: r.q });
+  });
+  const checks = []; Object.keys(ck).forEach(function (k) { if (ck[k].ph) checks.push(ck[k]); });
+  const mk = function () { const z = { n: 0, phn: 0, pcs: 0, dsum: 0, sum: 0, none: 0, cats: {} }; ATT_CATS_.forEach(function (c) { z.cats[c.k] = { ch: 0, pcs: 0 }; }); return z; };
+  const add = function (z, ch) {
+    z.n++; z.phn += ch.ph.q; let pcs = 0; z.sum += ch.ph.k;
+    const seen = {};
+    ch.it.forEach(function (i) { pcs += i.q; z.dsum += i.k; const c = z.cats[i.c]; c.pcs += i.q; if (!seen[i.c]) { seen[i.c] = 1; c.ch++; } });
+    z.pcs += pcs; if (!pcs) z.none++;
+  };
+  const tot = mk(), bySalon = {}, bySeller = {}, byDay = {}, byHour = {}, byPay = {}, byBand = {};
+  const bandOf = function (v) { return v < 10000 ? '4–10 тыс.' : v < 20000 ? '10–20 тыс.' : v < 40000 ? '20–40 тыс.' : '40 тыс.+'; };
+  const grp = function (m, k, ch) { add(m[k] = m[k] || mk(), ch); };
+  checks.forEach(function (ch) {
+    add(tot, ch); grp(bySalon, ch.s, ch); grp(bySeller, ch.e + '|' + ch.s, ch); grp(byDay, ch.d, ch);
+    grp(byHour, String(ch.h), ch); grp(byPay, ch.p || 'нет', ch); grp(byBand, bandOf(ch.ph.k), ch);
+  });
+  const flat = function (m, nameKey) { return Object.keys(m).map(function (k) { const z = m[k]; z[nameKey || 'k'] = k; return z; }); };
+  const list = checks.slice().sort(function (a, b) {
+    const f = function (x) { const p = x.d.split('.'); return Number(p[2]) * 10000 + Number(p[1]) * 100 + Number(p[0]); };
+    return f(b) - f(a) || b.h - a.h;
+  }).slice(0, ATT_.MAXCHECKS).map(function (ch) {
+    return { c: ch.c, d: ch.d, h: ch.h, s: ch.s, e: ch.e, p: ch.p, m: ch.m, ph: { n: ch.ph.n, k: ch.ph.k, q: ch.ph.q }, it: ch.it };
+  });
+  return { cfg: { phoneMin: ATT_.PHONE_MIN, itemMin: ATT_.ITEM_MIN }, cats: ATT_CATS_, tot: tot, salon: flat(bySalon), seller: flat(bySeller), day: flat(byDay), hour: flat(byHour), pay: flat(byPay), band: flat(byBand), checks: list };
+}
+function attachReport_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  const data = salesRows_(ss); if (data.missing) return { missing: true };
+  let rows = data.rows || [], scope = 'all', mgrOf = null;
+  if (u.roleTitle !== 'ТМ') {
+    if (u.manager) {
+      const shops = kpiShops_(ss, readAccess_(ss))[u.key] || [];
+      rows = rows.filter(function (r) { return shops.some(function (sh) { return sameSalon_(r.s, sh); }); }); scope = 'tt';
+    } else { rows = rows.filter(function (r) { return norm_(r.e) === u.key; }); scope = 'me'; }
+  }
+  if (scope === 'all') {                                   // ТМ: привязка салонов к руководителям (РТТ/УТТ)
+    const acc = readAccess_(ss), ks = kpiShops_(ss, acc), mg = acc.filter(function (a) { return a.manager && a.roleTitle !== 'ТМ'; }), memo = {};
+    mgrOf = function (salon) {
+      if (memo.hasOwnProperty(salon)) return memo[salon];
+      let nm = '';
+      for (let i = 0; i < mg.length && !nm; i++) if ((ks[mg[i].key] || []).some(function (sh) { return sameSalon_(salon, sh); })) nm = mg[i].name;
+      return (memo[salon] = nm);
+    };
+  }
+  const out = attachModel_(rows, mgrOf); out.scope = scope; return out;
+}
+
 /* ---------- ВМР для РТТ/УТТ (по их ТТ) и ПТТ/СП (только их проверки) ---------- */
 function vmrMine_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
@@ -1805,6 +1922,26 @@ function vmrMine_(req) {
 const NOTIF_SHEET = 'Уведомления';
 // ВАЖНО: при каждом обновлении сайта добавляйте сюда запись (новая версия `v`) — она сама станет новостью и уведомлением для всех.
 const RELEASES = [
+  { v: '2026-12-02', title: 'Новый экран входа',
+    text: 'Что нового:\n• Экран входа полностью переработан: тёмная «аврора» с неоном, стеклянная карточка, градиентная кнопка, стикеры и подсказки.\n• Логика входа и PIN не менялась.' },
+  { v: '2026-12-01', title: 'Поиск по отчётам и выбор отчётов для презентации',
+    text: 'Что нового:\n• В шапке появилась лупа (или клавиша «/», Ctrl+K): быстрый поиск разделов и отчётов с учётом вашего доступа.\n• Weekly Pulse (ТМ): на странице презентации можно выбрать отчёты. По умолчанию выбраны все, новые отчёты сайта появляются в списке сами. Основные 33 слайда не меняются, выбранные дополнительные отчёты добавляются в конец.' },
+  { v: '2026-11-30', title: 'Weekly Pulse: презентация в формате «Собрания с управленцами»',
+    text: 'Что нового:\n• Кнопка «Скачать» собирает презентацию из 33 слайдов в дизайне сайта, с анимациями и переходами Morph.\n• Данные на момент формирования: графики, инвентаризации, L4L, M2M, трафик и конверсия из KPI ОСС.\n• Везде используется полный логотип SUPER PROдажник by Miller.' },
+  { v: '2026-11-29', title: 'Weekly Pulse: презентация недели для ТМ',
+    text: 'Что нового:\n• Вкладка «Weekly Pulse» (только ТМ): одной кнопкой собирается презентация .pptx — итоги месяца, неделя к неделе, светофор салонов, лидеры и аутсайдеры, потери и что делать, Attachment, ВМР, фокус на следующую неделю.\n• Можно выбрать слайды и светлую или тёмную тему.' },
+  { v: '2026-11-28', title: 'Attachment: допы на один телефон и разбивка по привязке',
+    text: 'Что нового:\n• Главный показатель Attachment — все допы (аксессуары, услуги, страховки от 100 ₽) из чеков со смартфоном ÷ все проданные телефоны (от 4 000 ₽): шт и ₽ на один телефон.\n• Новый блок «По привязке»: у ТМ — руководители → салоны → сотрудники, у РТТ/УТТ — их салоны → сотрудники, у остальных — только свои чеки.\n• Убрана карточка «Когда провал: время».' },
+  { v: '2026-11-27', title: 'Новое меню на телефоне',
+    text: 'Что нового:\n• Внизу — 4 главных раздела с иконками и кнопка «Ещё».\n• «Ещё» открывает шторку со всеми разделами по группам: Итоги и темп, Диагностика, Команда и бонус, Качество, Контроль. Закрывается свайпом вниз, нажатием на фон или Esc.\n• Меню подстраивается под профиль: iOS 27 — плавающая стеклянная панель, iOS 16 — классическая панель вкладок, Pixel — навигация Material 3 с индикатором-пилюлей.' },
+  { v: '2026-11-26', title: 'ВМР — отдельная страница, фильтры в Attachment',
+    text: 'Что нового:\n• ВМР у всех теперь на отдельной странице. У ТМ полный отчёт ВМР вынесен из «Аналитики» в свою вкладку «ВМР».\n• В «Attachment» — выбор периода выпадающим списком и выбор торговой точки.' },
+  { v: '2026-11-25', title: 'Новая вкладка Attachment: допродажи в чеках со смартфоном',
+    text: 'Что нового:\n• Вкладка «Attachment» для всех ролей: считаем каждый чек со смартфоном (от 4 000 ₽, без кнопочных) и смотрим, что в него добавили — плёнка/стекло, чехол, зарядка/кабель, наушники, услуги, страховки (позиции от 100 ₽, в штуках).\n• Проникновение по группам, доля чеков без допродаж, где проваливаемся: по салонам, сотрудникам, дням, часам, цене телефона и типу оплаты.\n• Список чеков с разбором: что продали и чего не хватило.' },
+  { v: '2026-11-24', title: 'Диагностика, группы отчётов и новая индикация',
+    text: 'Что нового:\n• Новая вкладка «Диагностика»: вердикт по плану, светофор салонов, где теряем деньги, достижимость плана, что делать, дни недели, трафик и конверсия.\n• Меню разбито на группы: Итоги и темп · Диагностика · Команда и бонус · Качество · Контроль.\n• «По дням» и «План на день» стали наглядными: тепловая подложка, дисциплина по дням, шкалы нужного темпа.\n• Копирование отчёта в картинку: теперь только сама карточка со скруглением, без рамки 16:9.' },
+  { v: '2026-11-23', title: 'Профиль Pixel и новые анимации iOS 16',
+    text: 'Что нового:\n• В «Оформлении» — профиль «Pixel» в стиле Google Material You: тональные поверхности, скруглённые карточки, пилюля-индикатор вкладок, переключатели Material 3, круговая волна (ripple) на кнопках и фирменные плавные анимации.\n• Профиль «iOS 16» получил новые анимации: скользящий переключатель вкладок, листы снизу на телефоне, всплывающие панели, уведомления-баннеры, каскадное появление карточек.' },
   { v: '2026-11-22', title: 'Салоны рядом: смежные салоны, трафик и профиль iOS 16',
     text: 'Что нового:\n• «Салоны рядом»: смежные салоны (тот же адрес, другие бренды МТС / МФ / Т2) с трафиком, конверсией и прогнозами по телефонам, аксессуарам, страховкам и комбо — из KPI ОСС.\n• Прогноз трафика на конец месяца.\n• В «Оформлении» — профиль интерфейса «iOS 16»: классический плоский вид, системные цвета, переключатели и простая анимация. Включается одной кнопкой.' },
   { v: '2026-11-21', title: 'Рейтинг по направлениям и титулы лидеров',
