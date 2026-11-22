@@ -109,7 +109,7 @@ function doGet() { return ContentService.createTextOutput('ok'); }
 function readAccess_(ss) { return cached_('access', 300, function () { return readAccessRaw_(ss); }); }
 function readAccessRaw_(ss) {
   const sh = ss.getSheetByName(CONFIG.SHEET_ACCESS);
-  const rows = sh.getDisplayValues(), out = [];
+  const rows = sh.getDataRange().getDisplayValues(), out = [];
   for (let i = 0; i < rows.length; i++) {
     const role = norm_(rows[i][0]), name = String(rows[i][1] || '').trim();
     if (!name) continue;
@@ -357,7 +357,7 @@ function linksGet_(req) {
   if (!u) return { error: 'auth' };
   if (u.roleTitle !== 'ТМ') return { error: 'forbidden' };
   const sh = ss.getSheetByName(CONFIG.SHEET_LINKS);
-  const v = sh.getDisplayValues(), out = [];
+  const v = sh.getDataRange().getDisplayValues(), out = [];
   for (let i = 0; i < v.length; i++) if (String(v[i][0]).trim()) out.push({ row: i + 1, name: String(v[i][0]).trim(), value: String(v[i][1] || '') });
   return { links: out };
 }
@@ -379,7 +379,7 @@ function linksSet_(req) {
 function kpiSpreadsheetId_(ss) {
   const sh = ss.getSheetByName(CONFIG.SHEET_LINKS);
   if (!sh) return null;
-  const v = sh.getDisplayValues();
+  const v = sh.getDataRange().getDisplayValues();
   for (let i = 0; i < v.length; i++) {
     if (norm_(v[i][0]) === CONFIG.LINK_KPI_KEY) {
       const m = /\/d\/([\w-]{20,})/.exec(String(v[i][1])) || /^([\w-]{25,})$/.exec(String(v[i][1]).trim());
