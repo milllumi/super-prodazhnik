@@ -621,11 +621,13 @@ function readScheduleRaw_(ss) {
 // График на 3 дня (сегодня, завтра, послезавтра): смена, время, точка; «З» (замена) или выход на другую точку → «Замена» и точка работы
 const CODE_NAMES_ = { 'О': 'Отпуск', 'Б': 'Больничный', 'У': 'Уволен', 'Т': 'Тренинг', 'ГУ': 'Генуборка', 'И': 'Инвентаризация', 'С': 'Стажировка', 'М': 'Командировка' };
 function sameSalon_(a, b) {
-  const opOf = function (t) { const m = norm_(t).match(/(^|\s)(мтс|мф|блн)(\s|$)/); return m ? m[2] : ''; };
+  const opOf = function (t) { const m = norm_(t).match(/(^|\s)(мтс|мф|блн|т2|тд)(\s|$)/); return m ? (m[2] === 'тд' ? 'т2' : m[2]) : ''; };
   if (opOf(a) && opOf(b) && opOf(a) !== opOf(b)) return false;                    // «Ямашева 71а МТС» ≠ «Ямашева 71а БЛН»
   const clean = function (t) { return norm_(t).replace(/\b(кзн|блн|тц|трц|тк)\b/g, ' ').replace(/\s+/g, ' ').trim(); };
   const x = clean(a), y = clean(b); if (!x || !y) return false;
-  return x === y || (Math.min(x.length, y.length) > 4 && (x.indexOf(y) >= 0 || y.indexOf(x) >= 0));
+  if (x === y) return true;
+  const sh = x.length <= y.length ? x : y, lg = x.length <= y.length ? y : x;      // вхождение только целыми словами: «Зорге 7» ≠ «Зорге 75»
+  return sh.length > 4 && (' ' + lg + ' ').indexOf(' ' + sh + ' ') >= 0;
 }
 function next3_(sched, person, mainSalon) {
   const cal = sched.cal; if (!cal.month || !cal.year) return [];
@@ -805,7 +807,7 @@ function salonResults_(ss, salon) {
     const frow = { eco: resFindRow_(grids.eco, colIdx_('H'), salon, 56), op: resFindRow_(grids.op, colIdx_('H'), salon, 56) };
     const cal = readSchedule_(ss).cal, now = new Date();
     const dim = cal.dim || new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const day = cal.today || now.getDate();
+    const day = cal.today >= 99 ? dim : (cal.today || now.getDate());   // 99 — график прошлого месяца
     const left = Math.max(1, dim - day + 1);
     const val = {};   // id -> { plan, fact }
     const out = [];
@@ -1136,7 +1138,7 @@ function tmReport_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
   if (!TM_REPORTS[req.name]) return { error: 'bad_request' };
-  if (!repAllowed_(ss, u, req.name === 'dl' ? 'dl' : req.name === 'vmr' ? 'vmr' : 'reports')) return { error: 'forbidden' };   // ТМ или временный доступ (по отмеченным разделам)
+  if (!(req.name === 'dl' && u.manager) && !repAllowed_(ss, u, req.name === 'dl' ? 'dl' : req.name === 'vmr' ? 'vmr' : 'reports')) return { error: 'forbidden' };   // «Сотрудники ДЛ» — и РТТ/УТТ (только свои)   // ТМ или временный доступ (по отмеченным разделам)
   if (req.name === 'vmr' && u.roleTitle !== 'ТМ') { const m = vmrMine_(req); return m && m.grid ? Object.assign({ at: new Date().toISOString() }, m) : m; }   // ВМР у РТТ/УТТ — только их ТТ (в т.ч. при выданном доступе)
   const rep = tmReportRaw_(ss, req.name);
   if (req.name !== 'dl' || u.roleTitle === 'ТМ' || !rep.grid) return rep;                // «Сотрудники ДЛ» у РТТ/УТТ — только их сотрудники
@@ -1361,7 +1363,7 @@ function short_(full) { return String(full).trim().split(/\s+/).slice(0, 2).join
  * ===================================================================================================================== */
 const RAW_ = { SHEET: 'Группа товаров', TM: 'Миллер', EXCL: 'Сим исключения', RATES: 'Надстройка', TARIFFS: 'Разбивка по тарифам', GRAFIK: 'График' };
 const ROLES_SVOD_ = { 'сп': 1, 'птт': 1, 'утт': 1, 'ртт': 1, 'новичок': 1 };
-const SEASON_ = 0.9;                                    // «коэфф. сезонности»: янв–июнь 1,1 · июль–дек 0,9 (в таблице зашит 0,9)
+const SEASON_ = (new Date().getMonth() + 1) <= 6 ? 1.1 : 0.9;   // «коэфф. сезонности»: январь–июнь 1,1 · июль–декабрь 0,9 (по месяцу выгрузки)
 const CARD_DEFS_ = [                                    // направления «Деталей продаж салоны» (основные пять + карточки)
   { key: 'phones', label: 'Телефоны',    unit: 'rub', main: true, idx: 4 },
   { key: 'acc',    label: 'Аксессуары',  unit: 'rub', main: true, idx: 7 },
@@ -1617,8 +1619,25 @@ function ratesBook_(ss) {
 }
 const GOLD_ = 'Золото / Комбо сим 3 мес (доп. к оплате за ТП Sim)';
 // Бонус по одной строке чека (колонки AP…AX листа «Группа товаров»)
+// Категория салона для ставок: точное название → тот же салон (sameSalon_) → тот же город (первое слово названия: КЗН, НЧ, ПРМ…) — берётся самая частая категория города
+function cityTok_(name) { const t = norm_(name).split(' ')[0] || ''; return t; }
+function catFor_(T, salon) {
+  const k = norm_(salon); if (!k) return undefined;
+  if (T.grade[k]) return T.grade[k];
+  T._cc = T._cc || {};
+  if (T._cc[k] !== undefined) return T._cc[k] || undefined;
+  let res = '';
+  const keys = Object.keys(T.grade);
+  for (let i = 0; i < keys.length && !res; i++) if (sameSalon_(keys[i], salon)) res = T.grade[keys[i]];
+  if (!res) {
+    const ct = cityTok_(salon), cnt = {};
+    keys.forEach(function (x) { if (cityTok_(x) === ct && T.grade[x]) cnt[T.grade[x]] = (cnt[T.grade[x]] || 0) + 1; });
+    Object.keys(cnt).forEach(function (c) { if (!res || cnt[c] > cnt[res]) res = c; });
+  }
+  T._cc[k] = res; return res || undefined;
+}
 function rowBonus_(r, f, T) {
-  const cat = T.grade[norm_(r.s)], rt = function (lbl) { const o = T.rates[lcase_(lbl)]; const x = o && o[cat]; return x === null || x === undefined ? 0 : x; };
+  const cat = catFor_(T, r.s), rt = function (lbl) { const o = T.rates[lcase_(lbl)]; const x = o && o[cat]; return x === null || x === undefined ? 0 : x; };
   const g = r.g; let b = 0;
   if (f.serv === 1) b += r.k * rt('Услуги | Настройки') * SEASON_;
   if (g === 'Страхование и защита') b += r.k * rt('Страхование остальное / КСЖ /') * SEASON_;
@@ -1818,7 +1837,7 @@ function dlModel_(ss) {
     const cr = {}, cs = sheetByName_(ss, 'Кредиты текущий месяц');
     if (cs) cs.getDataRange().getDisplayValues().forEach(function (x) { const k = norm_(x[2]); if (!k) return; const o = cr[k] = cr[k] || { n: 0, sum: 0 }; o.n++; o.sum += num0(x[3]); });
     const vmr = {}, vs = sheetByName_(ss, 'ВМР'), mon = new Date().getMonth() + 1;
-    if (vs) vs.getRange(4, 2, Math.max(1, Math.min(vs.getLastRow(), 400) - 3), 14).getDisplayValues().forEach(function (x) { const k = norm_(x[0]); if (k && vmr[k] === undefined) vmr[k] = String(x[mon - 6] || '').trim(); });
+    if (vs) vs.getRange(4, 2, Math.max(1, Math.min(vs.getLastRow(), 400) - 3), 14).getDisplayValues().forEach(function (x) { const k = norm_(x[0]); if (k && vmr[k] === undefined) vmr[k] = (mon >= 7 && mon <= 12 ? String(x[mon - 6] || '').trim() : ''); });   // колонки месяцев ВМР — июль…декабрь; иначе пусто, а не чужая колонка
     const att = {}, as = sheetByName_(ss, 'Показатели сотрудников');
     if (as) {
       const hv = as.getRange(3, 8, 1, 80).getDisplayValues()[0]; let ac = -1; hv.forEach(function (h, i) { if (ac < 0 && norm_(h) === 'аттачмент') ac = i; });
@@ -1942,6 +1961,8 @@ function salonRate_(book, salon) {
   const k = norm_(salon); if (!k) return null;
   for (let i = 0; i < book.salons.length; i++) if (book.salons[i].key === k) return book.salons[i];
   for (let i = 0; i < book.salons.length; i++) if (sameSalon_(book.salons[i].name, salon)) return book.salons[i];
+  const ct = cityTok_(salon);                                              // салона нет в «Надстройке» — ставка такая же, как у салонов того же города
+  for (let i = 0; i < book.salons.length; i++) if (cityTok_(book.salons[i].name) === ct) return book.salons[i];
   return null;
 }
 function dlBonusGet_(req) {
@@ -1969,7 +1990,7 @@ function dlBonusGet_(req) {
       const wk = weeks.map(function () { return 0; });
       b.days.forEach(function (x) { if (x.v) wk[wkOf[x.d]] += x.v; });
       // оклад = факт часов × ставка города; защита бонуса: бонус на час < ставки грейда (по салону) → бонус доводится до ставки × часы
-      const sal = salonRate_(book, r.tt), gr = book.grade[r.k] || '', rate = sal && gr ? sal.rates[gr] : null, city = sal ? sal.city : null;
+      const sal = salonRate_(book, r.tt), gr = book.grade[r.k] || 'C', rate = sal && gr ? sal.rates[gr] : null, city = sal ? sal.city : null;
       const wH = worked || 0, pH = r.planH || 0, perH = wH > 0 ? b.gtotal / wH : null;
       const prot = rate !== null && rate !== undefined && perH !== null && perH < rate;
       const protNow = prot ? rate * wH - b.gtotal : 0, protFc = prot && pH > 0 ? rate * pH - fc : 0;
@@ -2171,7 +2192,7 @@ const NOTIF_SHEET = 'Уведомления';
 // ВАЖНО: при каждом обновлении сайта добавляйте сюда запись (новая версия `v`) — она сама станет новостью и уведомлением для всех.
 const RELEASES = [
   { v: '2026-12-11', title: 'Бонус по салонам, «Сопоставления», доступы',
-    text: 'Что нового:\n• «Бонус сотрудников» и «Бонус команды»: сотрудники сгруппированы по салонам, у каждого салона — подытог.\n• «Сотрудники ДЛ» (рейтинг и бонус) у РТТ/УТТ — только сотрудники их салонов, в том числе при выданном доступе; вся сеть — у ТМ.\n• «Сопоставления»: исправлена подгрузка «Сим 1с» — график «Сим 1с / Трафик / Конверсия» снова показывает данные.\n• «Сопоставления» у РТТ/УТТ: помимо своих салонов можно переключиться на смежные (тот же адрес, другой бренд) — трафик, сим 1с и конверсия.\n• «Сотрудники ДЛ» переработаны: вместо широкой таблицы — карточки сотрудников (рейтинг, часы, полосы выполнения плана по направлениям с прогнозом, качество), группировка по салонам, сортировка и поиск; таблица осталась во вкладке «Таблица». Бонус — карточки с раскрывающимся расчётом (оклад, защита, группы, недели).\n• ВМР у РТТ/УТТ — только проверки по их салонам, в том числе при выданном доступе.\n• Временный доступ: ТМ отмечает галочками разделы (Отчёты, Сотрудники ДЛ, План на день, Итоги дня, Карточки, Аналитика, ВМР); «Итоги дня», «План на день», «Карточки» и «Аналитика» открываются в виде ТМ — по всей сети; «Сотрудники ДЛ» — всегда только свои сотрудники.' },
+    text: 'Что нового:\n• Единая методика прогноза: темп по завершённым дням × дней в месяце (у сотрудников ДЛ — по сменам); сегодняшний неполный день не берётся.\n• Отчёты объединены: «План на день» и «Факт продаж» теперь внутри «Итогов дня»; «Диагностика» и тепловая карта — внутри «Прогноза»; у РТТ/УТТ вместо «Бонуса команды» — «Сотрудники ДЛ» (рейтинг и бонус только их сотрудников).\n• «Сопоставления»: алерт «Трафик есть — продаж нет».\n• Бонус: коэффициент сезонности по месяцу (янв–июнь 1,1; июль–дек 0,9); салону без категории ставка берётся по названию и городу (как у салонов того же города).\n• Проверка отчётов: сопоставление салонов строже (целые слова, Т2/ТД различаются), «Точка» корректно считает прогноз при графике прошлого месяца, ВМР в рейтинге ДЛ не берёт чужую колонку вне июля–декабря.\n• «Бонус»: если у сотрудника не найден грейд — ему присваивается грейд C (ставка защиты и расчёт по C).\n• «Бонус сотрудников» и «Бонус команды»: сотрудники сгруппированы по салонам, у каждого салона — подытог.\n• «Сотрудники ДЛ» (рейтинг и бонус) у РТТ/УТТ — только сотрудники их салонов, в том числе при выданном доступе; вся сеть — у ТМ.\n• «Сопоставления»: исправлена подгрузка «Сим 1с» — график «Сим 1с / Трафик / Конверсия» снова показывает данные.\n• «Сопоставления» у РТТ/УТТ: помимо своих салонов можно переключиться на смежные (тот же адрес, другой бренд) — трафик, сим 1с и конверсия.\n• «Сотрудники ДЛ» переработаны: вместо широкой таблицы — карточки сотрудников (рейтинг, часы, полосы выполнения плана по направлениям с прогнозом, качество), группировка по салонам, сортировка и поиск; таблица осталась во вкладке «Таблица». Бонус — карточки с раскрывающимся расчётом (оклад, защита, группы, недели).\n• ВМР у РТТ/УТТ — только проверки по их салонам, в том числе при выданном доступе.\n• Временный доступ: ТМ отмечает галочками разделы (Отчёты, Сотрудники ДЛ, План на день, Итоги дня, Карточки, Аналитика, ВМР); «Итоги дня», «План на день», «Карточки» и «Аналитика» открываются в виде ТМ — по всей сети; «Сотрудники ДЛ» — всегда только свои сотрудники.' },
   { v: '2026-12-10', title: 'Бонус сотрудников: оклад и защита бонуса',
     text: 'Что нового:\n• В «Бонус сотрудников» и «Бонус команды» добавлены оклад (факт часов × ставка города) и защита бонуса: если бонус на час ниже ставки грейда сотрудника по салону, бонус доводится до ставки × часы.\n• Прогноз ЗП теперь = оклад + бонус с защитой. Ставки берутся с листа «Надстройка».' },
   { v: '2026-12-09', title: 'Бонус команды для РТТ и УТТ',
