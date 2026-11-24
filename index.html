@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cdefs%3E%3ClinearGradient id=%27a%27 x1=%270%27 y1=%270%27 x2=%271%27 y2=%271%27%3E%3Cstop offset=%270%27 stop-color=%27%230a84ff%27/%3E%3Cstop offset=%271%27 stop-color=%27%23bf5af2%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27url(%23a)%27/%3E%3Cpath d=%27M40 5 21 35h12l-5 24 21-33H37z%27 fill=%27%23ffd60a%27/%3E%3C/svg%3E">
 <title>SUPER PROдажник</title>
-<script>(function(){try{var q=localStorage.getItem('ios16');if(q==='1')document.documentElement.setAttribute('data-ios','16');else if(q==='px')document.documentElement.setAttribute('data-ios','px')}catch(e){}})();</script>
+<script>(function(){try{var q=localStorage.getItem('ios16');if(q==='1')document.documentElement.setAttribute('data-ios','16');else if(q==='px')document.documentElement.setAttribute('data-ios','px');else if(q==='bk')document.documentElement.setAttribute('data-ios','bk')}catch(e){}})();</script>
 <style>
 
 :root{
@@ -1360,6 +1360,192 @@ html[data-ios="px"] .pane:not([hidden]){animation:pxIn .45s var(--emph) backward
 .dlc-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,310px),1fr))}
 .dld>*{min-width:0}.dld-n{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(pointer:coarse){.dlu button{min-height:44px}.dlu-q{height:44px}}
+
+/* ===== Оформление «Калькулятор» (из артефакта «Бонус-калькулятор»): фиолетовый акцент, лаймовые подсветки, Unbounded + Manrope, точечный фон, карточки с рамкой. Основа — плоская (как iOS 16), палитра и детали свои ===== */
+html[data-ios="bk"]{--bg:#f2f2f7;--card:#fff;--text:#000;--muted:#8a8a8e;--line:rgba(60,60,67,.18);--track:rgba(118,118,128,.12);--blur:rgba(249,249,249,.94);--shadow:none;--r:12px;
+ --g-bg:rgba(249,249,249,.94);--g-bg2:#fff;--g-bd:rgba(60,60,67,.18);--g-sh:0 0 0 .5px rgba(60,60,67,.12),0 8px 24px rgba(0,0,0,.12);--g-hi:none;--g-f:saturate(180%) blur(20px);
+ --spring:cubic-bezier(.25,.1,.25,1);--ease:cubic-bezier(.25,.1,.25,1);--rim-a:transparent;--rim-b:transparent;--rim-c:transparent;--hov:transparent;--purple:#af52de;--gold:#ffcc00;color-scheme:light}
+@media (prefers-color-scheme:dark){html[data-ios="bk"]:not([data-theme=light]){--bg:#000;--card:#1c1c1e;--text:#fff;--muted:#8d8d93;--line:rgba(84,84,88,.65);--track:rgba(118,118,128,.24);--blur:rgba(29,29,31,.94);
+ --g-bg:rgba(29,29,31,.94);--g-bg2:#2c2c2e;--g-bd:rgba(84,84,88,.65);--g-sh:0 0 0 .5px rgba(84,84,88,.5),0 8px 24px rgba(0,0,0,.5);color-scheme:dark}}
+html[data-ios="bk"][data-theme=dark]{--bg:#000;--card:#1c1c1e;--text:#fff;--muted:#8d8d93;--line:rgba(84,84,88,.65);--track:rgba(118,118,128,.24);--blur:rgba(29,29,31,.94);
+ --g-bg:rgba(29,29,31,.94);--g-bg2:#2c2c2e;--g-bd:rgba(84,84,88,.65);--g-sh:0 0 0 .5px rgba(84,84,88,.5),0 8px 24px rgba(0,0,0,.5);color-scheme:dark}
+html[data-ios="bk"] body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;letter-spacing:-.01em}
+html[data-ios="bk"] body::before{display:none!important}
+/* бары: матовые, тонкая линия */
+html[data-ios="bk"] .top,html[data-ios="bk"] .tabbar,html[data-ios="bk"] .demo-banner{background:var(--blur);background-image:none;box-shadow:none;border-color:var(--line);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
+html[data-ios="bk"] .top.sc{box-shadow:none}
+html[data-ios="bk"] .demo-banner{background:rgba(255,204,0,.2);color:#8a5a00}
+/* карточки — сгруппированные списки */
+html[data-ios="bk"] .card{background:var(--card);border-radius:12px;box-shadow:none;border:0}
+html[data-ios="bk"] .card::before,html[data-ios="bk"] .login-card::before,html[data-ios="bk"] .login-card::after{display:none!important}
+html[data-ios="bk"] .card:hover{background-image:none!important}
+html[data-ios="bk"] .m{border-radius:10px;background:var(--bg)}
+html[data-ios="bk"] .hero{box-shadow:none;border-radius:14px}
+html[data-ios="bk"] .hero-row>div{background:rgba(255,255,255,.18);border-radius:10px;backdrop-filter:none;-webkit-backdrop-filter:none}
+html[data-ios="bk"] .badge-place{background:rgba(255,255,255,.22)}
+/* переключатель вкладок: сегмент iOS, без «линзы» */
+html[data-ios="bk"] .seg{background:var(--track);background-image:none;border:0;box-shadow:none;border-radius:9px;padding:2px;backdrop-filter:none;-webkit-backdrop-filter:none}
+html[data-ios="bk"] .seg-lens{display:none!important}
+html[data-ios="bk"] .seg button,html[data-ios="bk"] #tabseg>button{border-radius:7px;font-weight:500;transition:background-color .2s,color .2s;transform:none!important}
+html[data-ios="bk"] .seg button.on,html[data-ios="bk"] #tabseg>button.on,html[data-ios="bk"] .tabbar.menu-float #tabseg>button.on{background:var(--card)!important;background-image:none!important;border:0!important;font-weight:600;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04)!important;color:var(--text)}
+html[data-ios="bk"] #tabseg>button:not(.on):hover{color:inherit}
+html[data-ios="bk"] .tabbar.menu-float{background:var(--blur);border:.5px solid var(--line);box-shadow:var(--g-sh);border-radius:14px}
+html[data-ios="bk"] .tabbar.menu-float.collapsed{background:transparent;border:0;box-shadow:none}
+/* кнопки */
+html[data-ios="bk"] .btn:not(.ghost),html[data-ios="bk"] .chipb[aria-pressed="true"],html[data-ios="bk"] .tabbar.menu-float.collapsed .mfab{background:var(--accent,#007aff);background-image:none;color:#fff;border:0;border-radius:12px;box-shadow:none;filter:none}
+html[data-ios="bk"] .chipb[aria-pressed="true"]{border-radius:99px}
+html[data-ios="bk"] .btn.ghost,html[data-ios="bk"] .chipb,html[data-ios="bk"] .icon-btn,html[data-ios="bk"] .tabbar.menu-float .mcol,html[data-ios="bk"] .vm-sel{background:var(--track);background-image:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:99px}
+html[data-ios="bk"] .btn.ghost{border-radius:12px}
+html[data-ios="bk"] .chipb:hover,html[data-ios="bk"] .icon-btn:hover,html[data-ios="bk"] .btn:hover,html[data-ios="bk"] .mfab:hover{transform:none;box-shadow:none;filter:none}
+html[data-ios="bk"] .chipb:active,html[data-ios="bk"] .btn:active,html[data-ios="bk"] .icon-btn:active,html[data-ios="bk"] .mfab:active,html[data-ios="bk"] .seg button:active{transform:none!important;opacity:.6;transition-duration:.05s}
+html[data-ios="bk"] .chipb,html[data-ios="bk"] .btn,html[data-ios="bk"] .icon-btn{transition:opacity .2s,background-color .2s}
+html[data-ios="bk"] .chipb:focus-visible,html[data-ios="bk"] .btn:focus-visible,html[data-ios="bk"] .icon-btn:focus-visible,html[data-ios="bk"] .seg button:focus-visible{box-shadow:0 0 0 2px var(--accent,#007aff)}
+/* поля ввода */
+html[data-ios="bk"] .field{background:var(--card);border-radius:10px;box-shadow:none;border:0;font-size:17px;outline:0}
+html[data-ios="bk"] .field:focus{outline:0;box-shadow:0 0 0 1.5px var(--accent,#007aff);transform:none}
+html[data-ios="bk"] .lnk input{border-radius:10px}
+/* вход */
+html[data-ios="bk"] .login{background:var(--bg);animation:none}
+html[data-ios="bk"] .login-card{background:var(--card)!important;background-image:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-radius:14px!important;box-shadow:none!important;color:var(--text)}
+html[data-ios="bk"] .login-card p{color:var(--muted)}
+html[data-ios="bk"] .login-card .logo{filter:none}
+html[data-ios="bk"] .login-card .field{background:var(--track);background-image:none;border:0;border-radius:10px;box-shadow:none;transform:none}
+html[data-ios="bk"] .login-card .field:focus{background-color:var(--track);transform:none;box-shadow:0 0 0 1.5px var(--accent,#007aff)}
+html[data-ios="bk"] .login-card .btn:not(.ghost){background-image:none;border:0}
+html[data-ios="bk"] .byline{background:none;color:var(--muted);-webkit-text-fill-color:currentColor}
+/* таблицы: линии вместо зебры */
+html[data-ios="bk"] .mtable table tbody tr:nth-child(even) td,html[data-ios="bk"] .dr-t2 tbody tr:nth-child(even) td,html[data-ios="bk"] .dr-t2 tbody tr:nth-child(even) th.l,html[data-ios="bk"] .rp-t tbody tr:nth-child(even) td,html[data-ios="bk"] .rc-t tbody tr:nth-child(even) td,html[data-ios="bk"] .pt-t tbody tr:nth-child(even) td{background:var(--card)}
+html[data-ios="bk"] .mtable tr.tot td{border-top:.5px solid var(--line);background:var(--card)}
+html[data-ios="bk"] .mtable th{text-transform:none;letter-spacing:0;font-weight:500;font-size:13px}
+/* всплывающие панели, листы и тосты */
+html[data-ios="bk"] .th-pan,html[data-ios="bk"] .nt-pan,html[data-ios="bk"] .vm-pop,html[data-ios="bk"] .dd-pop,html[data-ios="bk"] .nt-toast,html[data-ios="bk"] .vm-mc{background:var(--g-bg);background-image:none;border:.5px solid var(--line);border-radius:14px;box-shadow:var(--g-sh);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);animation:ios16In .25s ease-out}
+html[data-ios="bk"] .vm-mc{border-radius:14px}
+html[data-ios="bk"] .vm-modal{background:rgba(0,0,0,.4);-webkit-backdrop-filter:none;backdrop-filter:none;animation:ios16Fade .25s ease-out}
+html[data-ios="bk"] .th-seg button{background:var(--track);border:0;border-radius:8px}
+html[data-ios="bk"] .th-seg button[aria-pressed=true]{background:var(--card);outline:0;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04)}
+html[data-ios="bk"] .th-pre button{background:var(--track);border:0}
+html[data-ios="bk"] .rtop{border-radius:12px}
+/* переключатели — как UISwitch */
+html[data-ios="bk"] input[type=checkbox]{-webkit-appearance:none;appearance:none;position:relative;flex:none;width:51px;height:31px;margin:0;border-radius:99px;background:rgba(120,120,128,.32);border:0;cursor:pointer;transition:background-color .25s;vertical-align:middle}
+html[data-ios="bk"] input[type=checkbox]::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.15),0 3px 1px rgba(0,0,0,.06);transition:transform .25s}
+html[data-ios="bk"] input[type=checkbox]:checked{background:var(--green,#34c759)}
+html[data-ios="bk"] input[type=checkbox]:checked::after{transform:translateX(20px)}
+/* движение: простое затухание вместо пружин, размытия и сдвигов */
+html[data-ios="bk"] .rv.in,html[data-ios="bk"] .fade,html[data-ios="bk"] .pane:not([hidden]),html[data-ios="bk"] .tabbar.menu-float:not(.menu-float-keep),html[data-ios="bk"] #tabseg.seg-in>button{animation:ios16Fade .3s ease-out backwards!important}
+html[data-ios="bk"]{--seg-on:#fff;--ios-c:cubic-bezier(.32,.72,0,1)}
+@media (prefers-color-scheme:dark){html[data-ios="bk"]:not([data-theme=light]){--seg-on:#636366}}
+html[data-ios="bk"][data-theme=dark]{--seg-on:#636366}
+html[data-ios="bk"] .seg-lens{display:block!important;border-radius:7px;background:var(--seg-on);background-image:none;border:0;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04);transition:transform .4s var(--ios-c),width .4s var(--ios-c),height .4s var(--ios-c),opacity .2s}
+html[data-ios="bk"] .seg-lens.mv{animation:none}
+html[data-ios="bk"] #tabseg>button.on,html[data-ios="bk"] .tabbar.menu-float #tabseg>button.on{background:transparent!important;box-shadow:none!important;font-weight:600}
+html[data-ios="bk"] .seg:not(#tabseg) button.on{background:var(--seg-on)!important}
+html[data-ios="bk"] .th-seg button[aria-pressed=true]{background:var(--seg-on)}
+html[data-ios="bk"] .rv.in,html[data-ios="bk"] .fade,html[data-ios="bk"] .login-card{animation:ios16Up .5s var(--ios-c) calc(var(--i,0)*45ms) backwards!important}
+html[data-ios="bk"] .tabbar.menu-float:not(.menu-float-keep),html[data-ios="bk"] #tabseg.seg-in>button{animation:ios16Fade .3s ease-out backwards!important}
+html[data-ios="bk"] .th-pan,html[data-ios="bk"] .nt-pan{transform-origin:top right;animation:ios16Pop .32s var(--ios-c)}
+html[data-ios="bk"] .dd-pop,html[data-ios="bk"] .vm-pop{transform-origin:top left;animation:ios16Pop .28s var(--ios-c)}
+html[data-ios="bk"] .vm-modal{animation:ios16Fade .3s ease-out}
+html[data-ios="bk"] .vm-mc{animation:ios16Pop .35s var(--ios-c)}
+@media (max-width:700px){html[data-ios="bk"] .vm-modal{place-items:end center;padding:0}html[data-ios="bk"] .vm-mc{border-radius:14px 14px 0 0;max-height:94vh;animation:ios16Sheet .45s var(--ios-c)}}
+html[data-ios="bk"] .nt-toast{transform:translateY(-130%) scale(.96);transition:opacity .3s ease,transform .5s var(--ios-c)}
+html[data-ios="bk"] .nt-toast.in{transform:none}
+html[data-ios="bk"] .btn,html[data-ios="bk"] .chipb,html[data-ios="bk"] .icon-btn,html[data-ios="bk"] .vm-sel,html[data-ios="bk"] .th-pre button,html[data-ios="bk"] .th-seg button{transition:opacity .35s ease,background-color .3s ease,color .3s ease}
+html[data-ios="bk"] [data-open]:active,html[data-ios="bk"] li[tabindex]:active,html[data-ios="bk"] .mtable tbody tr:active td{background:var(--track)!important;transition:none}
+html[data-ios="bk"] input[type=checkbox],html[data-ios="bk"] input[type=checkbox]::after{transition:background-color .3s ease,transform .3s var(--ios-c),width .25s var(--ios-c)}
+html[data-ios="bk"] input[type=checkbox]:active::after{width:34px}
+html[data-ios="bk"] input[type=checkbox]:checked:active::after{transform:translateX(13px)}
+html[data-ios="bk"] .top{border-bottom:.5px solid transparent;transition:border-color .3s ease,background-color .3s ease}
+html[data-ios="bk"] .top.sc{border-bottom-color:var(--line)}
+html[data-ios="bk"] .field{transition:box-shadow .25s ease}
+@media (prefers-reduced-motion:reduce){html[data-ios="bk"] *{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media not all and (min-width:901px) and (hover:hover) and (pointer:fine){
+  html[data-ios="bk"] .mnav{left:0;right:0;bottom:0;height:calc(54px + env(safe-area-inset-bottom));padding:6px 4px env(safe-area-inset-bottom);border-radius:0;background:var(--blur);background-image:none;border:0;border-top:.5px solid var(--line);box-shadow:none}
+  html[data-ios="bk"] .mn-i{border-radius:0;background:none!important;gap:2px}
+  html[data-ios="bk"] .mn-l{font-size:10px;font-weight:500}
+  html[data-ios="bk"] .mn-ic svg{width:26px;height:26px;stroke-width:1.6}
+  html[data-ios="bk"] .mn-i.on .mn-ic svg{stroke-width:1.8}
+  html[data-ios="bk"] .ms-p{left:0;right:0;bottom:0;border-radius:14px 14px 0 0;background:var(--card);background-image:none;border:0;padding-bottom:env(safe-area-inset-bottom)}
+  html[data-ios="bk"] .ms-t{border-radius:12px}html[data-ios="bk"] .ms-ic{border-radius:10px}
+  html[data-ios="bk"] .ms-p{transition:transform .35s cubic-bezier(.32,.72,0,1)}
+}
+ html[data-ios="bk"] .dlc,html[data-ios="bk"] .bnc{animation:ios16Up .5s var(--ios-c) both}
+ html[data-ios="bk"] .bnc[open] .bnc-body{animation:ios16Fade .3s ease-out}html[data-ios="px"] .bnc[open] .bnc-body{animation:pxFade .3s var(--std)}
+ html[data-ios="bk"] .dlc-hb u,html[data-ios="bk"] .dld-b u,html[data-ios="bk"] .bnc-bar u,html[data-ios="bk"] .bnc-gb u{animation-duration:.4s;animation-timing-function:var(--ios-c)}
+html[data-ios="bk"]{--bg:#F2F1FA;--card:#FFFFFF;--text:#14122B;--muted:#6A6790;--line:#E2E0F1;--track:#ECEAF7;--blur:rgba(242,241,250,.9);--r:20px;--shadow:0 1px 2px rgba(30,20,90,.06),0 8px 24px rgba(30,20,90,.06);
+ --g-bg:rgba(242,241,250,.9);--g-bg2:#FFFFFF;--g-bd:#E2E0F1;--g-sh:0 1px 2px rgba(30,20,90,.08),0 12px 32px rgba(30,20,90,.14);--lime:#C8F03C;--lime-ink:#1B2200;--dot:rgba(91,61,245,.30);--seg-on:#5B3DF5;--accent-ink:#FFFFFF;--soft:#F7F6FD;
+ --font-d:'Unbounded','Manrope',system-ui,sans-serif;--font-b:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){html[data-ios="bk"]:not([data-theme=light]){--bg:#0D0C1E;--card:#17152F;--text:#F1EFFF;--muted:#A09DC6;--line:#2A2750;--track:#1D1A3B;--blur:rgba(13,12,30,.9);--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);--g-bg:rgba(13,12,30,.9);--g-bg2:#1D1A3B;--g-bd:#2A2750;--g-sh:0 1px 2px rgba(0,0,0,.5),0 12px 32px rgba(0,0,0,.5);--dot:rgba(160,140,255,.38);--blue:#8E78FF;--accent:#8E78FF;--accent-ink:#0D0C1E;--seg-on:#8E78FF;--soft:#1D1A3B;color-scheme:dark}}
+html[data-ios="bk"][data-theme=dark]{--bg:#0D0C1E;--card:#17152F;--text:#F1EFFF;--muted:#A09DC6;--line:#2A2750;--track:#1D1A3B;--blur:rgba(13,12,30,.9);--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);--g-bg:rgba(13,12,30,.9);--g-bg2:#1D1A3B;--g-bd:#2A2750;--g-sh:0 1px 2px rgba(0,0,0,.5),0 12px 32px rgba(0,0,0,.5);--dot:rgba(160,140,255,.38);--blue:#8E78FF;--accent:#8E78FF;--accent-ink:#0D0C1E;--seg-on:#8E78FF;--soft:#1D1A3B;color-scheme:dark}
+html[data-ios="bk"] body{font-family:var(--font-b);font-size:15px;letter-spacing:0}
+html[data-ios="bk"] h1,html[data-ios="bk"] h2,html[data-ios="bk"] .hero-big,html[data-ios="bk"] .m-name,html[data-ios="bk"] .brand,html[data-ios="bk"] .rc-big,html[data-ios="bk"] .rp-big{font-family:var(--font-d);font-weight:600;letter-spacing:-.01em}
+html[data-ios="bk"] .hero-big{font-weight:700}
+/* точечный фон — как в калькуляторе */
+html[data-ios="bk"] body::before{display:block!important;content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(var(--dot) 1px,transparent 1.6px) 0 0/24px 24px!important;opacity:.5;-webkit-mask-image:linear-gradient(#000,transparent 75%);mask-image:linear-gradient(#000,transparent 75%)}
+/* карточки: рамка 1px и мягкая тень */
+html[data-ios="bk"] .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+html[data-ios="bk"] .m,html[data-ios="bk"] .fc{border-radius:14px;background:var(--soft);border:1px solid var(--line)}
+html[data-ios="bk"] .top,html[data-ios="bk"] .tabbar{background:color-mix(in srgb,var(--bg) 88%,transparent);border-bottom:1px solid var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+/* герой: сплошной акцент, цифры белые, место — лайм */
+html[data-ios="bk"] .hero{background:var(--accent)!important;color:var(--accent-ink);border:0;border-radius:20px}
+html[data-ios="bk"] .hero .eyebrow{color:inherit;opacity:.75}
+html[data-ios="bk"] .hero-row>div{background:rgba(255,255,255,.14);border-radius:14px}
+html[data-ios="bk"] .badge-place{background:var(--lime);color:var(--lime-ink);font-weight:800}
+/* кнопки: главная — лаймовая пилюля, чип/сегмент — акцент */
+html[data-ios="bk"] .btn:not(.ghost){background:var(--lime)!important;background-image:none!important;color:var(--lime-ink)!important;border-radius:999px;font-weight:700;box-shadow:0 4px 14px rgba(150,190,20,.35)}
+html[data-ios="bk"] .btn:not(.ghost):hover{transform:translateY(-1px)}
+html[data-ios="bk"] .chipb[aria-pressed="true"],html[data-ios="bk"] .seg button.on,html[data-ios="bk"] .th-seg button[aria-pressed=true]{background:var(--accent)!important;color:var(--accent-ink)!important;box-shadow:none!important}
+html[data-ios="bk"] .seg{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px}
+html[data-ios="bk"] .seg button{border-radius:999px;font-weight:600;color:var(--muted)}
+html[data-ios="bk"] .seg-lens{background:var(--accent)!important;border-radius:999px}
+html[data-ios="bk"] #tabseg>button.on,html[data-ios="bk"] .tabbar.menu-float #tabseg>button.on{color:var(--accent-ink)!important}
+html[data-ios="bk"] .chipb,html[data-ios="bk"] .icon-btn{background:var(--card);border:1px solid var(--line);color:var(--text)}
+html[data-ios="bk"] .field{background:var(--card);border:1.5px solid var(--line);border-radius:12px}
+html[data-ios="bk"] .field:focus{box-shadow:none;border-color:var(--accent);outline:3px solid color-mix(in srgb,var(--accent) 30%,transparent);outline-offset:1px}
+html[data-ios="bk"] .eyebrow,html[data-ios="bk"] .dp-head,html[data-ios="bk"] .mtable th{font-weight:700}
+/* полосы и кольца — акцент, прогресс — лайм */
+html[data-ios="bk"] .bar i:not([style*=background]){background:var(--accent)}
+html[data-ios="bk"] .hbar i,html[data-ios="bk"] .meter i{background:var(--lime)}
+/* таблицы: бледная зебра, заголовки капсом, итог на фоне soft */
+html[data-ios="bk"] .mtable th,html[data-ios="bk"] .dr-t2 thead th,html[data-ios="bk"] .rp-t thead th{text-transform:uppercase;letter-spacing:.04em;font-size:11px;color:var(--muted)}
+html[data-ios="bk"] .mtable tbody tr:nth-child(even) td,html[data-ios="bk"] .dr-t2 tbody tr:nth-child(even) td,html[data-ios="bk"] .dr-t2 tbody tr:nth-child(even) th.l,html[data-ios="bk"] .rp-t tbody tr:nth-child(even) td,html[data-ios="bk"] .rc-t tbody tr:nth-child(even) td,html[data-ios="bk"] .pt-t tbody tr:nth-child(even) td,html[data-ios="bk"] .pt-t tbody tr:nth-child(even) th{background-color:var(--soft)}
+html[data-ios="bk"] .mtable tr.tot td,html[data-ios="bk"] .dr-t2 tr.tot td,html[data-ios="bk"] .dr-t2 tr.tot th,html[data-ios="bk"] .pt-t tr.tot td,html[data-ios="bk"] .pt-t tr.tot th{background-color:color-mix(in srgb,var(--accent) 10%,var(--card));border-top:2px solid var(--accent)}
+html[data-ios="bk"] .tag-ok,html[data-ios="bk"] .dlb td.up{color:#1E8E55}html[data-ios="bk"] .tag-bad,html[data-ios="bk"] .dlb td.dn{color:#D6383D}
+:root[data-theme=dark] html[data-ios="bk"] .tag-ok{color:#46C985}
+html[data-ios="bk"][data-theme=dark] .tag-ok,html[data-ios="bk"][data-theme=dark] .dlb td.up{color:#46C985}html[data-ios="bk"][data-theme=dark] .tag-bad,html[data-ios="bk"][data-theme=dark] .dlb td.dn{color:#FF7479}
+html[data-ios="bk"] .seg-lens{display:none!important}
+html[data-ios="bk"] #tabseg>button.on,html[data-ios="bk"] .tabbar.menu-float #tabseg>button.on{background:var(--accent)!important;border-radius:999px;color:var(--accent-ink)!important}
+html[data-ios="bk"] .th-pre button,html[data-ios="bk"] .th-seg button{border:1px solid var(--line);background:var(--card)}
+html[data-ios="bk"] .th-pan,html[data-ios="bk"] .dd-pop,html[data-ios="bk"] .vm-mc,html[data-ios="bk"] .nt-toast{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--g-sh)}
+
+/* ── Доступность: цели нажатия и минимальный размер текста (аудит 24.11) ── */
+.icon-btn::before{content:"";position:absolute;inset:-4px}
+@media (max-width:420px){
+  .chipb,.dd>.dd-b,.vm-dd>.chipb{min-height:44px}
+  .btn{min-height:44px}
+  .demo{font-size:11px}
+  .brand .byline{font-size:11px;letter-spacing:.06em}
+  .mn-l,html[data-ios="16"] .mn-l,html[data-ios="bk"] .mn-l{font-size:11px}
+}
+@media (min-width:421px){.brand .byline{font-size:11px;letter-spacing:.1em}.mn-l{font-size:11px}}
+@media (max-width:420px){.xt button{min-width:44px;min-height:44px}html[data-ios="px"] .btn,html[data-ios="px"] .chipb,html[data-ios="px"] .vm-sel{min-height:44px}}
+@media (min-width:421px){html[data-ios="16"] .mn-l,html[data-ios="bk"] .mn-l{font-size:11px}}
+@media (max-width:420px){.brand .wmw,.top .demo{display:none}}
+
+/* ── Единый стиль таблиц (.tbl): общий фон шапки/первого столбца, наведение, итог ── */
+:is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb,.dr-s){--tbl-bg:color-mix(in srgb,var(--card) 72%,var(--bg))}
+:is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb,.dr-s) table :is(thead th,th.l,td.l,th:first-child){background-color:var(--tbl-bg)}
+:is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb) table tbody tr:nth-child(even) :is(td,th.l):not([style*="background"]){background-color:color-mix(in srgb,var(--text) 4%,var(--tbl-bg))}
+:is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb) table tbody tr:hover :is(td,th.l):not([style*="background"]){background-color:color-mix(in srgb,var(--blue) 9%,var(--tbl-bg))}
+:is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb) table tr.tot :is(td,th){background-color:color-mix(in srgb,var(--text) 8%,var(--tbl-bg));border-top:2px solid var(--text);border-bottom:0;font-weight:800}
+:is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb) table tr.prot td{background-color:color-mix(in srgb,var(--orange) 12%,transparent)}
+:is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb) table td.up{color:var(--green)}
+:is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb) table :is(td.dn,td.neg){color:var(--pink)}
+html[data-ios="16"] :is(.tbl,.mtable,.rp-gridw,.dr-wide) table tr.tot :is(td,th){border-top:.5px solid var(--line);background-color:var(--tbl-bg);font-weight:700}
+html[data-ios="16"] :is(.tbl,.mtable,.rp-gridw,.dr-wide) table tbody tr:nth-child(even) :is(td,th.l):not([style*="background"]){background-color:var(--tbl-bg)}
+html[data-ios="bk"] :is(.tbl,.mtable,.rp-gridw,.dr-wide) table tr.tot :is(td,th){border-top:.5px solid var(--line);background-color:var(--tbl-bg);font-weight:700}
+html[data-ios="bk"] :is(.tbl,.mtable,.rp-gridw,.dr-wide) table tbody tr:nth-child(even) :is(td,th.l):not([style*="background"]){background-color:var(--tbl-bg)}
+html[data-ios="px"] :is(.tbl,.mtable,.rp-gridw,.dr-wide) table tr.tot :is(td,th){border-top:1px solid var(--line);background-color:transparent;font-weight:700}
+html[data-ios="px"] :is(.tbl,.mtable,.rp-gridw,.dr-wide) table tbody tr:nth-child(even) :is(td,th.l):not([style*="background"]){background-color:transparent}
 </style>
 </head>
 <body>
@@ -3074,7 +3260,7 @@ function pointHTML(d){
   if (!r || !r.found) return `<div class="card fade"><h2>Результаты торговой точки</h2><div class="empty">${r&&r.salon?`Для точки «${esc(rpShort(r.salon))}» не найден план в листе «План».`:'Основная торговая точка пока не определена — проверьте график.'}</div></div>`;
   const pc = v => (v==null||isNaN(v)) ? '<span class="fcp">—</span>' : fcChip(v, null);
   const cell = (v,u) => v==='' || v==null ? '<span class="z">—</span>' : typeof v==='number' ? (u==='pct' ? fmt(v,1).replace('.',',')+'%' : fmt(Math.round(v))) : esc(v);
-  const blocks = (r.blocks||[]).map(b=>`<section class="card fade"><h2>${esc(b.title)}</h2><div class="mtable"><table class="pt-t"><thead><tr><th>Показатель</th><th>План</th><th>Факт</th><th>Остаток</th><th>На день</th><th>Вып.%</th><th>Прог.%</th></tr></thead><tbody>${
+  const blocks = (r.blocks||[]).map(b=>`<section class="card fade"><h2>${esc(b.title)}</h2><div class="tbl mtable"><table class="pt-t"><thead><tr><th>Показатель</th><th>План</th><th>Факт</th><th>Остаток</th><th>На день</th><th>Вып.%</th><th>Прог.%</th></tr></thead><tbody>${
     b.rows.map(x=>`<tr><th>${esc(x.label)}</th><td>${cell(x.plan,x.unit)}</td><td><b>${cell(x.fact,x.unit)}</b></td><td>${cell(x.rest,x.unit==='pct'&&x.label.indexOf('доля')>=0?'':x.unit)}</td><td>${cell(x.perDay,x.unit==='pct'&&x.label.indexOf('доля')>=0?'':x.unit)}</td><td class="pc">${pc(x.pct)}</td><td class="pc">${pc(x.prog)}</td></tr>`).join('')}</tbody></table></div></section>`).join('');
   return `<div class="card hero fade"><div><div class="eyebrow">Результаты торговой точки</div><div class="hero-big" style="font-size:clamp(26px,6vw,40px);margin-top:8px">${esc(String(r.label||r.salon).replace(/^КЗН\s+/,''))}</div></div>
     <div class="hero-row num" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div><b>${r.date?esc(r.date.slice(0,5)):'—'}</b><span>Данные на дату</span></div><div><b>${fmt(r.daysPassed)} из ${fmt(r.daysTotal)}</b><span>День месяца</span></div></div></div>${blocks}
@@ -3205,7 +3391,7 @@ function renderManager(d){
         <span class="badge-place">День ${A.passed} из ${A.dim} · осталось ${A.left} дн.</span></div>
       <div class="hero-row num">
         <div><b>${fcChip(totalFc,null,'hero')}</b><span>Прогноз по плану</span></div>
-        <div><b>${withPlan.filter(x=>x.pct>=100).length} из ${withPlan.length}</b><span>Направлений в плане</span></div>
+        <div><b>${withPlan.filter(x=>x.pct>=100).length} из ${withPlan.length}</b><span>Направл. в плане</span></div>
         <div><b>${A.list.length}</b><span>${A.list.length>1?'Салона':'Салон'}</span></div>
       </div>
     </div>
@@ -3256,7 +3442,7 @@ function salonCompare(d){
   const keys = DIR_ORDER.filter(k=>d.salons.some(s=>s.dirs.some(x=>x.key===k)));
   const label = k => (d.salons.flatMap(s=>s.dirs).find(x=>x.key===k)||{}).label;
   const ng = nearGroups(d), N=d.near||{};
-  const own = (SEL==='all' && d.salons.length>1) ? `<div class="mtable"><table>
+  const own = (SEL==='all' && d.salons.length>1) ? `<div class="tbl mtable"><table>
        <thead><tr><th>Салон</th>${keys.map(k=>`<th>${esc(label(k))}</th>`).join('')}</tr></thead><tbody>
        ${d.salons.map(s=>`<tr><td>${esc(s.name)}</td>${keys.map(k=>{const x=s.dirs.find(z=>z.key===k);
          if(!x||!(x.plan>0))return '<td class="z">—</td>';const p=x.fact/x.plan*100;return `<td class="pcell ${clsPct(p)}">${fmt(p)}%</td>`}).join('')}</tr>`).join('')}
@@ -3288,7 +3474,7 @@ function daysPane(d, A){
         <div class="note-s">Средний процент выполнения плана дня по направлениям (столбики — по дням, пунктир — 100%).</div></div>` : '';
     const scOf = dt => { const z = sc.find(q=>q.dt===dt); return z ? z.s : null; };
     const heat = (a,v) => { if (!v) return '<td class="z">—</td>'; if (!(a.planDay>0)) return `<td>${fmt(v)}</td>`; const p = v/a.planDay*100; return `<td class="dh" style="--c:${stCol(p)};--w:${Math.min(100,p/1.5)}%" title="${fmt(p)}% плана дня">${fmt(v)}</td>`; };
-    body = strip + `<div class="card fade"><h2>Продажи по дням</h2><div class="mtable"><table>
+    body = strip + `<div class="card fade"><h2>Продажи по дням</h2><div class="tbl mtable"><table>
       <thead><tr><th>Дата</th>${A.dirs.map(a=>`<th>${esc(a.label)}${a.unit==='шт'?', шт':', ₽'}</th>`).join('')}<th>День к плану</th></tr></thead><tbody>
       <tr class="tot planrow"><td>План на день</td>${A.dirs.map(a=>`<td>${fmt(a.planDay,a.unit==='шт'?1:0)}</td>`).join('')}<td class="dy-s">100%</td></tr>
       ${dates.slice().reverse().map(dt=>{ const sv = scOf(dt); return `<tr><td>${dt.slice(0,5)}<span class="dy-wd">${WD_N[wdOf(dt)]||''}</span></td>${A.dirs.map(a=>heat(a,a.days[dt])).join('')}<td class="dy-s">${sv==null?'<span class="z">…</span>':`<span class="dy-sb"><i style="width:${Math.min(100,sv/1.5)}%;background:${stCol(sv)}"></i></span><b>${fmt(sv)}%</b>`}</td></tr>`}).join('')}
@@ -3308,7 +3494,7 @@ function daysPane(d, A){
       <div class="card fade"><h2>Продажи по дням</h2>
         ${bars(a.dayList, a.planDay, 'план на день', f)}
         <div class="legend" style="margin-top:12px"><span><i style="background:#0a84ff"></i>Продажи за день</span><span><i style="background:#ff9f0a"></i>Последний день</span></div></div>
-      <div class="card fade"><h2>Таблица</h2><div class="mtable"><table>
+      <div class="card fade"><h2>Таблица</h2><div class="tbl mtable"><table>
         <thead><tr><th>Дата</th>${sal.length>1?sal.map(s=>`<th>${esc(s.name.replace(/^КЗН /,''))}</th>`).join(''):''}<th>${sal.length>1?'Итого':'Продано'}</th><th>К плану дня</th></tr></thead><tbody>
         <tr class="tot planrow"><td>План на день</td>${sal.length>1?sx.map(x=>`<td>${x?fmtU(x.planDay,a.unit):'—'}</td>`).join(''):''}<td>${f(a.planDay)}</td><td class="z">100%</td></tr>
         ${a.dayList.slice().reverse().map(z=>{const p=a.planDay>0?z.v/a.planDay*100:null;
@@ -3412,11 +3598,11 @@ function renderSummary(d){
   const head2 = `<tr>${dirs.map(dr=>dr.cols.map(x=>`<th>${esc(x.lab)}</th>`).join('')).join('')}</tr>`;
   const rowH = (r,cls) => `<tr${cls?` class="${cls}"`:''}><th class="l">${esc(rpShort(String(r[0])))}</th>${dirs.map(dr=>dr.cols.map(x=>cellH(r[x.c],x)).join('')).join('')}</tr>`;
   const rows = rowsList.map(r=>rowH(r)).join('') + lead.map(r=>rowH(r,'tot')).join('');
-  const mob = rowsList.concat(lead).map(r=>`<div class="dr-s"><h3>${esc(rpShort(String(r[0])))}</h3><table class="dr-mt" data-xl="skip"><thead><tr><th></th>${dmap[dirs[0].name].cols.map(x=>`<th>${esc(x.lab.replace('Отставание','Отст.'))}</th>`).join('')}</tr></thead><tbody>${dirs.map(dr=>`<tr><th>${esc(dr.name)}</th>${dr.cols.map(x=>cellH(r[x.c],x)).join('')}</tr>`).join('')}</tbody></table></div>`).join('');
+  const mob = rowsList.concat(lead).map(r=>`<div class="dr-s"><h3>${esc(rpShort(String(r[0])))}</h3><table class="tbl dr-mt" data-xl="skip"><thead><tr><th></th>${dmap[dirs[0].name].cols.map(x=>`<th>${esc(x.lab.replace('Отставание','Отст.'))}</th>`).join('')}</tr></thead><tbody>${dirs.map(dr=>`<tr><th>${esc(dr.name)}</th>${dr.cols.map(x=>cellH(r[x.c],x)).join('')}</tr>`).join('')}</tbody></table></div>`).join('');
   const asof = String((g[1]||[]).join(' ')).trim();
   el.innerHTML = `<div class="stack">${tiles?`<div class="card fade"><div class="eyebrow">Общий свод</div><h2>${esc(String(total[0]).trim()||'Итого')}</h2><div class="dr-tiles">${tiles}</div></div>`:''}
     <div class="card fade"><h2>Салоны × направления</h2>
-      <div class="mtable dr-wide"><table class="dr-t2"><thead>${head1}${head2}</thead><tbody>${rows}</tbody></table></div>
+      <div class="tbl mtable dr-wide"><table class="dr-t2"><thead>${head1}${head2}</thead><tbody>${rows}</tbody></table></div>
       <div class="dr-m">${mob}</div>
       <div class="note-s" style="margin-top:10px">План на месяц — из листа «План». «Отставание» — сколько не хватает до плана на текущую дату, «Прогноз» — ожидаемое выполнение плана месяца.</div></div></div>`;
   animate();
@@ -3848,7 +4034,7 @@ function reconBody(r, o){
   const pf = v => v==null?'—':(Math.round(v*10)/10+'%').replace('.',',');
   const conv = days.map((_,i)=> s.traffic[i]>0 && s.sim1c[i]!=null ? s.sim1c[i]/s.traffic[i]*100 : null);
   const tS=sum(s.sim1c), tT=sum(s.traffic), cAvg = tT>0 ? tS/tT*100 : null, planSum=sum(s.plan||[]);
-  const dt = (cols, rows) => `<button class="rp-tg" data-tg type="button">Таблица по датам <span>▾</span></button><div hidden><div class="mtable"><table class="rc-t"><thead><tr><th class="l">Дата</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(x=>`<tr><th class="l">${x[0]}</th>${x.slice(1).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+  const dt = (cols, rows) => `<button class="rp-tg" data-tg type="button">Таблица по датам <span>▾</span></button><div hidden><div class="tbl mtable"><table class="rc-t"><thead><tr><th class="l">Дата</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(x=>`<tr><th class="l">${x[0]}</th>${x.slice(1).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
   let out='';
   if (has(s.sim1c)||has(s.traffic)){
     const cp = (cAvg!=null && s.planConv>0) ? fcChip(cAvg/s.planConv*100) : '';
@@ -3922,7 +4108,7 @@ function rpDLTable(g, calc){
   const sub = keep.slice(1).filter(c=>grp[c]).map(c=>`<th class="${sep.has(c)?'sp':''}">${esc(lab(c))}</th>`).join('');
   const body = rows.map(r=>`<tr><th class="l">${esc(short_(cl(r[nc])))}</th>${keep.slice(1).map(c=>{ const v=cl(r[c]); const pct=/%$/.test(v), n=parseFloat(v.replace(/\s/g,'').replace(',','.')); const cls=[sep.has(c)?'pl':'', pct&&isFinite(n)?'pc':'', !pct&&isFinite(n)&&n<0?'neg':''].filter(Boolean).join(' '); return pct&&isFinite(n) ? `<td class="${cls}">${fcChip(n)}</td>` : `<td class="${cls}">${esc(/^-?\d{4,}$/.test(String(v))?fmt(+v,0):v)}</td>`; }).join('')}</tr>`).join('');
   return `<section class="card fade rp-dl"><div class="eyebrow">Сотрудники ДЛ</div><h2>План, отставание и прогноз по сотруднику</h2>
-    <div class="mtable dr-wide"><table class="dr-t2 dl-t"><thead><tr><th rowspan="2" class="l">Сотрудник</th>${top.join('')}</tr><tr>${sub}</tr></thead><tbody>${body}</tbody></table></div>
+    <div class="tbl mtable dr-wide"><table class="dr-t2 dl-t"><thead><tr><th rowspan="2" class="l">Сотрудник</th>${top.join('')}</tr><tr>${sub}</tr></thead><tbody>${body}</tbody></table></div>
     <div class="note-s" style="margin-top:8px">${rows.length} сотр.${calc?' · план на месяц = план салона × доля часов сотрудника в салоне; план на день = (план − факт) ÷ оставшиеся смены; прогноз = факт ÷ отработано смен × смен по графику ÷ план; место — по сумме мест прогноза за вычетом аттачмента и кредитов':' · значения как на листе «До сотрудника ДЛ»'}</div></section>`;
 }
 /* ---------- «Сотрудники ДЛ»: карточки сотрудников вместо широкой таблицы ---------- */
@@ -4071,7 +4257,7 @@ function rpDetails(g){
     const done = perDay.filter(v=>v!=null).length, planSum = planDay.reduce((a,v)=>a+(v||0),0);
     const col = COLORS[Object.keys(DIR_LABELS_RP).find(k=>DIR_LABELS_RP[k]===b.dir.toLowerCase())] || rpPal[bi%rpPal.length];
     const mx = Math.max(1,...sal.flatMap(s=>s.days.map(v=>v||0)));
-    const grid = `<div class="rp-gridw"><table class="rp-grid"><thead><tr><th>д</th><th title="План на день">пл</th>${sal.map((s,i)=>`<th title="${esc(s.name)}">${i+1}</th>`).join('')}${b.ci>=0?'<th title="Закрытие плана дня">%</th>':''}</tr></thead><tbody>${b.days.map((d,i)=>`<tr><th>${esc(labels[i].slice(0,2))}</th><td class="pl">${rpK(planDay[i])}</td>${sal.map(s=>{const v=s.days[i]; return v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${rpK(v)}</td>`;}).join('')}${b.ci>=0?(()=>{const p=rpNum(d[b.ci]);return p==null?'<td class="z"></td>':`<td class="cl" style="color:${rpCol(p)}">${fmt(p)}</td>`})():''}</tr>`).join('')}</tbody></table>
+    const grid = `<div class="tbl rp-gridw"><table class="rp-grid"><thead><tr><th>д</th><th title="План на день">пл</th>${sal.map((s,i)=>`<th title="${esc(s.name)}">${i+1}</th>`).join('')}${b.ci>=0?'<th title="Закрытие плана дня">%</th>':''}</tr></thead><tbody>${b.days.map((d,i)=>`<tr><th>${esc(labels[i].slice(0,2))}</th><td class="pl">${rpK(planDay[i])}</td>${sal.map(s=>{const v=s.days[i]; return v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${rpK(v)}</td>`;}).join('')}${b.ci>=0?(()=>{const p=rpNum(d[b.ci]);return p==null?'<td class="z"></td>':`<td class="cl" style="color:${rpCol(p)}">${fmt(p)}</td>`})():''}</tr>`).join('')}</tbody></table>
       <ol class="rp-leg">${sal.map((s,i)=>`<li><b>${i+1}</b>${esc(rpShort(s.name))}</li>`).join('')}</ol></div>`;
     return `<section class="card rp-dir fade"><div class="rp-dh"><div><div class="eyebrow">${esc(cap||'Детали продаж')}</div><h2>${esc(b.dir)}</h2></div>
       <div class="rp-big num">${f(sumT)}<small>всего за месяц</small></div></div>
@@ -4099,7 +4285,7 @@ function rpSide(b, bi){
     <div class="rp-chart">${rpBars(perDay, lab, {color:col})}</div>
     <div class="rp-sal">${sal.map((s,i)=>`<div class="rp-s"><div class="rp-sn">${esc(rpShort(s.name))}</div><div class="rp-sb"><i style="width:0;background:${col}" data-w="${Math.max(2,Math.abs(tot[i]||0)/mt*100).toFixed(1)}"></i></div><div class="rp-sv num">${tot[i]==null?'—':fmt(tot[i])}</div></div>`).join('')}</div>
     <button class="rp-tg" data-tg type="button">Подробно по дням <span>▾</span></button>
-    <div hidden><div class="rp-gridw"><table class="rp-grid"><thead><tr><th>д</th>${sal.map((s,i)=>`<th title="${esc(s.name)}">${i+1}</th>`).join('')}</tr></thead><tbody>${rows.map((r,ri)=>`<tr><th>${esc(lab[ri])}</th>${r.v.map(v=>v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${rpK(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>
+    <div hidden><div class="tbl rp-gridw"><table class="rp-grid"><thead><tr><th>д</th>${sal.map((s,i)=>`<th title="${esc(s.name)}">${i+1}</th>`).join('')}</tr></thead><tbody>${rows.map((r,ri)=>`<tr><th>${esc(lab[ri])}</th>${r.v.map(v=>v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${rpK(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>
     <ol class="rp-leg">${sal.map((s,i)=>`<li><b>${i+1}</b>${esc(rpShort(s.name))}</li>`).join('')}</ol></div></div></section>`;
 }
 /* ---------- «Остальные карточки» (защита экрана, ПЗУ, часы, наушники, БП, чистка, пакет, трафик…) только по салонам руководителя ---------- */
@@ -4133,7 +4319,7 @@ function rpDaysCard(cd,i){
     <div class="rp-chart">${rpBars(perDay, labels, {color:col, line:plan, f})}</div>
     <div class="rp-sal">${cd.salons.map((n,j)=>`<div class="rp-s"><div class="rp-sn">${esc(rpShort(n))}${noSale(j)}</div><div class="rp-sb" data-tip="${tipA(rpShort(n)+'\nВсего: '+f(tot[j]))}"><i style="width:0;background:${col}" data-w="${Math.max(2,Math.abs(tot[j]||0)/mxT*100).toFixed(1)}"></i></div><div class="rp-sv num">${f(tot[j])}</div>${chips(j)?`<div class="rp-sx">${chips(j)}</div>`:''}</div>`).join('')}</div>
     <button class="rp-tg" data-tg type="button">Подробно по дням <span>▾</span></button>
-    <div hidden><div class="rp-gridw"><table class="rp-grid"><thead><tr><th>д</th>${plan?'<th title="План на день">пл</th>':''}${cd.salons.map((n,j)=>`<th title="${esc(n)}">${j+1}</th>`).join('')}</tr></thead><tbody>${cd.v.map((row,ri)=>`<tr><th>${esc(labels[ri].slice(0,2))}</th>${plan?`<td class="pl">${rpK(plan[ri])}</td>`:''}${row.map(v=>v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${pct?fmt(v):rpK(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>
+    <div hidden><div class="tbl rp-gridw"><table class="rp-grid"><thead><tr><th>д</th>${plan?'<th title="План на день">пл</th>':''}${cd.salons.map((n,j)=>`<th title="${esc(n)}">${j+1}</th>`).join('')}</tr></thead><tbody>${cd.v.map((row,ri)=>`<tr><th>${esc(labels[ri].slice(0,2))}</th>${plan?`<td class="pl">${rpK(plan[ri])}</td>`:''}${row.map(v=>v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${pct?fmt(v):rpK(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>
     <ol class="rp-leg">${cd.salons.map((n,j)=>`<li><b>${j+1}</b>${esc(rpShort(n))}</li>`).join('')}</ol></div></div></section>`;
 }
 async function cardsLoad(el, force){
@@ -4237,7 +4423,7 @@ function rpSeries(sg, opt){
   }).join('');
   const allR = main.concat(plans), cellT = (r,i) => r.vals[i]==null ? '' : fmt(r.vals[i], r.pct?1:0)+(r.pct?'%':'');
   const dtab = `<button class="rp-tg" data-tg type="button">Таблица по датам <span>▾</span></button>
-    <div hidden><div class="rp-gridw"><table class="rp-grid rp-dt"><thead><tr><th>Дата</th>${allR.map(r=>`<th>${esc(r.label)}</th>`).join('')}</tr></thead><tbody>${dl.map((x,i)=>`<tr><th>${esc(x)}</th>${allR.map(r=>`<td>${cellT(r,i)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+    <div hidden><div class="tbl rp-gridw"><table class="rp-grid rp-dt"><thead><tr><th>Дата</th>${allR.map(r=>`<th>${esc(r.label)}</th>`).join('')}</tr></thead><tbody>${dl.map((x,i)=>`<tr><th>${esc(x)}</th>${allR.map(r=>`<td>${cellT(r,i)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
   return `<section class="rp-ser fade">${title}<div class="rp-cards">${cards}</div>${dtab}</section>`;
 }
 const avgOf = a => { const x=a.filter(v=>v!=null); return x.length ? x.reduce((s,v)=>s+v,0)/x.length : 0; };
@@ -4265,7 +4451,7 @@ function rpMatrix(sg, opt){
   const mark = nm => opt && opt.hl && opt.hl(nm);
   if (useTable){
     const mx = {}; numCols.forEach(c=>{ mx[c]=Math.max(1e-9,...body.filter(r=>!isTotRow(r)).map(r=>Math.abs(rpNum(r[c])||0))); });
-    return `<section class="card rp-tb fade">${mkTitle}<table class="rp-t"><thead><tr><th>${esc(H1[lc]||'')}</th>${numCols.map(c=>`<th>${esc(lab(c)||H1[c])}</th>`).join('')}</tr></thead><tbody>${rowsO.map(o=>`<tr class="${o.tot?'tot':''}"><th>${esc(rpShort(o.nm))}</th>${numCols.map(c=>{ const v=rpNum(o.r[c]), p=rpPct(o.r[c]); if(v===null) return '<td class="z"></td>';
+    return `<section class="card rp-tb fade">${mkTitle}<table class="tbl rp-t"><thead><tr><th>${esc(H1[lc]||'')}</th>${numCols.map(c=>`<th>${esc(lab(c)||H1[c])}</th>`).join('')}</tr></thead><tbody>${rowsO.map(o=>`<tr class="${o.tot?'tot':''}"><th>${esc(rpShort(o.nm))}</th>${numCols.map(c=>{ const v=rpNum(o.r[c]), p=rpPct(o.r[c]); if(v===null) return '<td class="z"></td>';
         const w = o.tot||c===totC ? 0 : Math.min(100,Math.abs(v)/mx[c]*100); return `<td class="num" style="--w:${p?Math.min(100,Math.abs(v)):w}%">${esc(o.r[c])}</td>`; }).join('')}</tr>`).join('')}</tbody></table></section>`;
   }
   const items = rowsO.filter(o=>o.r.some((v,c)=>c!==lc&&v));
@@ -4352,12 +4538,12 @@ function dayPlanPane(d){
   const head2 = `<tr>${dirs.map(()=>'<th>Осталось</th><th>На день</th>').join('')}</tr>`;
   const rows = sal.map(s=>`<tr><th class="l">${esc(rpShort(s.name))}</th>${dirs.map(k=>{ const c=cell(s,k); if (!c) return '<td class="z">—</td><td class="z">—</td>'; const r = rxOf(c.day, paceOf([s],k)), w = colMax[k]>0 ? c.day/colMax[k]*100 : 0, col = r<=1.05 ? STC.hi : r<=1.3 ? STC.mid : STC.lo; return `<td class="pl">${nf(c.rem,k)}</td><td class="dr-bar" style="--w:${w}%;--c:${col}"><b>${nf(c.day,k)}</b><small>×${dec1(r)}</small></td>`; }).join('')}</tr>`).join('');
   const totRow = `<tr class="tot"><th class="l">Итого</th>${dirs.map(k=>`<td class="pl">${nf(tot[k].rem,k)}</td><td>${nf(tot[k].day,k)}</td>`).join('')}</tr>`;
-  const mob = sal.map(s=>`<div class="dr-s"><h3>${esc(rpShort(s.name))}</h3><table class="dr-mt" data-xl="skip"><thead><tr><th></th><th>Осталось</th><th>На день</th></tr></thead><tbody>${dirs.map(k=>{ const c=cell(s,k); return c ? `<tr><th>${esc(meta(k).label)}</th><td class="pl">${nf(c.rem,k)}</td><td><b>${nf(c.day,k)}</b></td></tr>` : ''; }).join('')}</tbody></table></div>`).join('');
+  const mob = sal.map(s=>`<div class="dr-s"><h3>${esc(rpShort(s.name))}</h3><table class="tbl dr-mt" data-xl="skip"><thead><tr><th></th><th>Осталось</th><th>На день</th></tr></thead><tbody>${dirs.map(k=>{ const c=cell(s,k); return c ? `<tr><th>${esc(meta(k).label)}</th><td class="pl">${nf(c.rem,k)}</td><td><b>${nf(c.day,k)}</b></td></tr>` : ''; }).join('')}</tbody></table></div>`).join('');
   return `${chips}
     <div class="card fade"><div class="eyebrow">План на день · ${esc(dt.slice(0,5))}</div><h2>Итого по салонам</h2>
       <div class="dr-tiles">${tiles}</div></div>
     <div class="card fade"><h2>Салоны × направления · ${esc(dt.slice(0,5))}</h2>
-      <div class="mtable dr-wide"><table class="dr-t2"><thead>${head1}${head2}</thead><tbody>${rows}${totRow}</tbody></table></div>
+      <div class="tbl mtable dr-wide"><table class="dr-t2"><thead>${head1}${head2}</thead><tbody>${rows}${totRow}</tbody></table></div>
       <div class="dr-m">${mob}</div>
       <div class="note-s" style="margin-top:10px">Метка ×N — во сколько раз нужный на день объём выше текущего среднего темпа (зелёный — до ×1,05, жёлтый — до ×1,3, красный — выше); шкала — до ×2. План на день с учётом отставания = (план месяца − факт за прошлые дни) ÷ оставшиеся дни месяца, включая выбранный. «Осталось» — сколько ещё нужно продать до конца месяца.</div></div>`;
 }
@@ -4383,12 +4569,12 @@ function dayResPane(d){
   const head2 = `<tr>${dirs.map(()=>'<th>План</th><th>Факт</th><th>%</th>').join('')}</tr>`;
   const rows = sal.map(s=>`<tr><th class="l">${esc(rpShort(s.name))}</th>${dirs.map(k=>{ const c=cell(s,k); return c ? `<td class="pl">${nf(c.plan,k)}</td><td>${c.fact?nf(c.fact,k):'<span class="z">—</span>'}</td>${pc(c.pct)}` : '<td class="z">—</td><td class="z">—</td><td class="z">—</td>'; }).join('')}</tr>`).join('');
   const totRow = `<tr class="tot"><th class="l">Итого</th>${dirs.map(k=>`<td class="pl">${nf(tot[k].plan,k)}</td><td>${nf(tot[k].fact,k)}</td>${pc(tot[k].pct)}`).join('')}</tr>`;
-  const mob = sal.map(s=>`<div class="dr-s"><h3>${esc(rpShort(s.name))}</h3><table class="dr-mt" data-xl="skip"><thead><tr><th></th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody>${dirs.map(k=>{ const c=cell(s,k); return c ? `<tr><th>${esc(meta(k).label)}</th><td class="pl">${nf(c.plan,k)}</td><td>${c.fact?nf(c.fact,k):'—'}</td>${pc(c.pct)}</tr>` : ''; }).join('')}</tbody></table></div>`).join('');
+  const mob = sal.map(s=>`<div class="dr-s"><h3>${esc(rpShort(s.name))}</h3><table class="tbl dr-mt" data-xl="skip"><thead><tr><th></th><th>План</th><th>Факт</th><th>%</th></tr></thead><tbody>${dirs.map(k=>{ const c=cell(s,k); return c ? `<tr><th>${esc(meta(k).label)}</th><td class="pl">${nf(c.plan,k)}</td><td>${c.fact?nf(c.fact,k):'—'}</td>${pc(c.pct)}</tr>` : ''; }).join('')}</tbody></table></div>`).join('');
   return `${chips}
     <div class="card fade"><div class="eyebrow">Итоги дня · ${esc(dt.slice(0,5))}</div><h2>Итого по салонам</h2>
       <div class="dr-tiles">${tiles}</div>${live?'<div class="rp-note">День ещё идёт — факт неполный.</div>':''}</div>
     <div class="card fade"><h2>Салоны × направления · ${esc(dt.slice(0,5))}</h2>
-      <div class="mtable dr-wide"><table class="dr-t2"><thead>${head1}${head2}</thead><tbody>${rows}${totRow}</tbody></table></div>
+      <div class="tbl mtable dr-wide"><table class="dr-t2"><thead>${head1}${head2}</thead><tbody>${rows}${totRow}</tbody></table></div>
       <div class="note-s" style="margin-top:10px">План на день с учётом отставания = (план месяца − факт за прошлые дни) ÷ оставшиеся дни месяца, включая выбранный. «%» — закрытие плана дня.</div></div>`;
 }
 function bindDayRes(){ bindDayPlan(); $('#m-dayres').querySelectorAll('[data-dr]').forEach(b=>b.onclick=()=>{ DAYSEL=b.dataset.dr; dayComboDraw(DATA); }); }
@@ -4512,7 +4698,7 @@ function dlTableHTML(P, idx){
   while (i<cs.length){ const c=cs[i]; if (!c.g){ top+=`<th rowspan="2">${esc(c.l)}</th>`; i++; continue; } let j=i; while (j<cs.length && cs[j].g===c.g) j++; top+=`<th colspan="${j-i}" class="g">${c.gh}</th>`; i=j; }
   const sub=cs.filter(c=>c.g).map(c=>`<th>${esc(c.l)}</th>`).join('');
   const body=P.rows.map(r=>`<tr><th class="l">${esc(r.n)}</th>${idx.map(i=>r.c[i]).join('')}</tr>`).join('');
-  return `<div class="mtable dr-wide" style="overflow:visible"><table class="dr-t2 dl-t"><thead><tr><th rowspan="2" class="l">Сотрудник</th>${top}</tr><tr>${sub}</tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<div class="tbl mtable dr-wide" style="overflow:visible"><table class="dr-t2 dl-t"><thead><tr><th rowspan="2" class="l">Сотрудник</th>${top}</tr><tr>${sub}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
 async function dlExportBlobs(card){
   const P = dlParts(card.querySelector('.dl-t')), all = P.cols.map((_,i)=>i);
@@ -4675,7 +4861,7 @@ function anHeat(d){
   weak.sort((a,b)=>a.p-b.p);
   const wk = weak.slice(0,5).map(w=>`<div class="an-weak"><b>${esc(w.n)}</b><span>${esc(meta(w.k).label)}</span><i style="color:${stCol(w.p)}">${fmt(w.p)}%</i><small>не хватает ${fmtU(w.gap,w.u)}</small></div>`).join('');
   return `<div class="card fade"><div class="eyebrow">Тепловая карта · на ${ps}-е число из ${dim}</div><h2>Салоны × направления</h2>
-    <div class="mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">Салон</th>${dirs.map(k=>`<th class="g"><span class="gd"><i style="background:${COLORS[k]||'var(--blue)'}"></i>${esc(meta(k).label)}</span></th>`).join('')}<th>Среднее</th></tr></thead>
+    <div class="tbl mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">Салон</th>${dirs.map(k=>`<th class="g"><span class="gd"><i style="background:${COLORS[k]||'var(--blue)'}"></i>${esc(meta(k).label)}</span></th>`).join('')}<th>Среднее</th></tr></thead>
       <tbody>${rows.map(r=>`<tr><th class="l">${esc(rpShort(r.s.name))}</th>${r.v.map(cell).join('')}${cell(r.avg)}</tr>`).join('')}<tr class="tot"><th class="l">Все салоны</th>${tot.map(cell).join('')}<td></td></tr></tbody></table></div>
     <div class="an-leg"><span style="--c:#ff375f">ниже ${ST_WARN}%</span><span style="--c:#ff9f0a">${ST_WARN}–${ST_OK}%</span><span style="--c:#30d158">от ${ST_OK}%</span></div>
     ${wk?`<h3 class="an-h3">Слабые связки</h3><div class="an-weaks">${wk}</div>`:''}
@@ -4707,7 +4893,7 @@ function anPace(d){
   return `<div class="card fade"><div class="eyebrow">Темп по неделям</div><h2>Факт, накопление и нужный темп</h2>${chips}
     <div class="an-legend"><span><i style="background:${COLORS[k]||'var(--blue)'};opacity:.35"></i>факт за неделю</span><span><i style="background:${COLORS[k]||'var(--blue)'}"></i>факт накопленным</span><span><i class="dash"></i>нужный темп (план ${fmtU(plan,meta.unit)})</span></div>
     ${svg}
-    <div class="mtable dr-wide"><table class="dr-t2"><thead><tr><th class="l">Дни</th><th>Факт</th><th>Нужно</th><th>Накоплено</th><th>Нужно накоплением</th><th>К плану</th></tr></thead><tbody>${tr}</tbody></table></div>
+    <div class="tbl mtable dr-wide"><table class="dr-t2"><thead><tr><th class="l">Дни</th><th>Факт</th><th>Нужно</th><th>Накоплено</th><th>Нужно накоплением</th><th>К плану</th></tr></thead><tbody>${tr}</tbody></table></div>
     <div class="note-s" style="margin-top:10px">Нужный темп — план месяца, равномерно распределённый по дням. «К плану» — накопленный факт к накопленному плану на конец недели (для идущей недели — на сегодня).</div></div>`;
 }
 /* 3. вклад сотрудников в салон (отчёт «Сотрудники ДЛ») */
@@ -4975,12 +5161,12 @@ function anVmr(all){
   const ttRows = Object.keys(ttAll).map(n=>{ const a = ttAll[n], pm = months.map(m=>vmrAv(a.filter(r=>r.m===m).map(r=>r.s))), got = pm.filter(v=>v!=null), tr = got.length>1 ? got[got.length-1]-got[got.length-2] : null; return {n, pm, tot:vmrAv(a.map(r=>r.s)), cnt:a.length, tr}; }).sort((a,b)=>a.tot-b.tot);
   const mT = months.map(m=>vmrAv(base.filter(r=>r.m===m).map(r=>r.s)));
   const arrow = d => d==null ? '' : `<small class="${d>=0?'up':'dn'}" style="margin-left:4px">${d>=0?'▲':'▼'}${fmt(Math.abs(d))}</small>`;
-  const t1 = `<div class="card fade"><div class="eyebrow">Сводная · оценка</div><h2>ТТ × месяцы</h2><div class="mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">ТТ</th>${months.map(m=>`<th class="g"><span class="gd">${MN_RU[m]||m}</span></th>`).join('')}<th class="g"><span class="gd">Итого</span></th><th class="g"><span class="gd">Проверок</span></th></tr></thead>
+  const t1 = `<div class="card fade"><div class="eyebrow">Сводная · оценка</div><h2>ТТ × месяцы</h2><div class="tbl mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">ТТ</th>${months.map(m=>`<th class="g"><span class="gd">${MN_RU[m]||m}</span></th>`).join('')}<th class="g"><span class="gd">Итого</span></th><th class="g"><span class="gd">Проверок</span></th></tr></thead>
     <tbody>${ttRows.map(r=>`<tr><th class="l" title="${esc(r.n)}">${esc(vmrTT(r.n))}</th>${r.pm.map(v=>vmrCell(v)).join('')}${vmrCell(r.tot, arrow(r.tr))}<td>${r.cnt}</td></tr>`).join('')}<tr class="tot"><th class="l">Итого</th>${mT.map(v=>vmrCell(v)).join('')}${vmrCell(vmrAv(base.map(r=>r.s)))}<td>${base.length}</td></tr></tbody></table></div>
     <div class="an-leg"><span style="--c:#ff375f">ниже ${ST_WARN}%</span><span style="--c:#ff9f0a">${ST_WARN}–${ST_OK}%</span><span style="--c:#30d158">от ${ST_OK}%</span></div><div class="note-s">Строки — от слабых к сильным. Стрелка у «Итого» — изменение последнего месяца к предыдущему (п.п.).</div></div>`;
   // --- сводная 2: ТТ × сценарий
   const sc2 = Object.keys(byTT).map(n=>{ const a = cur.filter(r=>r.tt===n); return {n, per:VMR_SC.map(s=>{ const b=a.filter(r=>r.scen===s); return {v:vmrAv(b.map(r=>r.s)), c:b.length}; }), tot:vmrAv(a.map(r=>r.s)), cnt:a.length}; }).sort((a,b)=>a.tot-b.tot);
-  const t2 = `<div class="card fade"><div class="eyebrow">Сводная · сценарии</div><h2>ТТ × сценарии</h2><div class="mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l" rowspan="2">ТТ</th>${VMR_SC.map(s=>`<th class="g" colspan="2" style="--gc:${VMR_SCC[s]}"><span class="gd"><i style="background:${VMR_SCC[s]}"></i>${s}</span></th>`).join('')}<th class="g" colspan="2"><span class="gd">Итого</span></th></tr>
+  const t2 = `<div class="card fade"><div class="eyebrow">Сводная · сценарии</div><h2>ТТ × сценарии</h2><div class="tbl mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l" rowspan="2">ТТ</th>${VMR_SC.map(s=>`<th class="g" colspan="2" style="--gc:${VMR_SCC[s]}"><span class="gd"><i style="background:${VMR_SCC[s]}"></i>${s}</span></th>`).join('')}<th class="g" colspan="2"><span class="gd">Итого</span></th></tr>
     <tr>${[...VMR_SC,'Итого'].map(()=>'<th>Оценка</th><th>Шт</th>').join('')}</tr></thead>
     <tbody>${sc2.map(r=>`<tr><th class="l" title="${esc(r.n)}">${esc(vmrTT(r.n))}</th>${r.per.map(p=>vmrCell(p.v)+`<td>${p.c||'—'}</td>`).join('')}${vmrCell(r.tot)}<td>${r.cnt}</td></tr>`).join('')}<tr class="tot"><th class="l">Итого</th>${VMR_SC.map(s=>{ const b=cur.filter(r=>r.scen===s); return vmrCell(vmrAv(b.map(r=>r.s)))+`<td>${b.length||'—'}</td>`; }).join('')}${vmrCell(avgAll)}<td>${cur.length}</td></tr></tbody></table></div></div>`;
   // --- критерии: сеть + ТТ × критерии
@@ -4989,13 +5175,13 @@ function anVmr(all){
   const bars = crs.map(x=>`<div class="vm-cr"><span>${esc(x.l)}</span><div class="bar"><i style="width:${Math.max(2,Math.min(100,x.v))}%;background:${stCol(x.v)}"></i></div><b style="color:${stCol(x.v)}">${fmt(x.v)}%</b><small>${x.n}</small></div>`).join('');
   const ttCr = Object.keys(byTT).map(n=>{ const a = cur.filter(r=>r.tt===n); return {n, v:crs.map(x=>{ const z = a.filter(r=>r.cr[x.k]!=null).map(r=>r.cr[x.k]*100); return vmrAv(z); }), tot:vmrAv(a.map(r=>r.s))}; }).sort((a,b)=>a.tot-b.tot);
   const t3 = `<div class="card fade"><div class="eyebrow">Критерии чек-листа</div><h2>Где теряются баллы</h2><div class="vm-crs">${bars}</div>
-    <h3 class="an-h3">ТТ × критерии</h3><div class="mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">ТТ</th>${crs.map(x=>`<th class="g"><span class="gd">${esc(x.l)}</span></th>`).join('')}</tr></thead>
+    <h3 class="an-h3">ТТ × критерии</h3><div class="tbl mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">ТТ</th>${crs.map(x=>`<th class="g"><span class="gd">${esc(x.l)}</span></th>`).join('')}</tr></thead>
     <tbody>${ttCr.map(r=>`<tr><th class="l" title="${esc(r.n)}">${esc(vmrTT(r.n))}</th>${r.v.map(v=>vmrCell(v)).join('')}</tr>`).join('')}<tr class="tot"><th class="l">Сеть</th>${crs.map(x=>vmrCell(x.v)).join('')}</tr></tbody></table></div>
     <div class="note-s" style="margin-top:8px">Критерий — доля проверок, где пункт выполнен (1 из 1). Пункты, которых не было в сценарии, не учитываются. Сверху — самые проблемные пункты.</div></div>`;
   // --- сотрудники × месяц
   const fioBy = {}; base.forEach(r=>{ if (r.fio) (fioBy[r.fio]=fioBy[r.fio]||[]).push(r); });
   const emp = Object.keys(fioBy).map(n=>{ const a = fioBy[n].filter(r=>VMRS.m==='all'||r.m===VMRS.m); return {n, pm:months.map(m=>vmrAv(fioBy[n].filter(r=>r.m===m).map(r=>r.s))), tot:vmrAv(fioBy[n].map(r=>r.s)), cnt:fioBy[n].length}; }).sort((a,b)=>b.tot-a.tot);
-  const t4 = `<div class="card fade"><div class="eyebrow">Сводная · сотрудники</div><h2>Сотрудники × месяцы</h2><div class="mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">Сотрудник</th>${months.map(m=>`<th class="g"><span class="gd">${MN_RU[m]||m}</span></th>`).join('')}<th class="g"><span class="gd">Итого</span></th><th class="g"><span class="gd">Проверок</span></th></tr></thead>
+  const t4 = `<div class="card fade"><div class="eyebrow">Сводная · сотрудники</div><h2>Сотрудники × месяцы</h2><div class="tbl mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">Сотрудник</th>${months.map(m=>`<th class="g"><span class="gd">${MN_RU[m]||m}</span></th>`).join('')}<th class="g"><span class="gd">Итого</span></th><th class="g"><span class="gd">Проверок</span></th></tr></thead>
     <tbody>${emp.map(r=>`<tr><th class="l" title="${esc(r.n)}">${esc(short2(r.n))}</th>${r.pm.map(v=>vmrCell(v)).join('')}${vmrCell(r.tot)}<td>${r.cnt}</td></tr>`).join('')}<tr class="tot"><th class="l">Итого</th>${mT.map(v=>vmrCell(v)).join('')}${vmrCell(vmrAv(base.map(r=>r.s)))}<td>${base.length}</td></tr></tbody></table></div></div>`;
   // --- разбор: самые слабые проверки
   const worstC = cur.filter(r=>r.s<ST_WARN).sort((a,b)=>a.s-b.s).slice(0,12);
@@ -5074,15 +5260,16 @@ function devInfo(){ const u = navigator.userAgent||''; const os = /iPhone|iPad|i
 
 /* =================== Оформление: персональные цвета (на каждого сотрудника, хранится по логину) =================== */
 const THEME_DEF = {a:'#0a84ff', b:'#bf5af2', lo:'#ff375f', mid:'#ff9f0a', hi:'#30d158', mode:'auto', amb:true, bg:'', bgi:'', ios:0};
-const THEME_PRE = [['Классика','#0a84ff','#bf5af2'],['Океан','#00a6d6','#3a86ff'],['Закат','#ff6b35','#ff375f'],['Лес','#2fa84f','#12a594'],['Лаванда','#7c5cff','#d65bff'],['Роза','#ff4d8d','#ff9f0a'],['Графит','#5b6572','#8e8e93'],['iOS 16','#007aff','#5856d6'],['Pixel','#1a73e8','#0b57d0']];
+const THEME_PRE = [['Классика','#0a84ff','#bf5af2'],['Океан','#00a6d6','#3a86ff'],['Закат','#ff6b35','#ff375f'],['Лес','#2fa84f','#12a594'],['Лаванда','#7c5cff','#d65bff'],['Роза','#ff4d8d','#ff9f0a'],['Графит','#5b6572','#8e8e93'],['iOS 16','#007aff','#5856d6'],['Pixel','#1a73e8','#0b57d0'],['Калькулятор','#5B3DF5','#8E78FF']];
 const THEME_PIXEL = {a:'#1a73e8', b:'#0b57d0', lo:'#d93025', mid:'#f9ab00', hi:'#1e8e3e', amb:false, bg:'', bgi:'', ios:'px'};
+const THEME_BK = {a:'#5B3DF5', b:'#8E78FF', lo:'#D6383D', mid:'#C96A00', hi:'#1E8E55', amb:false, bg:'', bgi:'', ios:'bk'};
 const THEME_IOS16 = {a:'#007aff', b:'#5856d6', lo:'#ff3b30', mid:'#ff9500', hi:'#34c759', amb:false, bg:'', bgi:'', ios:16};
 let THEME = Object.assign({}, THEME_DEF);
 const themeKey = () => 'theme:'+(store.get('login')||'guest');
 const th2rgb = h => { h = String(h||'#000').replace('#',''); if (h.length===3) h = h.split('').map(c=>c+c).join(''); const n = parseInt(h,16)||0; return [n>>16&255, n>>8&255, n&255]; };
 const thMix = (a,b,t) => { const x = th2rgb(a), y = th2rgb(b); return '#'+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,'0')).join(''); };
-function themeLoad(){ let p = {}; try{ p = JSON.parse(store.get(themeKey())||'{}')||{}; }catch(e){} if (!store.get(themeKey()) && store.get('ios16')==='1') p = {a:'#007aff', b:'#5856d6', lo:'#ff3b30', mid:'#ff9500', hi:'#34c759', amb:false, ios:16}; else if (!store.get(themeKey()) && store.get('ios16')==='px') p = {a:'#1a73e8', b:'#0b57d0', lo:'#d93025', mid:'#f9ab00', hi:'#1e8e3e', amb:false, bg:'', bgi:'', ios:'px'}; THEME = Object.assign({}, THEME_DEF, p); themeApply(false); }
-function themeSave(){ try{ store.set('ios16', THEME.ios===16?'1':THEME.ios==='px'?'px':''); }catch(e){} const d = {}; Object.keys(THEME).forEach(k=>{ if (THEME[k]!==THEME_DEF[k]) d[k] = THEME[k]; }); try{ store.set(themeKey(), JSON.stringify(d)); }catch(e){} }
+function themeLoad(){ let p = {}; try{ p = JSON.parse(store.get(themeKey())||'{}')||{}; }catch(e){} if (!store.get(themeKey()) && store.get('ios16')==='1') p = {a:'#007aff', b:'#5856d6', lo:'#ff3b30', mid:'#ff9500', hi:'#34c759', amb:false, ios:16}; else if (!store.get(themeKey()) && store.get('ios16')==='px') p = {a:'#1a73e8', b:'#0b57d0', lo:'#d93025', mid:'#f9ab00', hi:'#1e8e3e', amb:false, bg:'', bgi:'', ios:'px'}; else if (!store.get(themeKey()) && store.get('ios16')==='bk') p = Object.assign({}, THEME_BK); THEME = Object.assign({}, THEME_DEF, p); themeApply(false); }
+function themeSave(){ try{ store.set('ios16', THEME.ios===16?'1':THEME.ios==='px'?'px':THEME.ios==='bk'?'bk':''); }catch(e){} const d = {}; Object.keys(THEME).forEach(k=>{ if (THEME[k]!==THEME_DEF[k]) d[k] = THEME[k]; }); try{ store.set(themeKey(), JSON.stringify(d)); }catch(e){} }
 function themeApply(repaint){
   const T = THEME, [r,g,b] = th2rgb(T.a), [r2,g2,b2] = th2rgb(T.b), mid = thMix(T.a, T.b, .55), [r3,g3,b3] = th2rgb(T.mid);
   let st = document.getElementById('themeCss'); if (!st){ st = document.createElement('style'); st.id = 'themeCss'; document.head.appendChild(st); }
@@ -5094,7 +5281,7 @@ ${T.bg?`html:root body{background-color:${T.bg}!important}`:''}${T.bgi?`html:roo
 body::before{background:${T.amb?`radial-gradient(520px 380px at 12% 8%,rgba(${r},${g},${b},.16),transparent 70%),radial-gradient(560px 420px at 92% 22%,rgba(${r2},${g2},${b2},.13),transparent 70%),radial-gradient(520px 420px at 60% 98%,rgba(${r3},${g3},${b3},.11),transparent 70%)`:'none'}!important}`;
   STC.hi = T.hi; STC.mid = T.mid; STC.lo = T.lo; AN_PAL[0] = T.a; GRP_COL[0] = T.a; VMR_SCC['Обслуживание'] = T.a; VMR_SCC['Подключение'] = T.b;
   const de = document.documentElement; if (T.mode==='light'||T.mode==='dark') de.dataset.theme = T.mode; else de.removeAttribute('data-theme');
-  if (T.ios===16) de.dataset.ios = '16'; else if (T.ios==='px') de.dataset.ios = 'px'; else de.removeAttribute('data-ios');
+  if (T.ios===16) de.dataset.ios = '16'; else if (T.ios==='px') de.dataset.ios = 'px'; else if (T.ios==='bk'){ de.dataset.ios = 'bk'; if (!document.getElementById('bkFonts')){ const lk = document.createElement('link'); lk.id = 'bkFonts'; lk.rel = 'stylesheet'; lk.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap'; document.head.appendChild(lk); } } else de.removeAttribute('data-ios');
   if (repaint && DATA && !$('#app').hidden){ try{ paint(DATA); if (WRAP.dataset.tab==='analytics'){ loadAnalytics(); } if (WRAP.dataset.tab==='vmr'){ loadMyVmr(); } if (WRAP.dataset.tab==='auth') loadAuth(); }catch(e){} }
 }
 function themePanel(){
@@ -5102,7 +5289,7 @@ function themePanel(){
   if (!p){
     p = document.createElement('div'); p.id = 'themePanel'; p.className = 'th-pan'; p.hidden = true; p.setAttribute('role','dialog'); p.setAttribute('aria-label','Оформление');
     p.innerHTML = `<div class="th-h"><div><b>Оформление</b><small id="thWho"></small></div><button type="button" class="icon-btn" id="thX" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-<div class="th-sec"><span>Профиль интерфейса</span><div class="th-seg" role="group"><button type="button" data-ios="0" title="iOS 27 · жидкое стекло">iOS 27</button><button type="button" data-ios="16" title="iOS 16 · классика">iOS 16</button><button type="button" data-ios="px" title="Google Pixel · Material You">Pixel</button></div></div>
+<div class="th-sec"><span>Профиль интерфейса</span><div class="th-seg" role="group"><button type="button" data-ios="0" title="iOS 27 · жидкое стекло">iOS 27</button><button type="button" data-ios="16" title="iOS 16 · классика">iOS 16</button><button type="button" data-ios="px" title="Google Pixel · Material You">Pixel</button><button type="button" data-ios="bk" title="Как в «Бонус-калькуляторе»">Калькулятор</button></div></div>
 <div class="th-sec"><span>Готовые схемы</span><div class="th-pre">${THEME_PRE.map((x,i)=>`<button type="button" data-pre="${i}" title="${x[0]}"><i style="background:linear-gradient(135deg,${x[1]},${x[2]})"></i>${x[0]}</button>`).join('')}</div></div>
 <div class="th-sec"><span>Свои цвета</span><div class="th-row"><label>Акцент<input type="color" data-th="a"></label><label>Дополнительный<input type="color" data-th="b"></label></div></div>
 <div class="th-sec"><span>Статусы выполнения</span><div class="th-row"><label>Ниже ${ST_WARN}%<input type="color" data-th="lo"></label><label>${ST_WARN}–${ST_OK}%<input type="color" data-th="mid"></label><label>От ${ST_OK}%<input type="color" data-th="hi"></label></div></div>
@@ -5115,8 +5302,8 @@ function themePanel(){
     p.querySelectorAll('input[type=color]').forEach(i=>i.oninput = () => { THEME[i.dataset.th] = i.value; apply(); sync(); });
     p.querySelector('[data-th=amb]').onchange = e => { THEME.amb = e.target.checked; apply(); };
     p.querySelectorAll('[data-mode]').forEach(b=>b.onclick = () => { THEME.mode = b.dataset.mode; apply(); sync(); });
-    p.querySelectorAll('[data-pre]').forEach(b=>b.onclick = () => { const x = THEME_PRE[+b.dataset.pre]; if (x[0]==='iOS 16') Object.assign(THEME, THEME_IOS16); else if (x[0]==='Pixel') Object.assign(THEME, THEME_PIXEL); else { THEME.a = x[1]; THEME.b = x[2]; } apply(); p._sync(); });
-    p.querySelectorAll('[data-ios]').forEach(b=>b.onclick = () => { if (b.dataset.ios==='16') Object.assign(THEME, THEME_IOS16); else if (b.dataset.ios==='px') Object.assign(THEME, THEME_PIXEL); else { Object.assign(THEME, {a:THEME_DEF.a, b:THEME_DEF.b, lo:THEME_DEF.lo, mid:THEME_DEF.mid, hi:THEME_DEF.hi, amb:true, ios:0}); } apply(); p._sync(); });
+    p.querySelectorAll('[data-pre]').forEach(b=>b.onclick = () => { const x = THEME_PRE[+b.dataset.pre]; if (x[0]==='iOS 16') Object.assign(THEME, THEME_IOS16); else if (x[0]==='Pixel') Object.assign(THEME, THEME_PIXEL); else if (x[0]==='Калькулятор') Object.assign(THEME, THEME_BK); else { THEME.a = x[1]; THEME.b = x[2]; } apply(); p._sync(); });
+    p.querySelectorAll('[data-ios]').forEach(b=>b.onclick = () => { if (b.dataset.ios==='16') Object.assign(THEME, THEME_IOS16); else if (b.dataset.ios==='px') Object.assign(THEME, THEME_PIXEL); else if (b.dataset.ios==='bk') Object.assign(THEME, THEME_BK); else { Object.assign(THEME, {a:THEME_DEF.a, b:THEME_DEF.b, lo:THEME_DEF.lo, mid:THEME_DEF.mid, hi:THEME_DEF.hi, amb:true, ios:0}); } apply(); p._sync(); });
     const msg = t => p.querySelector('#thBgMsg').textContent = t||'';
     p.querySelector('#thBg').oninput = e => { THEME.bg = e.target.value; apply(); };
     p.querySelector('#thBgOff').onclick = () => { THEME.bg = ''; THEME.bgi = ''; msg(''); apply(); sync(); };
@@ -5171,7 +5358,7 @@ function authPane(r){
   const rc = x => { if (!x.last) return 'color-mix(in srgb,var(--muted) 18%,transparent)'; const d = (now-x.last.t)/864e5; return `color-mix(in srgb,${d<=3?'var(--green)':d<=14?'var(--orange)':'var(--pink)'} 28%,transparent)`; };
   const chips = (key, lbl, list, sel) => `<div class="chips" role="group" aria-label="${lbl}">${list.map(o=>`<button class="chipb" data-${key}="${esc(o[0])}" aria-pressed="${sel===o[0]}">${esc(o[1])}</button>`).join('')}</div>`;
   const tbl = `<div class="card fade"><div class="eyebrow">Сводная · сотрудники</div><h2>Кто и когда заходил</h2><div class="vm-ctl">${chips('af','Показать',FL,AUS.f)}</div>
-    <div class="mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">Сотрудник</th><th class="g"><span class="gd">Роль</span></th><th class="g"><span class="gd">Последняя активность</span></th><th class="g"><span class="gd">Дней (30 д)</span></th><th class="g"><span class="gd">Входов (30 д)</span></th><th class="g"><span class="gd">Ошибок PIN</span></th><th class="g"><span class="gd">Устройство</span></th><th class="g"><span class="gd">PIN</span></th></tr></thead>
+    <div class="tbl mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">Сотрудник</th><th class="g"><span class="gd">Роль</span></th><th class="g"><span class="gd">Последняя активность</span></th><th class="g"><span class="gd">Дней (30 д)</span></th><th class="g"><span class="gd">Входов (30 д)</span></th><th class="g"><span class="gd">Ошибок PIN</span></th><th class="g"><span class="gd">Устройство</span></th><th class="g"><span class="gd">PIN</span></th></tr></thead>
     <tbody>${rows.map(x=>`<tr data-aur="${esc(x.name)}" style="cursor:pointer"><th class="l" title="${esc(x.name)}">${esc(short2(x.name))}${x.gone?' <small>(нет в «Доступ»)</small>':''}</th><td>${esc(x.role)}</td><td class="hm" style="background:${rc(x)}">${x.last?`<b>${auAgo(x.last.t,now)}</b><br><small>${auFmt(x.last.t)}</small>`:'ни разу'}</td><td>${x.days||'—'}</td><td>${x.logins||'—'}</td><td style="${x.fails>2?'color:var(--pink);font-weight:700':''}">${x.fails||'—'}</td><td style="text-align:left;white-space:nowrap">${esc(x.dev)||'—'}</td><td>${x.pin?'✓':'—'}</td></tr>`).join('')||'<tr><td colspan="8">Нет сотрудников по фильтру</td></tr>'}</tbody></table></div>
     <div class="note-s" style="margin-top:8px">Цвет «последней активности»: до 3 дней — зелёный, до 14 — оранжевый, дольше — красный. Нажмите на строку, чтобы открыть историю сотрудника.</div></div>`;
   // история
@@ -5277,7 +5464,7 @@ function vmrRevInner(base, k){
   const chart = ser.length ? `<h3 class="an-h3">Динамика · ${S.m==='all'?'по месяцам':'по неделям, '+(MN_RU[S.m]||S.m)}</h3><div class="vm-chart">${vmrLine(ser.map(z=>({m:0,l:z.l,avg:z.avg,n:z.n})))}</div>` : '';
   let piv = '';
   if (mgr && tts.length>1 && ser.length){ const rowsT = tts.filter(t=>S.t==='all'||t===S.t).map(t=>({t, v:ser.map(z=>vmrAv(z.a.filter(r=>r.tt===t).map(r=>r.s))), c:ser.reduce((a,z)=>a+z.a.filter(r=>r.tt===t).length,0)})).sort((a,b)=>(vmrAv(a.v.filter(x=>x!=null))||0)-(vmrAv(b.v.filter(x=>x!=null))||0));
-    piv = `<h3 class="an-h3">ТТ × ${S.m==='all'?'месяцы':'недели'}</h3><div class="mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">ТТ</th>${ser.map(z=>`<th class="g"><span class="gd">${esc(z.l)}</span></th>`).join('')}<th class="g"><span class="gd">Проверок</span></th></tr></thead><tbody>${rowsT.map(r=>`<tr><th class="l" title="${esc(r.t)}">${esc(vmrTT(r.t))}</th>${r.v.map(v=>vmrCell(v)).join('')}<td>${r.c}</td></tr>`).join('')}</tbody></table></div>`; }
+    piv = `<h3 class="an-h3">ТТ × ${S.m==='all'?'месяцы':'недели'}</h3><div class="tbl mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">ТТ</th>${ser.map(z=>`<th class="g"><span class="gd">${esc(z.l)}</span></th>`).join('')}<th class="g"><span class="gd">Проверок</span></th></tr></thead><tbody>${rowsT.map(r=>`<tr><th class="l" title="${esc(r.t)}">${esc(vmrTT(r.t))}</th>${r.v.map(v=>vmrCell(v)).join('')}<td>${r.c}</td></tr>`).join('')}</tbody></table></div>`; }
 
   let cdyn = '';
   if (k==='tm' || mgr){
@@ -5288,8 +5475,8 @@ function vmrRevInner(base, k){
     const tbl = ser.length ? `<table class="dr-t2 hm-t"><thead><tr><th class="l">Доля проверок, где предложили</th>${ser.map(z=>`<th class="g"><span class="gd">${esc(z.l)}</span></th>`).join('')}</tr></thead><tbody>${rowsK.map(o=>`<tr><th class="l">${o.l}</th>${ser.map(z=>hm(fl(z.a,o.key).p)).join('')}</tr>`).join('')}</tbody></table>` : '';
     let ptt = '';
     if (tts.length>1){ const pr = tts.filter(t=>S.t==='all'||t===S.t).map(t=>{ const a = cur.filter(r=>r.tt===t); return {t, c:fl(a,'combo'), i:fl(a,'inst'), n:a.length}; }).filter(x=>x.n).sort((a,b)=>(a.c.p==null)-(b.c.p==null) || (a.c.p||0)-(b.c.p||0)).slice(0,15);
-      ptt = `<h3 class="an-h3">По торговым точкам</h3><div class="mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">ТТ</th><th class="g"><span class="gd">🎁 Комбо</span></th><th class="g"><span class="gd">💳 Рассрочка</span></th><th class="g"><span class="gd">Проверок</span></th></tr></thead><tbody>${pr.map(x=>`<tr><th class="l" title="${esc(x.t)}">${esc(vmrTT(x.t))}</th>${hm(x.c.p)}${hm(x.i.p)}<td>${x.n}</td></tr>`).join('')}</tbody></table></div>`; }
-    cdyn = `<h3 class="an-h3">🎁 Комбо и 💳 рассрочка · динамика</h3><div class="vm-ks">${kk}</div><div class="mtable dr-wide">${tbl}</div>${ptt}<div class="note-s">«Комбо» — в комментарии к пункту 6.1 упомянута акция «комбо»; «рассрочка» — отмечен пункт 6.3 (кредит/рассрочка) или это слово есть в комментариях анкеты. Проверки без данных по пункту не считаются.</div>`;
+      ptt = `<h3 class="an-h3">По торговым точкам</h3><div class="tbl mtable dr-wide"><table class="dr-t2 hm-t"><thead><tr><th class="l">ТТ</th><th class="g"><span class="gd">🎁 Комбо</span></th><th class="g"><span class="gd">💳 Рассрочка</span></th><th class="g"><span class="gd">Проверок</span></th></tr></thead><tbody>${pr.map(x=>`<tr><th class="l" title="${esc(x.t)}">${esc(vmrTT(x.t))}</th>${hm(x.c.p)}${hm(x.i.p)}<td>${x.n}</td></tr>`).join('')}</tbody></table></div>`; }
+    cdyn = `<h3 class="an-h3">🎁 Комбо и 💳 рассрочка · динамика</h3><div class="vm-ks">${kk}</div><div class="tbl mtable dr-wide">${tbl}</div>${ptt}<div class="note-s">«Комбо» — в комментарии к пункту 6.1 упомянута акция «комбо»; «рассрочка» — отмечен пункт 6.3 (кредит/рассрочка) или это слово есть в комментариях анкеты. Проверки без данных по пункту не считаются.</div>`;
   }
   const list = (S.all ? cur.slice().sort((a,b)=>(b.dt||0)-(a.dt||0)) : low.slice().sort((a,b)=>a.s-b.s)), shown = list.slice(0,30);
   const lst = `<h3 class="an-h3">${S.all?'Все проверки':'Проверки на разбор'} · ${list.length}</h3>${shown.length?`<div class="vm-rev">${shown.map(r=>rvItem(r, k==='tm'||mgr)).join('')}</div>`:'<div class="empty">Проверок ниже '+REV_LOW+'% нет — отлично!</div>'}${list.length>shown.length?`<div class="note-s">Показаны ${shown.length} из ${list.length}. Сузьте период фильтрами выше.</div>`:''}<div class="note-s" style="margin-top:8px">«На разбор» — проверки с оценкой ниже ${REV_LOW}%, от худших. Красные теги — невыполненные пункты чек-листа. Недели — по календарной неделе года из выгрузки.</div>`;
@@ -5408,9 +5595,9 @@ function attPane(r){
     <div class="note-s" style="margin-top:10px">Цвет: зелёный — не ниже среднего (${dec1(avgRate)} шт/тел), жёлтый — до −25%, красный — хуже.</div></div>`;
   const heatHead = `<th>Тел.</th>${CAT.map(c=>`<th>${esc(c.t)}</th>`).join('')}<th>Без допов</th><th>шт/тел</th>`;
   const heatRow = (name, z) => `<tr><th class="l">${name}</th><td>${fmt(z.phn)}</td>${CAT.map(c=>{ const p = attPct(z.cats[c.k].ch,z.n); return `<td class="dg-c" style="--c:${attCatCol(c.k,p)}"><b>${fmt(p)}%</b></td>`; }).join('')}<td class="dg-c" style="--c:${attNoneCol(attPct(z.none,z.n))}"><b>${fmt(attPct(z.none,z.n))}%</b></td><td><b>${dec1(z.phn>0?z.pcs/z.phn:0)}</b></td></tr>`;
-  const salonCard = !mine && r.salon.length ? `<div class="card fade"><h2>Салоны × группы</h2><div class="mtable"><table class="dg-t"><thead><tr><th class="l">Салон</th>${heatHead}</tr></thead><tbody>${r.salon.slice().sort((a,b)=>attPct(b.none,b.n)-attPct(a.none,a.n)).map(z=>heatRow(esc(rpShort(z.k)),z)).join('')}</tbody></table></div><div class="note-s" style="margin-top:10px">Сверху — салоны с самой большой долей чеков без допов. Цвет ячейки — проникновение группы к ориентиру.</div></div>` : '';
+  const salonCard = !mine && r.salon.length ? `<div class="card fade"><h2>Салоны × группы</h2><div class="tbl mtable"><table class="dg-t"><thead><tr><th class="l">Салон</th>${heatHead}</tr></thead><tbody>${r.salon.slice().sort((a,b)=>attPct(b.none,b.n)-attPct(a.none,a.n)).map(z=>heatRow(esc(rpShort(z.k)),z)).join('')}</tbody></table></div><div class="note-s" style="margin-top:10px">Сверху — салоны с самой большой долей чеков без допов. Цвет ячейки — проникновение группы к ориентиру.</div></div>` : '';
   const sellers = r.seller.slice().sort((a,b)=>attPct(b.none,b.n)-attPct(a.none,a.n));
-  const sellCard = !mine && sellers.length ? `<div class="card fade"><h2>Сотрудники</h2><div class="mtable"><table class="dg-t"><thead><tr><th class="l">Сотрудник</th>${heatHead}</tr></thead><tbody>${sellers.map(z=>{ const [e,s] = z.k.split('|'); return heatRow(`${esc(e)}<small class="at-sm">${esc(rpShort(s))}</small>`, z); }).join('')}</tbody></table></div></div>` : '';
+  const sellCard = !mine && sellers.length ? `<div class="card fade"><h2>Сотрудники</h2><div class="tbl mtable"><table class="dg-t"><thead><tr><th class="l">Сотрудник</th>${heatHead}</tr></thead><tbody>${sellers.map(z=>{ const [e,s] = z.k.split('|'); return heatRow(`${esc(e)}<small class="at-sm">${esc(rpShort(s))}</small>`, z); }).join('')}</tbody></table></div></div>` : '';
 
   const barRows = (arr, lab) => arr.map(z=>{ const p = attPct(z.none,z.n), col = attNoneCol(p); return `<div class="at-r at-r2"><div class="at-n">${lab(z)}<small>${fmt(z.phn)} тел. · ${dec1(z.phn>0?z.pcs/z.phn:0)} шт/тел</small></div><div class="at-b"><i style="width:${p}%;background:${col}"></i></div><div class="at-v" style="color:${col}">${fmt(p)}%</div></div>`; }).join('');
   const bandOrd = ['4–10 тыс.','10–20 тыс.','20–40 тыс.','40 тыс.+'];
@@ -6021,7 +6208,7 @@ function vmrOpen(r){
   const row = x => x.txt ? `<tr class="${x.sub?'sub':''}"><td>${esc(x.n)}</td><td class="t">${esc(x.v)}</td></tr>` : `<tr class="${x.sub?'sub':''}${x.v===''?' na':''}"><td>${esc(x.n)}</td><td class="r ${x.v==='1'?'ok':x.v==='0'?'no':''}">${x.v==='1'?'✅ выполнено':x.v==='0'?'❌ не выполнено':'—'}</td></tr>`;
   const m = document.createElement('div'); m.className = 'vm-modal'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true');
   m.innerHTML = `<div class="vm-mc"><div class="vm-mh"><i style="background:${stCol(r.s)}">${fmt(r.s)}%</i><div><b>${esc(vmrTT(r.tt))}</b><small>${esc(r.fio||'—')}${r.pos?' · '+esc(r.pos):''}</small><small>${esc(r.scen||'')}${r.d?' · '+esc(r.d):''}${r.w?' · '+r.w+' нед':''}</small>${ROLE==='manager'?rvOffers(r):''}</div><button type="button" class="icon-btn" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <div class="vm-mb"><table class="vm-mt"><thead><tr><th>Критерий анкеты</th><th>Результат</th></tr></thead><tbody>${crit.map(row).join('')}
+    <div class="vm-mb"><table class="tbl vm-mt"><thead><tr><th>Критерий анкеты</th><th>Результат</th></tr></thead><tbody>${crit.map(row).join('')}
       <tr class="tot"><td>Итоговая оценка</td><td class="r"><b style="color:${stCol(r.s)}">${fmt(r.s,2)}%</b></td></tr>${rest.map(x=>`<tr><td>${esc(x[0])}</td><td class="t">${esc(x[1])}</td></tr>`).join('')}
       <tr class="cm"><td colspan="2"><b>💬 Комментарий</b><div>${cm?esc(cm).replace(/\n/g,'<br>'):'<span class="muted">Комментария нет</span>'}</div></td></tr></tbody></table>
       ${/^https?:/i.test(r.link)?`<a class="btn" style="margin-top:12px;display:inline-flex" href="${esc(r.link)}" target="_blank" rel="noopener">🎥 Открыть видео</a>`:''}<div class="note-s" style="margin-top:8px">Заполнено пунктов: ${used}. «—» — пункт не применялся в этой проверке.</div></div></div>`;
@@ -6150,7 +6337,7 @@ function diagPane(d, A){
     const col = z.avg==null ? 'var(--muted)' : stCol(z.avg), em = z.avg==null ? '·' : z.avg>=ST_OK ? '🟢' : z.avg>=ST_WARN ? '🟡' : '🔴';
     return `<tr><th class="l">${em} ${esc(rpShort(z.name))}</th>${cells}<td class="dg-c" style="--c:${col}"><b>${z.avg==null?'—':fmt(z.avg)+'%'}</b></td></tr>`; }).join('');
   const lightCard = `<div class="card fade"><h2>Светофор салонов</h2>
-    <div class="mtable"><table class="dg-t"><thead><tr><th class="l">Салон</th>${dkeys.map(k=>`<th>${esc(lab(k))}</th>`).join('')}<th>Среднее</th></tr></thead><tbody>${light}</tbody></table></div>
+    <div class="tbl mtable"><table class="dg-t"><thead><tr><th class="l">Салон</th>${dkeys.map(k=>`<th>${esc(lab(k))}</th>`).join('')}<th>Среднее</th></tr></thead><tbody>${light}</tbody></table></div>
     <div class="note-s" style="margin-top:10px">В ячейке — прогноз выполнения плана, шкала и множитель: во сколько раз нужно ускориться (нужный темп ÷ текущий). Шкала до ×2; метка в середине — «темп в норме».</div></div>`;
 
   /* где теряем деньги */
