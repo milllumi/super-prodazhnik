@@ -233,7 +233,13 @@ function data_(req) {
     d.leaders = leaders_(ss, access); d.updated = new Date().toISOString(); return d;
   });
   const g = user.manager && user.roleTitle !== 'ТМ' ? grantActive_(ss, user) : null;     // временный доступ к отчётам — вне кэша данных
-  return g ? Object.assign({}, out, { guest: { until: new Date(g.until).toISOString() } }) : out;
+  if (!g) return out;
+  const res = Object.assign({}, out, { guest: { until: new Date(g.until).toISOString(), sections: g.secs } });
+  if (['dayres', 'dayplan', 'analytics'].some(function (k) { return g.secs.indexOf(k) >= 0; })) {      // «вид ТМ»: данные по всей сети ТМ
+    const tmU = access.filter(function (a) { return a.roleTitle === 'ТМ' && a.manager; })[0];
+    if (tmU) res.tmData = cached_('u:' + tmU.key, TTL_, function () { const d = managerData_(ss, tmU, access); d.leaders = leaders_(ss, access); d.updated = new Date().toISOString(); return d; });
+  }
+  return res;
 }
 // Обновление кэша: не по таймеру, а сразу после выгрузки продаж (importChecks_ ставит разовый запуск через минуту → warmAfterImport_).
 // installTrigger() — один раз: убирает старый триггер «каждые 30 минут» и сразу обновляет кэш.
@@ -360,11 +366,13 @@ function tmSheets_(req) {
    Открываются отчёты ТМ: «Отчёты», «Сотрудники ДЛ», «План на день», полная «Аналитика» и «ВМР».
    НЕ открываются: «Бонус ТМ», «Входы», «Ссылки», «Weekly Pulse», «Доступы». Хранится на листе «Гостевой доступ». */
 const GRANTS_SHEET = 'Гостевой доступ';
+const GRANT_SECS_ = ['reports', 'dl', 'dayplan', 'dayres', 'cards', 'analytics', 'vmr'];           // разделы, которые ТМ отмечает галочками
+const GRANT_DEF_ = ['reports', 'dl', 'dayplan', 'analytics', 'vmr'];                               // старые доступы (без отметки) — как раньше
 function grantsSheet_(ss) {
   let sh = ss.getSheetByName(GRANTS_SHEET);
   if (!sh) {
     sh = ss.insertSheet(GRANTS_SHEET);
-    sh.getRange(1, 1, 1, 7).setValues([['Ключ', 'ФИО', 'Должность', 'Доступ до', 'Выдал', 'Когда выдан', 'Статус']]).setFontWeight('bold');
+    sh.getRange(1, 1, 1, 8).setValues([['Ключ', 'ФИО', 'Должность', 'Доступ до', 'Выдал', 'Когда выдан', 'Статус', 'Разделы']]).setFontWeight('bold');
     sh.setFrozenRows(1); sh.getRange('D:D').setNumberFormat('dd.MM.yyyy HH:mm'); sh.getRange('F:F').setNumberFormat('dd.MM.yyyy HH:mm');
   }
   return sh;
@@ -374,10 +382,11 @@ function grantsAll_(ss) {
   if (hit) { try { return JSON.parse(hit); } catch (e) {} }
   const sh = grantsSheet_(ss), out = [];
   if (sh.getLastRow() > 1) {
-    sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues().forEach(function (r, i) {
+    sh.getRange(2, 1, sh.getLastRow() - 1, 8).getValues().forEach(function (r, i) {
       if (!r[0]) return;
       const until = r[3] instanceof Date ? r[3].getTime() : Date.parse(r[3]), when = r[5] instanceof Date ? r[5].getTime() : Date.parse(r[5]);
-      out.push({ row: i + 2, key: String(r[0]), name: String(r[1]), role: String(r[2]), until: isNaN(until) ? 0 : until, by: String(r[4]), when: isNaN(when) ? 0 : when, status: String(r[6] || '') });
+      out.push({ row: i + 2, key: String(r[0]), name: String(r[1]), role: String(r[2]), until: isNaN(until) ? 0 : until, by: String(r[4]), when: isNaN(when) ? 0 : when, status: String(r[6] || ''),
+        secs: (function () { const a = String(r[7] || '').split(',').map(function (x) { return x.trim(); }).filter(function (x) { return GRANT_SECS_.indexOf(x) >= 0; }); return a.length ? a : GRANT_DEF_; })() });
     });
   }
   try { cc.put('grants:v1', JSON.stringify(out), 120); } catch (e) {}
@@ -388,7 +397,8 @@ function grantActive_(ss, u) {
   const m = grantsAll_(ss).filter(function (g) { return g.key === u.key && norm_(g.status) !== 'отозван' && g.until > now; });
   return m.length ? m.sort(function (a, b) { return b.until - a.until; })[0] : null;
 }
-function repAllowed_(ss, u) { return u.roleTitle === 'ТМ' || !!(u.manager && grantActive_(ss, u)); }
+function grantHas_(ss, u, sec) { if (u.roleTitle === 'ТМ') return true; const g = u.manager ? grantActive_(ss, u) : null; return !!(g && g.secs.indexOf(sec) >= 0); }
+function repAllowed_(ss, u, sec) { return u.roleTitle === 'ТМ' || (sec ? grantHas_(ss, u, sec) : !!(u.manager && grantActive_(ss, u))); }
 function grantsGet_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
@@ -398,7 +408,7 @@ function grantsGet_(req) {
     .map(function (a) { return { key: a.key, name: a.name, role: a.roleTitle }; })
     .sort(function (a, b) { return a.name.localeCompare(b.name, 'ru'); });
   const list = grantsAll_(ss).slice().sort(function (a, b) { return b.when - a.when; }).slice(0, 80)
-    .map(function (g) { return { key: g.key, name: g.name, role: g.role, until: new Date(g.until).toISOString(), by: g.by, when: g.when ? new Date(g.when).toISOString() : '', active: norm_(g.status) !== 'отозван' && g.until > now, revoked: norm_(g.status) === 'отозван' }; });
+    .map(function (g) { return { key: g.key, name: g.name, role: g.role, until: new Date(g.until).toISOString(), by: g.by, when: g.when ? new Date(g.when).toISOString() : '', active: norm_(g.status) !== 'отозван' && g.until > now, revoked: norm_(g.status) === 'отозван', sections: g.secs }; });
   return { people: people, grants: list, now: new Date(now).toISOString() };
 }
 function grantsSet_(req) {
@@ -410,6 +420,9 @@ function grantsSet_(req) {
   const lock = LockService.getScriptLock(); lock.waitLock(10000);
   try {
     const sh = grantsSheet_(ss), now = Date.now();
+    if (!sh.getRange(1, 8).getValue()) sh.getRange(1, 8).setValue('Разделы').setFontWeight('bold');
+    const secs = (Array.isArray(req.sections) ? req.sections : []).filter(function (x) { return GRANT_SECS_.indexOf(x) >= 0; });
+    if (!req.revoke && !secs.length) return { error: 'bad_request' };
     CacheService.getScriptCache().remove('grants:v1');
     const act = grantsAll_(ss).filter(function (g) { return g.key === target.key && norm_(g.status) !== 'отозван' && g.until > now; });
     if (req.revoke) {
@@ -427,8 +440,8 @@ function grantsSet_(req) {
       if (!(dn > 0)) return { error: 'bad_request' };
       until = now + Math.min(60, dn) * 864e5;
     }
-    if (act.length) { sh.getRange(act[0].row, 4).setValue(new Date(until)); sh.getRange(act[0].row, 5).setValue(u.name); sh.getRange(act[0].row, 6).setValue(new Date(now)); }
-    else sh.appendRow([target.key, target.name, target.roleTitle, new Date(until), u.name, new Date(now), 'активен']);
+    if (act.length) { sh.getRange(act[0].row, 4).setValue(new Date(until)); sh.getRange(act[0].row, 5).setValue(u.name); sh.getRange(act[0].row, 6).setValue(new Date(now)); sh.getRange(act[0].row, 8).setValue(secs.join(',')); }
+    else sh.appendRow([target.key, target.name, target.roleTitle, new Date(until), u.name, new Date(now), 'активен', secs.join(',')]);
     CacheService.getScriptCache().remove('grants:v1');
     try { notifyMany_(ss, [{ to: target.key, kind: 'access', title: '🔓 Открыт доступ к отчётам', text: 'До ' + Utilities.formatDate(new Date(until), 'Europe/Moscow', 'dd.MM.yyyy HH:mm') + ' вам доступны отчёты ТМ (Отчёты, Сотрудники ДЛ и др.).', tab: 'reports' }]); } catch (e) {}
     return { ok: true, until: new Date(until).toISOString() };
@@ -1122,8 +1135,8 @@ const TM_REPORTS = { details: 'Детали продаж салоны', summary:
 function tmReport_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
-  if (!repAllowed_(ss, u)) return { error: 'forbidden' };                          // ТМ или временный доступ
   if (!TM_REPORTS[req.name]) return { error: 'bad_request' };
+  if (!repAllowed_(ss, u, req.name === 'dl' ? 'dl' : req.name === 'vmr' ? 'vmr' : 'reports')) return { error: 'forbidden' };   // ТМ или временный доступ (по отмеченным разделам)
   return tmReportRaw_(ss, req.name);
 }
 function tmReportRaw_(ss, name) {
@@ -1223,7 +1236,7 @@ function reconBuild_(ss, u) {
   const surname = String(u.name || u.key).split(' ')[0], sn = norm_(surname), isTM = u.roleTitle === 'ТМ';
   const pick = function (a) { const o = []; for (let i = 0; i < last; i++) o.push(a && a[i] != null ? a[i] : null); return o; };
   const sumArr = function (list) { const o = []; for (let i = 0; i < last; i++) { let t = 0, any = false; list.forEach(function (a) { if (a && a[i] != null) { t += a[i]; any = true; } }); o.push(any ? t : null); } return o; };
-  const simOf = function (n) { const x = salonSheet.salons[norm_(n)]; const a = []; if (x && x.sim && x.sim.days) x.sim.days.forEach(function (z) { const dp = dateParts_(z.d); if (dp) a[dp.d - 1] = z.v; }); return a; };
+  const simOf = function (n) { let x = salonSheet.salons[n]; if (!x) { const k = norm_(n); Object.keys(salonSheet.salons).some(function (z) { if (norm_(z) === k) { x = salonSheet.salons[z]; return true; } return false; }); } const a = []; if (x && x.sim && x.sim.days) x.sim.days.forEach(function (z) { const dp = dateParts_(z.d); if (dp) a[dp.d - 1] = z.v; }); return a; };
   const one = function (n) {
     const k = norm_(n);
     return { sim1c: pick(simOf(n)), traffic: pick(traffic[k]), plan: pick(goals.plan[k]), planConv: goals.conv[k] != null ? goals.conv[k] : null,
@@ -1255,7 +1268,9 @@ function cardsGet_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
   if (!u.manager) return { error: 'forbidden' };
-  const names = kpiShops_(ss, readAccess_(ss))[u.key] || [];
+  const acc = readAccess_(ss), shopsBy = kpiShops_(ss, acc);
+  const tmU = u.roleTitle !== 'ТМ' && grantHas_(ss, u, 'cards') ? acc.filter(function (a) { return a.roleTitle === 'ТМ'; })[0] : null;   // гостевой доступ: карточки по всей сети ТМ
+  const names = shopsBy[tmU ? tmU.key : u.key] || shopsBy[u.key] || [];
   const all = cardsAll_(ss);
   if (all.missing) return { missing: true, name: CONFIG.SHEET_SALONS };
   const want = {}; names.forEach(function (n) { want[norm_(n)] = true; });
@@ -1921,8 +1936,8 @@ function salonRate_(book, salon) {
 function dlBonusGet_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
-  const team = !!req.team && u.roleTitle !== 'ТМ';                          // РТТ/УТТ: тот же отчёт только по сотрудникам их салонов
-  if (team ? !u.manager : !repAllowed_(ss, u)) return { error: 'forbidden' };
+  const team = u.roleTitle !== 'ТМ' && (!!req.team || !grantHas_(ss, u, 'dl'));      // по умолчанию РТТ/УТТ видят только своих сотрудников; при выданном доступе «Сотрудники ДЛ» — вид ТМ (вся сеть)
+  if (team ? !u.manager : !repAllowed_(ss, u, 'dl')) return { error: 'forbidden' };
   const full = cached_('dl:bonus', TTL_, function () {
     const rows = dlModel_(ss).rows, inc = incomeModel_(ss), gset = {}, out = [], wkOf = {}, weeks = [], book = salaryBook_(ss);
     const MON = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
@@ -2144,6 +2159,8 @@ function vmrMine_(req) {
 const NOTIF_SHEET = 'Уведомления';
 // ВАЖНО: при каждом обновлении сайта добавляйте сюда запись (новая версия `v`) — она сама станет новостью и уведомлением для всех.
 const RELEASES = [
+  { v: '2026-12-11', title: 'Бонус по салонам, «Сопоставления», доступы',
+    text: 'Что нового:\n• «Бонус сотрудников» и «Бонус команды»: сотрудники сгруппированы по салонам, у каждого салона — подытог.\n• По умолчанию РТТ/УТТ в «Сотрудниках ДЛ → Бонус» видят только сотрудников своих салонов; при выданном доступе — вид ТМ (вся сеть).\n• «Сопоставления»: исправлена подгрузка «Сим 1с» — график «Сим 1с / Трафик / Конверсия» снова показывает данные.\n• Временный доступ: ТМ отмечает галочками разделы (Отчёты, Сотрудники ДЛ, План на день, Итоги дня, Карточки, Аналитика, ВМР); «Итоги дня», «План на день», «Карточки» и «Аналитика» открываются в виде ТМ — по всей сети.' },
   { v: '2026-12-10', title: 'Бонус сотрудников: оклад и защита бонуса',
     text: 'Что нового:\n• В «Бонус сотрудников» и «Бонус команды» добавлены оклад (факт часов × ставка города) и защита бонуса: если бонус на час ниже ставки грейда сотрудника по салону, бонус доводится до ставки × часы.\n• Прогноз ЗП теперь = оклад + бонус с защитой. Ставки берутся с листа «Надстройка».' },
   { v: '2026-12-09', title: 'Бонус команды для РТТ и УТТ',
