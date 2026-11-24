@@ -45,8 +45,8 @@ const DIR_UNITS  = { phones: '₽', acc: '₽', serv: '₽', sim: 'шт', ins: '
 const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
-const TTL_ = 2400;                                  // кэш данных: 40 мин; триггер warmCache() обновляет его каждые 30 мин
-const CACHE_EPOCH = 'e10';
+const TTL_ = 21600;                                 // кэш данных: 6 ч (максимум CacheService); warmCache() обновляет его после выгрузки продаж (08:20 и 15:20)
+const CACHE_EPOCH = 'e11';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -78,7 +78,7 @@ function cached_(key, ttl, fn) {
 function doPost(e) {
   let out;
   try {
-    const req = JSON.parse(e.postData.contents);
+    const req = JSON.parse((e.parameter && e.parameter.payload) || e.postData.contents);   // payload — отправка формой (автовыгрузка из DataLens)
     FRESH_ = !!req.fresh;
     if (req.action === 'start') out = start_(req);
     else if (req.action === 'setpin') out = setpin_(req);
@@ -99,6 +99,7 @@ function doPost(e) {
     else if (req.action === 'grants_get') out = grantsGet_(req);
     else if (req.action === 'dl_bonus') out = dlBonusGet_(req);
     else if (req.action === 'grants_set') out = grantsSet_(req);
+    else if (req.action === 'import_checks') out = importChecks_(req);
     else if (req.action === 'vmr_mine') out = vmrMine_(req);
     else if (req.action === 'attach') out = attachReport_(req);
     else if (req.action === 'notif_list') out = notifList_(req);
@@ -234,11 +235,16 @@ function data_(req) {
   const g = user.manager && user.roleTitle !== 'ТМ' ? grantActive_(ss, user) : null;     // временный доступ к отчётам — вне кэша данных
   return g ? Object.assign({}, out, { guest: { until: new Date(g.until).toISOString() } }) : out;
 }
-// Триггер «по времени» (каждые 30 минут): один раз запустите installTrigger() — дальше таблица читается в фоне, а сайт отвечает из кэша.
+// Обновление кэша: не по таймеру, а сразу после выгрузки продаж (importChecks_ ставит разовый запуск через минуту → warmAfterImport_).
+// installTrigger() — один раз: убирает старый триггер «каждые 30 минут» и сразу обновляет кэш.
 function installTrigger() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmCache') ScriptApp.deleteTrigger(t); });
-  ScriptApp.newTrigger('warmCache').timeBased().everyMinutes(30).create();
   warmCache();
+}
+function warmAfterImport_() { warmCache(); }
+function scheduleWarm_() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmAfterImport_') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('warmAfterImport_').timeBased().after(60000).create();
 }
 function warmCache() {
   FRESH_ = true;
@@ -1844,27 +1850,119 @@ function dlGrid_(ss) {                                  // та же раскл�
 }
 
 
+/* ---------- автовыгрузка «Товарные группы» из DataLens → лист «Группа товаров» (колонки A:K) ----------
+   Раньше отчёт скачивали руками и вставляли в лист. Теперь страницу DataLens (под вашим входом) открывает задача на компьютере,
+   забирает строки отчёта (период: с начала месяца по сегодня, ТМ «Миллер») и отправляет сюда действием import_checks.
+   Защита: общий секрет — свойство скрипта IMPORT_SECRET (Настройки проекта → Свойства скрипта); без него запросы отклоняются.
+   Пишутся ТОЛЬКО колонки A:K (Группа, Номенклатура, Характеристика, ТМ, Торговая точка, Продавец, Номер чека, Дата время чека,
+   Тип оплаты, Количество, Сумма); формулы правее (L:…) не трогаются. Пустую выгрузку и выгрузку, сильно меньшую текущей, не принимаем. */
+function importChecks_(req) {
+  const secret = PropertiesService.getScriptProperties().getProperty('IMPORT_SECRET');
+  if (!secret || String(req.secret || '') !== secret) return { error: 'forbidden' };
+  const rows = req.rows, offset = Number(req.offset) || 0, total = Number(req.total) || (Array.isArray(rows) ? rows.length : 0);
+  if (!Array.isArray(rows) || !rows.length || rows.length > 2000 || offset < 0 || total < 1 || total > 60000 || offset + rows.length > total) return { error: 'bad_request', message: 'rows' };
+  const lock = LockService.getScriptLock(); lock.waitLock(30000);       // выгрузка идёт порциями (по ~300 строк): offset — номер первой строки порции, total — всего строк
+  try {
+    const ss = ss_(), sh = ss.getSheetByName(RAW_.SHEET), tz = ss.getSpreadsheetTimeZone();
+    if (!sh) return { error: 'server', message: 'no sheet' };
+    const out = [];
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      if (!Array.isArray(r) || r.length < 11) return { error: 'bad_request', message: 'row ' + (offset + i) };
+      let d = r[7];
+      if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(d)) d = Utilities.parseDate(d, tz, 'yyyy-MM-dd HH:mm:ss');
+      out.push([String(r[0] == null ? '' : r[0]), String(r[1] == null ? '' : r[1]), String(r[2] == null ? '' : r[2]), String(r[3] == null ? '' : r[3]),
+        String(r[4] == null ? '' : r[4]), String(r[5] == null ? '' : r[5]), String(r[6] == null ? '' : r[6]), d,
+        String(r[8] == null ? '' : r[8]), Number(r[9]) || 0, Number(r[10]) || 0]);
+    }
+    let was = 0;
+    if (offset === 0) {                                                // первая порция: проверка и очистка колонок A:K
+      const last = sh.getLastRow();
+      if (last > 1) { const a = sh.getRange(2, 1, last - 1, 1).getValues(); for (let i = 0; i < a.length; i++) if (a[i][0] !== '') was++; }
+      if (!req.force && was > 200 && total < was * 0.5) return { error: 'too_small', have: was, got: total };   // защита от сбойной выгрузки
+      if (sh.getMaxRows() < total + 1) sh.insertRowsAfter(sh.getMaxRows(), total + 1 - sh.getMaxRows());
+      if (last > 1) sh.getRange(2, 1, Math.max(last - 1, total), 11).clearContent();
+    }
+    sh.getRange(2 + offset, 1, out.length, 11).setValues(out);
+    sh.getRange(2 + offset, 8, out.length, 1).setNumberFormat('dd.MM.yyyy HH:mm:ss');
+    if (offset + out.length >= total) {
+      PropertiesService.getScriptProperties().setProperty('import_checks_last', JSON.stringify({ at: new Date().toISOString(), rows: total, from: String(req.from || ''), to: String(req.to || '') }));
+      try { scheduleWarm_(); } catch (e) {}                       // обновить кэш сайта сразу после выгрузки
+    }
+    return { ok: true, offset: offset, rows: out.length, total: total, was: was };
+  } finally { lock.releaseLock(); }
+}
+
 /* ---------- «Сотрудники ДЛ» → Бонус: часы, бонус по группам и прогноз ЗП ----------
    Часы: план — «План, ч» (блок CB:CJ листа «График»), отработано — «Факт 1С, ч» (лист «Рабочее время сотрудников»; если нет — «Факт график, ч»).
    Бонус по группам — тот же расчёт по чекам, что у сотрудника на вкладке «Доход» (incomeModel_).
-   Прогноз ЗП (бонусная часть) = бонус на сегодня ÷ отработанные часы × плановые часы. Оклад в данных не хранится. */
+   Прогноз бонуса = бонус на сегодня ÷ отработанные часы × плановые часы. Оклад = факт часов × ставка города («Надстройка», G:H).
+   Защита бонуса: бонус ÷ факт часов < ставки грейда сотрудника по салону («Надстройка», K:M по грейду из O:R) → бонус доводится до ставки × часы. */
+// «Надстройка»: ставка города и ставки грейдов по салону (G:M), грейд сотрудника (O:R)
+function salaryBook_(ss) {
+  return cached_('sal:book', TTL_, function () {
+    const out = { salons: [], grade: {} }, rs = sheetByName_(ss, RAW_.RATES); if (!rs) return out;
+    const v = rs.getDataRange().getDisplayValues();
+    for (let r = 1; r < v.length; r++) {
+      const sal = String(v[r][6] || '').trim(), city = num_(v[r][7]);
+      if (sal && city !== null) out.salons.push({ name: sal, key: norm_(sal), city: city, rates: { A: num_(v[r][10]), B: num_(v[r][11]), C: num_(v[r][12]) } });
+      const nm = norm_(v[r][14]), g = String(v[r][17] || '').trim().toUpperCase();
+      if (nm && /^[ABC]$/.test(g) && !out.grade[nm]) out.grade[nm] = g;
+    }
+    return out;
+  });
+}
+function salonRate_(book, salon) {
+  const k = norm_(salon); if (!k) return null;
+  for (let i = 0; i < book.salons.length; i++) if (book.salons[i].key === k) return book.salons[i];
+  for (let i = 0; i < book.salons.length; i++) if (sameSalon_(book.salons[i].name, salon)) return book.salons[i];
+  return null;
+}
 function dlBonusGet_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
-  if (!repAllowed_(ss, u)) return { error: 'forbidden' };
-  return cached_('dl:bonus', TTL_, function () {
-    const rows = dlModel_(ss).rows, inc = incomeModel_(ss), gset = {}, out = [];
+  const team = !!req.team && u.roleTitle !== 'ТМ';                          // РТТ/УТТ: тот же отчёт только по сотрудникам их салонов
+  if (team ? !u.manager : !repAllowed_(ss, u)) return { error: 'forbidden' };
+  const full = cached_('dl:bonus', TTL_, function () {
+    const rows = dlModel_(ss).rows, inc = incomeModel_(ss), gset = {}, out = [], wkOf = {}, weeks = [], book = salaryBook_(ss);
+    const MON = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
     rows.forEach(function (r) {
+      if (!r.rated) return;                                                   // РТТ / УТТ / ТМ в бонус сотрудников не входят
       const b = inc.byName[r.k]; if (!b) return;
+      b.days.forEach(function (x) {                                           // недели месяца: пн–вс (первая и последняя могут быть неполными)
+        if (wkOf[x.d] !== undefined) return;
+        const p = x.d.split('.'), dt = new Date(Number(p[2]), Number(p[1]) - 1, Number(p[0])), dow = (dt.getDay() + 6) % 7, key = Number(p[0]) - dow;
+        let w = weeks.filter(function (q) { return q.key === key; })[0];
+        if (!w) { w = { key: key, from: Number(p[0]), to: Number(p[0]), mon: MON[Number(p[1]) - 1] }; weeks.push(w); }
+        w.from = Math.min(w.from, Number(p[0])); w.to = Math.max(w.to, Number(p[0]));
+        wkOf[x.d] = weeks.indexOf(w);
+      });
       const worked = r.wt !== null && r.wt !== undefined ? r.wt : r.factH, g = {};
       b.groups.forEach(function (x) { if (x.v) { g[x.name] = x.v; gset[x.name] = (gset[x.name] || 0) + x.v; } });
       const fc = worked > 0 && r.planH > 0 ? b.gtotal / worked * r.planH : null;
-      out.push({ name: r.name, role: r.role, tt: salonShort_(r.tt), planH: r.planH || 0, workH: worked || 0, factGraph: r.factH || 0, groups: g, total: b.gtotal, fc: fc });
+      const wk = weeks.map(function () { return 0; });
+      b.days.forEach(function (x) { if (x.v) wk[wkOf[x.d]] += x.v; });
+      // оклад = факт часов × ставка города; защита бонуса: бонус на час < ставки грейда (по салону) → бонус доводится до ставки × часы
+      const sal = salonRate_(book, r.tt), gr = book.grade[r.k] || '', rate = sal && gr ? sal.rates[gr] : null, city = sal ? sal.city : null;
+      const wH = worked || 0, pH = r.planH || 0, perH = wH > 0 ? b.gtotal / wH : null;
+      const prot = rate !== null && rate !== undefined && perH !== null && perH < rate;
+      const protNow = prot ? rate * wH - b.gtotal : 0, protFc = prot && pH > 0 ? rate * pH - fc : 0;
+      const salary = city === null ? null : city * wH, salaryFc = city === null ? null : city * pH;
+      const fcProt = fc === null ? null : fc + protFc;
+      out.push({ name: r.name, role: r.role, tt: salonShort_(r.tt), ttFull: r.tt, planH: pH, workH: wH, factGraph: r.factH || 0, groups: g, total: b.gtotal, fc: fc, wk: wk,
+        grade: gr, city: city, rate: rate === undefined ? null : rate, salary: salary, salaryFc: salaryFc, perH: perH, prot: prot, protNow: protNow, protFc: protFc,
+        totalProt: b.gtotal + protNow, fcProt: fcProt, zp: fcProt === null || salaryFc === null ? null : salaryFc + fcProt, zpNow: salary === null ? null : salary + b.gtotal + protNow });
     });
+    out.forEach(function (o) { while (o.wk.length < weeks.length) o.wk.push(0); });
+    weeks.sort(function (a, b) { return a.key - b.key; });
     const groups = Object.keys(gset).sort(function (a, b) { return gset[b] - gset[a]; });
     out.sort(function (a, b) { return (b.fc === null ? -1 : b.fc) - (a.fc === null ? -1 : a.fc) || b.total - a.total; });
-    return { groups: groups, rows: out, month: inc.month, at: new Date().toISOString() };
+    return { groups: groups, rows: out, weeks: weeks.map(function (w) { return { label: (w.from === w.to ? w.from : w.from + '–' + w.to) + ' ' + w.mon }; }), month: inc.month, at: new Date().toISOString() };
   });
+  if (!team) return full;
+  const shops = kpiShops_(ss, readAccess_(ss))[u.key] || [];
+  const mine = full.rows.filter(function (r) { return r.ttFull && shops.some(function (sh) { return sameSalon_(r.ttFull, sh); }); });
+  return { groups: full.groups, rows: mine, weeks: full.weeks, month: full.month, at: full.at, team: true };
 }
 
 /* ---------- журнал входов (виден только ТМ) ---------- */
@@ -2046,6 +2144,12 @@ function vmrMine_(req) {
 const NOTIF_SHEET = 'Уведомления';
 // ВАЖНО: при каждом обновлении сайта добавляйте сюда запись (новая версия `v`) — она сама станет новостью и уведомлением для всех.
 const RELEASES = [
+  { v: '2026-12-10', title: 'Бонус сотрудников: оклад и защита бонуса',
+    text: 'Что нового:\n• В «Бонус сотрудников» и «Бонус команды» добавлены оклад (факт часов × ставка города) и защита бонуса: если бонус на час ниже ставки грейда сотрудника по салону, бонус доводится до ставки × часы.\n• Прогноз ЗП теперь = оклад + бонус с защитой. Ставки берутся с листа «Надстройка».' },
+  { v: '2026-12-09', title: 'Бонус команды для РТТ и УТТ',
+    text: 'Что нового:\n• У РТТ и УТТ появилась вкладка «Бонус команды»: часы, бонус по группам, прогноз ЗП и динамика по неделям — только по сотрудникам их салонов.' },
+  { v: '2026-12-08', title: 'Бонус сотрудников: читабельнее и по неделям',
+    text: 'Что нового:\n• В «Сотрудники ДЛ → Бонус» убраны РТТ и УТТ.\n• Таблица разбита на блоки: часы и бонус (с ₽ за час), бонус по группам, динамика по неделям.\n• Внизу — динамика бонуса по неделям (пн–вс) с изменением к прошлой неделе.' },
   { v: '2026-12-07', title: 'Сотрудники ДЛ: бонус',
     text: 'Что нового:\n• В разделе «Сотрудники ДЛ» появилась вкладка «Бонус»: плановые и отработанные часы, бонус по группам товаров и прогноз ЗП на месяц по каждому сотруднику.' },
   { v: '2026-12-06', title: 'Временный доступ к отчётам',
