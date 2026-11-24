@@ -96,6 +96,9 @@ function doPost(e) {
     else if (req.action === 'news_moderate') out = newsModerate_(req);
     else if (req.action === 'links_set') out = linksSet_(req);
     else if (req.action === 'auth_log') out = authLogGet_(req);
+    else if (req.action === 'grants_get') out = grantsGet_(req);
+    else if (req.action === 'dl_bonus') out = dlBonusGet_(req);
+    else if (req.action === 'grants_set') out = grantsSet_(req);
     else if (req.action === 'vmr_mine') out = vmrMine_(req);
     else if (req.action === 'attach') out = attachReport_(req);
     else if (req.action === 'notif_list') out = notifList_(req);
@@ -224,10 +227,12 @@ function data_(req) {
   if (!user) return { error: 'auth' };                // убрали из списка «Доступ» — доступ закрыт сразу
   try { maintain_(ss); } catch (e) {}
   try { const vk = 'vis:' + key, cc = CacheService.getScriptCache(); if (!cc.get(vk)) { cc.put(vk, '1', 3600); authLog_(user, 'визит', req.dev); } } catch (e) {}
-  return cached_('u:' + key, TTL_, function () {
+  const out = cached_('u:' + key, TTL_, function () {
     const d = user.manager ? managerData_(ss, user, access) : sellerData_(ss, user, access);
     d.leaders = leaders_(ss, access); d.updated = new Date().toISOString(); return d;
   });
+  const g = user.manager && user.roleTitle !== 'ТМ' ? grantActive_(ss, user) : null;     // временный доступ к отчётам — вне кэша данных
+  return g ? Object.assign({}, out, { guest: { until: new Date(g.until).toISOString() } }) : out;
 }
 // Триггер «по времени» (каждые 30 минут): один раз запустите installTrigger() — дальше таблица читается в фоне, а сайт отвечает из кэша.
 function installTrigger() {
@@ -342,6 +347,86 @@ function tmSheets_(req) {
     if (rows > 0 && cols > 0) tables.push(sh.getRange(1, 1, rows, cols).getDisplayValues());
   });
   return tables.length ? { me: u.name, tables: tables } : { error: 'no_kpi' };
+}
+
+
+/* ---------- временный доступ к отчётам (выдаёт только ТМ) ----------
+   Открываются отчёты ТМ: «Отчёты», «Сотрудники ДЛ», «План на день», полная «Аналитика» и «ВМР».
+   НЕ открываются: «Бонус ТМ», «Входы», «Ссылки», «Weekly Pulse», «Доступы». Хранится на листе «Гостевой доступ». */
+const GRANTS_SHEET = 'Гостевой доступ';
+function grantsSheet_(ss) {
+  let sh = ss.getSheetByName(GRANTS_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(GRANTS_SHEET);
+    sh.getRange(1, 1, 1, 7).setValues([['Ключ', 'ФИО', 'Должность', 'Доступ до', 'Выдал', 'Когда выдан', 'Статус']]).setFontWeight('bold');
+    sh.setFrozenRows(1); sh.getRange('D:D').setNumberFormat('dd.MM.yyyy HH:mm'); sh.getRange('F:F').setNumberFormat('dd.MM.yyyy HH:mm');
+  }
+  return sh;
+}
+function grantsAll_(ss) {
+  const cc = CacheService.getScriptCache(), hit = cc.get('grants:v1');
+  if (hit) { try { return JSON.parse(hit); } catch (e) {} }
+  const sh = grantsSheet_(ss), out = [];
+  if (sh.getLastRow() > 1) {
+    sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues().forEach(function (r, i) {
+      if (!r[0]) return;
+      const until = r[3] instanceof Date ? r[3].getTime() : Date.parse(r[3]), when = r[5] instanceof Date ? r[5].getTime() : Date.parse(r[5]);
+      out.push({ row: i + 2, key: String(r[0]), name: String(r[1]), role: String(r[2]), until: isNaN(until) ? 0 : until, by: String(r[4]), when: isNaN(when) ? 0 : when, status: String(r[6] || '') });
+    });
+  }
+  try { cc.put('grants:v1', JSON.stringify(out), 120); } catch (e) {}
+  return out;
+}
+function grantActive_(ss, u) {
+  const now = Date.now();
+  const m = grantsAll_(ss).filter(function (g) { return g.key === u.key && norm_(g.status) !== 'отозван' && g.until > now; });
+  return m.length ? m.sort(function (a, b) { return b.until - a.until; })[0] : null;
+}
+function repAllowed_(ss, u) { return u.roleTitle === 'ТМ' || !!(u.manager && grantActive_(ss, u)); }
+function grantsGet_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  if (u.roleTitle !== 'ТМ') return { error: 'forbidden' };
+  const now = Date.now();
+  const people = readAccess_(ss).filter(function (a) { return a.manager && a.roleTitle !== 'ТМ'; })
+    .map(function (a) { return { key: a.key, name: a.name, role: a.roleTitle }; })
+    .sort(function (a, b) { return a.name.localeCompare(b.name, 'ru'); });
+  const list = grantsAll_(ss).slice().sort(function (a, b) { return b.when - a.when; }).slice(0, 80)
+    .map(function (g) { return { key: g.key, name: g.name, role: g.role, until: new Date(g.until).toISOString(), by: g.by, when: g.when ? new Date(g.when).toISOString() : '', active: norm_(g.status) !== 'отозван' && g.until > now, revoked: norm_(g.status) === 'отозван' }; });
+  return { people: people, grants: list, now: new Date(now).toISOString() };
+}
+function grantsSet_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  if (u.roleTitle !== 'ТМ') return { error: 'forbidden' };
+  const target = readAccess_(ss).filter(function (a) { return a.key === String(req.key || ''); })[0];
+  if (!target || !target.manager || target.roleTitle === 'ТМ') return { error: 'bad_request' };
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const sh = grantsSheet_(ss), now = Date.now();
+    CacheService.getScriptCache().remove('grants:v1');
+    const act = grantsAll_(ss).filter(function (g) { return g.key === target.key && norm_(g.status) !== 'отозван' && g.until > now; });
+    if (req.revoke) {
+      act.forEach(function (g) { sh.getRange(g.row, 4).setValue(new Date(now)); sh.getRange(g.row, 7).setValue('отозван'); });
+      CacheService.getScriptCache().remove('grants:v1');
+      return { ok: true };
+    }
+    let until;
+    if (req.untilDate) {                                              // «до даты включительно»: до конца этого дня по Москве
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(req.untilDate))) return { error: 'bad_request' };
+      until = Date.parse(req.untilDate + 'T23:59:59+03:00');
+      if (isNaN(until) || until <= now || until > now + 120 * 864e5) return { error: 'bad_date' };
+    } else {
+      const dn = Number(req.days);
+      if (!(dn > 0)) return { error: 'bad_request' };
+      until = now + Math.min(60, dn) * 864e5;
+    }
+    if (act.length) { sh.getRange(act[0].row, 4).setValue(new Date(until)); sh.getRange(act[0].row, 5).setValue(u.name); sh.getRange(act[0].row, 6).setValue(new Date(now)); }
+    else sh.appendRow([target.key, target.name, target.roleTitle, new Date(until), u.name, new Date(now), 'активен']);
+    CacheService.getScriptCache().remove('grants:v1');
+    try { notifyMany_(ss, [{ to: target.key, kind: 'access', title: '🔓 Открыт доступ к отчётам', text: 'До ' + Utilities.formatDate(new Date(until), 'Europe/Moscow', 'dd.MM.yyyy HH:mm') + ' вам доступны отчёты ТМ (Отчёты, Сотрудники ДЛ и др.).', tab: 'reports' }]); } catch (e) {}
+    return { ok: true, until: new Date(until).toISOString() };
+  } finally { lock.releaseLock(); }
 }
 
 /* ---------- ссылки: редактировать может только ТМ ---------- */
@@ -1031,7 +1116,7 @@ const TM_REPORTS = { details: 'Детали продаж салоны', summary:
 function tmReport_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
-  if (u.roleTitle !== 'ТМ') return { error: 'forbidden' };
+  if (!repAllowed_(ss, u)) return { error: 'forbidden' };                          // ТМ или временный доступ
   if (!TM_REPORTS[req.name]) return { error: 'bad_request' };
   return tmReportRaw_(ss, req.name);
 }
@@ -1758,6 +1843,30 @@ function dlGrid_(ss) {                                  // та же раскл�
   return out;
 }
 
+
+/* ---------- «Сотрудники ДЛ» → Бонус: часы, бонус по группам и прогноз ЗП ----------
+   Часы: план — «План, ч» (блок CB:CJ листа «График»), отработано — «Факт 1С, ч» (лист «Рабочее время сотрудников»; если нет — «Факт график, ч»).
+   Бонус по группам — тот же расчёт по чекам, что у сотрудника на вкладке «Доход» (incomeModel_).
+   Прогноз ЗП (бонусная часть) = бонус на сегодня ÷ отработанные часы × плановые часы. Оклад в данных не хранится. */
+function dlBonusGet_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  if (!repAllowed_(ss, u)) return { error: 'forbidden' };
+  return cached_('dl:bonus', TTL_, function () {
+    const rows = dlModel_(ss).rows, inc = incomeModel_(ss), gset = {}, out = [];
+    rows.forEach(function (r) {
+      const b = inc.byName[r.k]; if (!b) return;
+      const worked = r.wt !== null && r.wt !== undefined ? r.wt : r.factH, g = {};
+      b.groups.forEach(function (x) { if (x.v) { g[x.name] = x.v; gset[x.name] = (gset[x.name] || 0) + x.v; } });
+      const fc = worked > 0 && r.planH > 0 ? b.gtotal / worked * r.planH : null;
+      out.push({ name: r.name, role: r.role, tt: salonShort_(r.tt), planH: r.planH || 0, workH: worked || 0, factGraph: r.factH || 0, groups: g, total: b.gtotal, fc: fc });
+    });
+    const groups = Object.keys(gset).sort(function (a, b) { return gset[b] - gset[a]; });
+    out.sort(function (a, b) { return (b.fc === null ? -1 : b.fc) - (a.fc === null ? -1 : a.fc) || b.total - a.total; });
+    return { groups: groups, rows: out, month: inc.month, at: new Date().toISOString() };
+  });
+}
+
 /* ---------- журнал входов (виден только ТМ) ---------- */
 const AUTHLOG_SHEET = 'Журнал входов';
 function authLog_(user, event, dev) {
@@ -1937,6 +2046,16 @@ function vmrMine_(req) {
 const NOTIF_SHEET = 'Уведомления';
 // ВАЖНО: при каждом обновлении сайта добавляйте сюда запись (новая версия `v`) — она сама станет новостью и уведомлением для всех.
 const RELEASES = [
+  { v: '2026-12-07', title: 'Сотрудники ДЛ: бонус',
+    text: 'Что нового:\n• В разделе «Сотрудники ДЛ» появилась вкладка «Бонус»: плановые и отработанные часы, бонус по группам товаров и прогноз ЗП на месяц по каждому сотруднику.' },
+  { v: '2026-12-06', title: 'Временный доступ к отчётам',
+    text: 'Что нового:\n• ТМ может открыть РТТ/УТТ отчёты (в т. ч. «Сотрудники ДЛ») на заданный срок или до выбранной даты включительно (кроме Бонуса ТМ, Входов, Ссылок): вкладка «Доступы».\n• По истечении срока доступ закрывается сам.' },
+  { v: '2026-12-05', title: 'Бонус ТМ: новая мотивация',
+    text: 'Что нового:\n• Бонус ТМ пересчитан по листу «Калькулятор»: КВП до 110%, коэффициент SIM без ×1,1, шаг 75–89% = ×0,66.\n• Эконом: вместо Sell Out — «Выполнение плана по заявкам на кредит» (10%); коэффициент кредитов без исключения по заявкам.\n• Админ: «Фотоотчёт» вместо «Конверсии SIM», «Цель от РДО» 90/80%, текучесть от 10% — 0.\n• Операторы: МТС — Скидка на связь + Карты и Voicetech «Комбо 2»; Мегафон — выручка 35%; Билайн — HB++ 25% (активные 50%, выручка 30%).\n• Годовой бонус в «Итого к выплате» не входит.' },
+  { v: '2026-12-04', title: 'Презентация в стиле Apple и новые слайды',
+    text: 'Что нового:\n• Презентация Weekly Pulse в стиле Apple: светлые карточки, крупная типографика, тёмные титульные слайды и плавные анимации появления с переходами Morph.\n• Инвентаризация: таблица «Да / Нет» по последним 4 периодам.\n• L4L и M2M: отдельные слайды, в рублях и в процентах, с графиком процентов.\n• Услуги: сколько дней из прошедших были с услугами и ₽ услуг в день по салонам.\n• Боковое меню на ПК закреплено на месте — перетаскивать панель и кнопки больше нельзя.\n• Блок «Салоны рядом» на сайте стал понятнее: карточки с планом, фактом, прогнозом и конверсией.' },
+  { v: '2026-12-03', title: 'Weekly Pulse: все салоны в презентации',
+    text: 'Что нового:\n• На слайдах про салоны теперь все салоны ТМ, без обрезки списков.\n• Если салонов много, таблицы уплотняются и делятся на две колонки, подписи на графиках уменьшаются.\n• Названия салонов сопоставляются с «Экономическими KPI» устойчивее: меньше пустых ячеек.' },
   { v: '2026-12-02', title: 'Новый экран входа',
     text: 'Что нового:\n• Экран входа полностью переработан: тёмная «аврора» с неоном, стеклянная карточка, градиентная кнопка, стикеры и подсказки.\n• Логика входа и PIN не менялась.' },
   { v: '2026-12-01', title: 'Поиск по отчётам и выбор отчётов для презентации',

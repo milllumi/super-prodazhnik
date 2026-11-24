@@ -157,8 +157,8 @@ h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
 .seg.reord{touch-action:pan-x pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.seg.reord>button{touch-action:pan-x pan-y}
 .tabbar.menu-float{left:auto;right:auto;bottom:auto;width:212px;padding:8px 8px 8px;flex-direction:column;justify-content:flex-start;gap:6px;border:1px solid var(--line);border-radius:20px;box-shadow:0 14px 40px rgba(0,0,0,.18)}
 .tabbar.menu-float .mbar{display:flex;align-items:center;gap:6px;padding:2px 2px 0}
-.tabbar.menu-float .mgrip{flex:1;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted);cursor:grab;user-select:none;padding:6px 8px;border-radius:10px;touch-action:none}
-.tabbar.menu-float .mgrip:active{cursor:grabbing}
+.tabbar.menu-float .mgrip{flex:1;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted);cursor:default;user-select:none;padding:6px 8px;border-radius:10px;touch-action:none}
+
 .tabbar.menu-float .mcol{border:0;background:var(--track);color:var(--text);width:30px;height:30px;border-radius:10px;cursor:pointer;font-size:16px;line-height:1}
 .tabbar.menu-float .seg{flex-direction:column;max-width:none;width:100%;overflow-x:hidden;overflow-y:auto;max-height:calc(100vh - 130px);gap:2px}
 .tabbar.menu-float .seg button{flex:none;text-align:left;padding:10px 14px;font-size:14.5px;cursor:grab}
@@ -1290,6 +1290,23 @@ html #login .login-card::after{display:none}
 @keyframes lgChip{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-4px) rotate(1deg)}}
 @media (max-width:420px){#login .wm-h .wm{font-size:30px}html #login{justify-content:flex-start;padding-top:max(28px,env(safe-area-inset-top))}}
 @media (prefers-reduced-motion:reduce){#login .lg-blobs i,#login .lg-chips span,html #login .login-card::before,#login .login-card #btnLogin::before{animation:none}}
+
+.nr-how{margin:0 0 10px;line-height:1.45}
+.nr-gh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:14px 0 8px}.nr-gh b{font-size:16px}.nr-gh span{font-size:12.5px;color:var(--muted)}
+.nr-row{padding:12px 14px;border-radius:16px;background:var(--track);margin-bottom:8px}
+.nr-row.nr-own{background:color-mix(in srgb,var(--blue) 12%,transparent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--blue) 45%,transparent)}
+.nr-row .nr-who{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-bottom:8px}.nr-row .nr-who .nr-n{flex-basis:100%;font-size:13.5px;color:var(--text);font-weight:600}
+.nr-m{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.nr-m>div{display:flex;flex-direction:column;gap:2px;min-width:0}.nr-m small{font-size:11px;color:var(--muted);line-height:1.2}.nr-m b{font-size:17px;font-weight:700}.nr-m em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.nr-m .pcell{display:inline-block;padding:1px 8px;border-radius:8px}
+.nr-bar{height:5px;border-radius:99px;background:rgba(120,120,128,.22);margin-top:10px;overflow:hidden}.nr-bar i{display:block;height:100%;border-radius:99px;background:var(--blue)}
+@media (max-width:560px){.nr-m{grid-template-columns:repeat(2,1fr);gap:10px 8px}}
+
+.gr-form{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.gr-form .vm-sel{flex:1 1 240px;min-width:0}.gr-days{flex:1 1 100%}
+.gr-days button{flex:1}.gr-date{display:flex;align-items:center;gap:10px;flex:1 1 100%;font-size:14px;color:var(--muted)}.gr-date input{font:inherit;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--track);color:var(--text)}.gr-days button[aria-pressed=true]{background:var(--blue,#0a84ff);color:#fff;border-radius:10px}
+.gr-row{display:grid;grid-template-columns:1fr auto auto;gap:10px 14px;align-items:center;padding:11px 0;border-top:1px solid var(--line,rgba(120,120,128,.18))}.gr-row:first-of-type{border-top:0}
+.gr-n b,.gr-u b{display:block;font-size:15px}.gr-n small,.gr-u small{display:block;font-size:12px;color:var(--muted)}.gr-u{text-align:right}.gr-x{padding:6px 12px;font-size:13px}
+@media (max-width:560px){.gr-row{grid-template-columns:1fr auto}.gr-x{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -1386,6 +1403,7 @@ html #login .login-card::after{display:none}
       <section class="pane" data-pane="dl" id="m-dl" hidden></section>
       <section class="pane" data-pane="dayplan" id="m-dayplan" hidden></section>
       <section class="pane" data-pane="auth" id="m-auth" hidden></section>
+      <section class="pane" data-pane="access" id="m-access" hidden></section>
       <section class="pane" data-pane="vmr" id="m-vmr" hidden></section>
       <section class="pane" data-pane="cards" id="m-cards" hidden></section>
       <section class="pane" data-pane="recon" id="m-recon" hidden></section>
@@ -1441,7 +1459,7 @@ html #login .login-card::after{display:none}
     </div>
   </main>
 
-  <nav class="tabbar" id="tabnav"><div class="mbar"><div class="mgrip" id="mgrip" title="Перетащить меню">⠿ Меню</div><button class="mcol" id="mcol" type="button" title="Свернуть" aria-label="Свернуть меню">—</button></div><button class="mfab" id="mfab" type="button" title="Открыть меню" aria-label="Открыть меню">☰</button><div class="seg" id="tabseg"></div></nav>
+  <nav class="tabbar" id="tabnav"><div class="mbar"><div class="mgrip" id="mgrip" title="Меню">Меню</div><button class="mcol" id="mcol" type="button" title="Свернуть" aria-label="Свернуть меню">—</button></div><button class="mfab" id="mfab" type="button" title="Открыть меню" aria-label="Открыть меню">☰</button><div class="seg" id="tabseg"></div></nav>
   <nav class="mnav" id="mnav" aria-label="Разделы" hidden></nav>
   <div class="msheet" id="msheet" hidden></div>
 </div>
@@ -1935,16 +1953,16 @@ window.BonusCalc={
 'use strict';
 const BR = { 'Т2': 't2', 'МТС': 'mts', 'МФ': 'mf', 'БЛН': 'bln' };
 const OPS = [
-  { k: 't2', name: 'Теле2', brand: 'Т2', w: 1.2, kpis: [['dig', 'Цифровые сервисы 100%', .25], ['sub', 'Подписки 100%', .2], ['ftp', 'ФТП 90% и ЗН / Абонементы 100%', .25], ['shpd', 'РТК Т2 100%', .3]] },
-  { k: 'mts', name: 'МТС', brand: 'МТС', w: 1, kpis: [['abon', 'Абонементы 100%', .2], ['ftp', 'ФТП (МТС Супер) 100%', .25], ['green', 'Зелёный ценник 100%', .25], ['tnps', 'tNPS 77%', .3]] },
-  { k: 'mf', name: 'Мегафон', brand: 'МФ', w: .8, kpis: [['abon', 'Абонементы МФ + Yota 95%', .35], ['rev', 'Выручка 1М 100%', .4], ['ftp', 'ФТП «Семейный +» 95%', .3]] },
-  { k: 'bln', name: 'Билайн', brand: 'БЛН', w: .8, kpis: [['act', 'Активные 15 дней 100%', .6], ['rev', 'Выручка 1М 100%', .4]] }
+  { k: 't2', name: 'Теле2', brand: 'Т2', w: 1.2, kpis: [['dig', 'Цифровые сервисы 100%', .25], ['sub', 'Подписки 100%', .2], ['ftp', 'ФТП 90% и ЗН / Абонементы 100%', .25], ['shpd', 'ШПД Т2 100%', .3]] },
+  { k: 'mts', name: 'МТС', brand: 'МТС', w: 1, kpis: [['abon', 'Абонементы 100%', .2], ['disc', 'Скидка на связь + Карты 100%', .25], ['vt', 'Voicetech «Комбо 2» 100%', .25], ['tnps', 'tNPS 77%', .3]] },
+  { k: 'mf', name: 'Мегафон', brand: 'МФ', w: .8, kpis: [['abon', 'Абонементы МФ + Yota 95%', .35], ['rev', 'Выручка 1М 100%', .35], ['ftp', 'ФТП «Семейный +» 95%', .3]] },
+  { k: 'bln', name: 'Билайн', brand: 'БЛН', w: .8, kpis: [['act', 'Активные 15 дней 100%', .5], ['rev', 'Выручка 1М 100%', .3], ['hb', 'HB++ 25%', .2]] }
 ];
 const MET = [
   ['sim', /сим/i], ['mnp', /mnp|мнп/i],
   ['t2.dig', /циф/i], ['t2.sub', /подписк/i], ['t2.shpd', /шпд|ртк/i],
   ['mf.abon', /абон.*(мф|yota|мегафон)|(мф|yota).*абон/i], ['mts.abon', /абон.*мтс/i],
-  ['mts.tnps', /tnps/i], ['mts.green', /зелен|зелён/i],
+  ['mts.tnps', /tnps/i], ['mts.green', /зелен|зелён/i], ['mts.vt', /voice|войс/i], ['mts.disc', /скидк/i], ['bln.hb', /hb\s*\+/i],
   ['bln.act', /актив/i], ['mf.rev', /выруч.*(мф|мегафон)/i], ['bln.rev', /выруч.*(бил|бln)/i]
 ];
 
@@ -2072,6 +2090,9 @@ function parseRDO(rows) {
     else if (/^мнп/i.test(s)) key = 'mnp';
     else if (/tnps/i.test(s)) key = 'mts.tnps';
     else if (/зелен/i.test(s)) key = 'mts.green';
+    else if (/voicetech|войстех/i.test(s)) key = 'mts.vt';
+    else if (/скидк.*связ/i.test(s)) key = 'mts.disc';
+    else if (/hb\s*\+\+/i.test(s)) key = 'bln.hb';
     if (key) { const j = pctIdx(i); if (j >= 0) cols.push({ key, j }); }
   }
   const gi = sub.findIndex(x => /прогноз gi/i.test(x || '')); if (gi >= 0) cols.push({ key: 'simgi', j: gi });
@@ -2135,17 +2156,17 @@ function tmData(P, tm) {
 
 /* ===== calculation ===== */
 const f0 = x => (x == null || isNaN(x) ? 0 : x);
-const kvp1 = e => { e = f0(e); return e >= 1.2 ? 1.2 : e >= .9 ? e : e >= .8 ? .7 : e >= .75 ? .4 : 0; };
-const credK = (d, req) => { d = f0(d); req = f0(req); return d >= 1.2 ? 1.2 : d >= .9 ? d : (req >= 1 || d >= .75) ? .75 : .5; };
+const kvp1 = e => { e = f0(e); return e >= 1.1 ? 1.1 : e >= .9 ? e : e >= .8 ? .7 : e >= .75 ? .4 : 0; };
+const credK = d => { d = f0(d); return d >= 1.2 ? 1.2 : d >= .9 ? d : d >= .75 ? .75 : .5; };
 const attK = a => { a = f0(a); return a >= 3.2 ? 1.2 : a >= 2.5 ? 1 : .8; };
-const simK = s => { s = f0(s); return s >= 1.05 ? 1.1 : s >= 1 ? 1 : s >= .95 ? .9 : s >= .9 ? .8 : .5; };
-const stepK = p => { p = f0(p); return p >= .9 ? 1 : p >= .75 ? .6 : p >= .5 ? .3 : 0; };
+const simK = s => { s = f0(s); return s >= 1 ? 1 : s >= .95 ? .9 : s >= .9 ? .8 : .5; };
+const stepK = p => { p = f0(p); return p >= .9 ? 1 : p >= .75 ? .66 : p >= .5 ? .3 : 0; };
 const ADM = [
   ['vmr', 'ВМР пройден', '% салонов в цели', p => p >= .8 ? 1 : p >= .7 ? .5 : p >= .55 ? .25 : 0],
-  ['conv', 'Конверсия SIM', 'выполнение плана', p => p >= 1 ? 1 : p >= .9 ? .5 : p >= .8 ? .25 : 0],
-  ['rdo', 'Фокусный показатель РДО / КУ', 'выполнение', p => p >= 1 ? 1 : p >= .75 ? .5 : 0],
+  ['photo', 'Фотоотчёт', '% салонов в цели', p => p >= .9 ? 1 : p >= .8 ? .5 : p >= .7 ? .25 : 0],
+  ['rdo', 'Цель от РДО', 'выполнение', p => p >= .9 ? 1 : p >= .8 ? .5 : 0],
   ['rec', 'Выполнение плана по рекомендациям', 'выполнение', p => p >= 1 ? 1 : p >= .8 ? .5 : 0],
-  ['turn', 'Текучесть от среднесписочной численности', 'чем ниже, тем лучше', p => p == null ? 0 : p < .07 ? 1 : p <= .10 ? .5 : 0]
+  ['turn', 'Текучесть от среднесписочной численности', 'чем ниже, тем лучше', p => p == null ? 0 : p >= .10 ? 0 : p >= .07 ? .5 : 1]
 ];
 const ADM_BUDGET = 4000;
 
@@ -2156,11 +2177,11 @@ function calc(V) {
   R.sal = { base: 40000, geo: V.cities >= 3 ? 3000 : 0, extra: over * 1500 }; R.sal.sum = R.sal.base + R.sal.geo + R.sal.extra;
   // economic
   const budget = 30000 + over * 1000;
-  const dc = credK(V.credit, V.req), da = attK(V.attach);
+  const dc = credK(V.credit), da = attK(V.attach);
   const tele = V.telRub;
   const rows = [
     { k: 'tel', name: 'Телефоны, руб', share: .35, e: tele, dK: dc, dName: 'Доля кредитов' },
-    { k: 'sell', name: 'Sell Out / Priority / Trade-in, шт', share: .1, e: V.sell, dK: dc, dName: 'Доля кредитов' },
+    { k: 'req', name: 'Выполнение плана по заявкам на кредит', share: .1, e: V.req, dK: dc, dName: 'Доля кредитов' },
     { k: 'acc', name: 'Аксессуары / носимая электроника + услуги, руб', share: .35, e: V.acc, dK: da, dName: 'Проникновение допов' },
     { k: 'ins', name: 'Страховки (доля)', share: .2, e: V.ins, dK: da, dName: 'Проникновение допов' }
   ];
@@ -2189,7 +2210,7 @@ function calc(V) {
     ops.push({ k: o.k, name: o.name, n: n[o.k], pool: opool, kpis: ks, sum: sub }); os += sub;
   }
   R.op = { budget, mnp, mnpRate, ops, pool, raw: os, qm: V.qm, cs: V.cs, sum: os * V.qm * V.cs, max: budget * 1.1 };
-  const ex = V.ex; R.ex = (ex.reserve || 0) + (ex.minTop || 0) + (ex.bonus || 0) + (ex.year || 0) + (ex.corr || 0);
+  const ex = V.ex; R.year = ex.year || 0; R.ex = (ex.reserve || 0) + (ex.minTop || 0) + (ex.bonus || 0) + (ex.corr || 0); /* годовой бонус в «Итого к выплате» не входит (как на листе «Калькулятор») */
   R.calcSum = R.sal.sum + R.econ.sum + R.adm.sum + R.op.sum;
   R.grand = R.calcSum + R.ex;
   return R;
@@ -2355,8 +2376,8 @@ function buildXlsx(M) {
 
   const E_ = R.econ;
   secRow(s1, r++, 'Эконом блок', ['Выполнение плана', '', '']);
-  [['Телефоны, руб (прогноз)', V.telRub], ['Sell Out / Trade-in', V.sell], ['Аксессуары + услуги', V.acc], ['Страховки (доля)', V.ins],
-   ['Выполнение доли кредитов', V.credit], ['Заявки на кредит', V.req], ['План по SIM без Экстра', V.sim], ['Салоны Hello в ТЗ', V.hello]].forEach(x => row(s1, r++, x[0], x[1], null, null, { nfC: PCT, dim: 1 }));
+  [['Телефоны, руб (прогноз)', V.telRub], ['Заявки на кредит', V.req], ['Аксессуары + услуги', V.acc], ['Страховки (доля)', V.ins],
+   ['Выполнение доли кредитов', V.credit], ['План по SIM без Экстра', V.sim], ['Салоны Hello в ТЗ', V.hello]].forEach(x => row(s1, r++, x[0], x[1], null, null, { nfC: PCT, dim: 1 }));
   row(s1, r++, 'Проникновение допов', V.attach, null, null, { nfC: '0.00 "шт"', dim: 1 }); gap(s1, r++, 6);
   secRow(s1, r++, 'Расчёт эконом блока', ['Бюджет', 'Коэффициент', 'Начислено']);
   E_.rows.forEach(x => row(s1, r++, x.name, x.budget, x.dK * x.eK, x.pay, { nfC: MONEY, nfD: COEF }));
@@ -2381,7 +2402,7 @@ function buildXlsx(M) {
   totalRow(s1, r++, 'Операторский блок итого', O.sum); gap(s1, r++);
 
   secRow(s1, r++, 'Доплаты, вводятся вручную', ['', '', 'Сумма']);
-  [['Премия за резерв ТМ от КД', V.ex.reserve], ['Доплата до несгораемого минимума', V.ex.minTop], ['Доп. бонус', V.ex.bonus], ['Годовой бонус', V.ex.year], ['Корректировка с прошлого месяца', V.ex.corr]].forEach(x => row(s1, r++, x[0], null, null, x[1] || 0));
+  [['Премия за резерв ТМ от КД', V.ex.reserve], ['Доплата до несгораемого минимума', V.ex.minTop], ['Доп. бонус', V.ex.bonus], ['Годовой бонус (выплачивается отдельно, в итог не входит)', V.ex.year], ['Корректировка с прошлого месяца', V.ex.corr]].forEach(x => row(s1, r++, x[0], null, null, x[1] || 0));
   row(s1, r++, 'Итого расчёт ЗП', null, null, R.calcSum);
   totalRow(s1, r++, 'Итого к выплате', R.grand);
 
@@ -2541,15 +2562,15 @@ function pageOverview(T,V,R){
   const adm=`<div class="ch" data-act="admToggle" role="button" tabindex="0" aria-expanded="${ao}" style="cursor:pointer;margin-bottom:${ao?6:0}px"><h2>Административный блок <span class="chip">${ao?'скрыть':'детали'}</span></h2><span class="tot num">${fR(A.sum)} <small>из ${fR(A.max)}</small></span></div>
    ${!ao?'':A.rows.map(r=>rowH(esc(r.name),esc(r.hint),fld('adm.'+r.k,r.name,T,{nl:1}),fR(r.pay),r.v==null?'не заполнено':r.m===1?'полный':r.m>0?'частично':'без бонуса')).join('')}`;
   const ex=`<div class="ch"><h2>Итого</h2><span class="tot num">${fR(R.grand)}</span></div>
-   <div class="grid">${fld('ex.reserve','Резерв ТМ от КД',T)}${fld('ex.minTop','До несгор. минимума',T)}${fld('ex.bonus','Доп. бонус',T)}${fld('ex.year','Годовой бонус',T)}${fld('ex.corr','Корр. с прошлого мес.',T)}</div>
-   ${rowH('Расчёт ЗП','оклад + эконом + админ + операторский','',fR(R.calcSum))}${rowH('Доплаты','вводятся вручную','',fR(R.ex))}${rowH('Итого к выплате','','',fR(R.grand),'','sum')}`;
+   <div class="grid">${fld('ex.reserve','Резерв ТМ от КД',T)}${fld('ex.minTop','До несгор. минимума',T)}${fld('ex.bonus','Доп. бонус',T)}${fld('ex.year','Годовой бонус (отдельно)',T)}${fld('ex.corr','Корр. с прошлого мес.',T)}</div>
+   ${rowH('Расчёт ЗП','оклад + эконом + админ + операторский','',fR(R.calcSum))}${rowH('Доплаты','вводятся вручную; годовой бонус выплачивается отдельно','',fR(R.ex))}${rowH('Итого к выплате','','',fR(R.grand),'','sum')}`;
   const E=R.econ;
   const eo=!!ST.econOpen;
   const econ=`<div class="ch" data-act="econToggle" role="button" tabindex="0" aria-expanded="${eo}" style="cursor:pointer;margin-bottom:${eo?6:0}px"><h2>Эконом блок <span class="chip">${eo?'скрыть':'детали'}</span></h2><span class="tot num">${fR(E.sum)} <small>из ${fR(E.max)}</small></span></div>
    ${eo?`<div class="sec">Выполнение плана · прогноз на конец месяца</div>
-   <div class="grid">${fld('telRub','Телефоны, руб',T)}${fld('sell','Sell Out / TI',T)}${fld('acc','Акс. + услуги',T)}${fld('ins','Страховки',T)}</div>
+   <div class="grid">${fld('telRub','Телефоны, руб',T)}${fld('req','Заявки на кредит',T)}${fld('acc','Акс. + услуги',T)}${fld('ins','Страховки',T)}</div>
    <div class="sec" style="margin-top:8px">Показатель 2 и множители</div>
-   <div class="grid">${fld('credit','Доля кредитов',T)}${fld('req','Заявки кредит',T)}${fld('attach','Допы (аттачмент)',T,{unit:'шт'})}${fld('sim','План по SIM',T)}${fld('hello','Салоны Hello',T)}</div>
+   <div class="grid">${fld('credit','Доля кредитов',T)}${fld('attach','Допы (аттачмент)',T,{unit:'шт'})}${fld('sim','План по SIM',T)}${fld('hello','Салоны Hello',T)}</div>
    ${T&&T.simSrc?`<p class="hint">План по SIM: ${esc(T.simSrc)}.</p>`:''}
    <div style="margin-top:6px">${E.rows.map(r=>rowH(esc(r.name),`бюджет ${fR(r.budget)} · ${r.k==='acc'||r.k==='ins'?'допы':'кредиты'} ${fK(r.dK)} · план ${fK(r.eK)}`,'',fR(r.pay),`КВП ${fP(r.e)}`)).join('')}
     ${rowH('Множитель SIM',`SIM ${fP(V.sim)}, на четыре строки выше`,'',fK(E.sk))}${rowH('Салоны Hello в ТЗ','2 000 ₽ при выполнении плана','',fR(E.hello),fP(V.hello))}</div>`:''}`;
@@ -2569,19 +2590,19 @@ function pageOverview(T,V,R){
 }
 
 /* ---------- what-if engine (improvements only) ---------- */
-const UP={kvp:[.75,.8,.9,1,1.1,1.2]};
+const UP={kvp:[.75,.8,.9,1,1.1]};
 function levers(V){
   const L=[];
   const P=(id,blk,label,get,set,bps,step)=>L.push({id,blk,label,get,set,bps,step,kind:'p',dir:1});
   P('telRub','econ','Телефоны, руб',V=>V.telRub??0,(V,x)=>V.telRub=x,UP.kvp,.05);
-  P('sell','econ','Sell Out / Trade-in',V=>V.sell??0,(V,x)=>V.sell=x,UP.kvp,.05);
+  P('req','econ','Заявки на кредит',V=>V.req??0,(V,x)=>V.req=x,UP.kvp,.05);
   P('acc','econ','Аксессуары + услуги',V=>V.acc??0,(V,x)=>V.acc=x,UP.kvp,.05);
   P('ins','econ','Страховки (доля)',V=>V.ins??0,(V,x)=>V.ins=x,UP.kvp,.05);
   P('credit','econ','Доля кредитов',V=>V.credit,(V,x)=>V.credit=x,[.75,.9,1,1.2],.05);
   L.push({id:'attach',blk:'econ',label:'Проникновение допов',get:V=>V.attach,set:(V,x)=>V.attach=x,bps:[2.5,3.2],step:0,kind:'n',dir:1,unit:' шт'});
-  P('sim','econ','Выполнение плана SIM',V=>V.sim,(V,x)=>V.sim=x,[.9,.95,1,1.05],0);
+  P('sim','econ','Выполнение плана SIM',V=>V.sim,(V,x)=>V.sim=x,[.9,.95,1],0);
   P('hello','econ','Салоны Hello в ТЗ',V=>V.hello,(V,x)=>V.hello=x,[1],0);
-  const A={vmr:[.55,.7,.8],conv:[.8,.9,1],rdo:[.75,1],rec:[.8,1]};
+  const A={vmr:[.55,.7,.8],photo:[.7,.8,.9],rdo:[.8,.9],rec:[.8,1]};
   ADM.forEach(a=>{const k=a[0];if(k==='turn')L.push({id:'adm.turn',blk:'adm',label:a[1],get:V=>V.adm.turn,set:(V,x)=>V.adm.turn=x,dir:-1,imp:[.0999,.0699],kind:'p'});
     else P('adm.'+k,'adm',a[1],V=>V.adm[k]??0,(V,x)=>V.adm[k]=x,A[k],0)});
   const opP=(key,label)=>P('op.'+key,'op',label,V=>V.op[key]??0,(V,x)=>V.op[key]=x,[.5,.75,.9],0);
@@ -2640,7 +2661,7 @@ function pageInsights(T,V,R){
 async function exportXls(){
   const T=td();if(!T){toast('Нет данных для выгрузки');return}
   const V=buildV(T),R=calc(V),A=analysis(V,R);
-  const cols=[['sim','SIM: я ЛИСТ'],['simgi','SIM: прогноз GI'],['bln.act','Активные 15 дней'],['bln.rev','Выручка 1М (Билайн)'],['mnp','MNP'],['mts.tnps','tNPS'],['mts.abon','Абонементы МТС'],['mts.green','Зелёный ценник'],['mf.abon','Абон. МФ + Yota'],['mf.rev','Выручка 1М (МФ)'],['t2.dig','Цифр. сервисы Т2']];
+  const cols=[['sim','SIM: я ЛИСТ'],['simgi','SIM: прогноз GI'],['bln.act','Активные 15 дней'],['bln.rev','Выручка 1М (Билайн)'],['mnp','MNP'],['mts.tnps','tNPS'],['mts.abon','Абонементы МТС'],['mts.vt','Voicetech (Комбо 2)'],['mts.disc','Скидка на связь + Карты'],['bln.hb','HB++'],['mf.abon','Абон. МФ + Yota'],['mf.rev','Выручка 1М (МФ)'],['t2.dig','Цифр. сервисы Т2']];
   const stores=T.stores.map(s=>({code:s.code,name:s.name,brand:s.brand,vals:(D.opByCode&&D.opByCode[s.code])||{}}));
   const metricCols=cols.filter(c=>stores.some(s=>s.vals[c[0]]!=null));
   const now=new Date();const p2=n=>String(n).padStart(2,'0');
@@ -2824,8 +2845,9 @@ function tabsFor(role,d){
     t.splice(bi(),0,['cards','Карточки']);
     if (!d.canLinks) t.splice(bi(),0,['recon','Сопоставления']);
     if (d.summary) t.splice(4,0,['summary','Общий свод']);
-    if (d.canLinks){ t[bi()]=['tmbonus','Бонус ТМ']; t.splice(5,0,['reports','Отчёты']); t.splice(6,0,['dl','Сотрудники ДЛ']); t.splice(7,0,['dayplan','План на день']); t.splice(8,0,['auth','Входы']); t.push(['vmr','ВМР']); t.push(['pulse','Weekly Pulse']); t.push(['links','Ссылки']); if (DEMO) for (let i=t.length-1;i>=0;i--) if (t[i][0]==='tmbonus'||t[i][0]==='links') t.splice(i,1); }
+    if (d.canLinks){ t[bi()]=['tmbonus','Бонус ТМ']; t.splice(5,0,['reports','Отчёты']); t.splice(6,0,['dl','Сотрудники ДЛ']); t.splice(7,0,['dayplan','План на день']); t.splice(8,0,['auth','Входы'],['access','Доступы']); t.push(['vmr','ВМР']); t.push(['pulse','Weekly Pulse']); t.push(['links','Ссылки']); if (DEMO) for (let i=t.length-1;i>=0;i--) if (t[i][0]==='tmbonus'||t[i][0]==='links') t.splice(i,1); }
   }
+  if (role==='manager' && d && d.guest && !d.canLinks){ const gi = t.findIndex(x=>x[0]==='forecast'); t.splice(gi>=0?gi+1:t.length,0,['reports','Отчёты'],['dl','Сотрудники ДЛ'],['dayplan','План на день']); }
   if (role==='manager' && d){ const i=t.findIndex(x=>x[0]==='forecast'); if (i>=0) t.splice(i+1,0,['diag','Диагностика'],['attach','Attachment'],['analytics','Аналитика']); if (!d.canLinks && i>=0) t.splice(i+4,0,['vmr','ВМР']);
     const gr = id => { const k = TAB_GROUPS.findIndex(g=>g[1].indexOf(id)>=0); return k<0 ? 99 : k; };
     return t.map((x,j)=>[x,j]).sort((a,b)=>gr(a[0][0])-gr(b[0][0]) || a[1]-b[1]).map(x=>x[0]); }
@@ -2844,7 +2866,7 @@ function applyView(){
   $('#newsView').hidden = !n;
   if (n){ $('#content').hidden = true; $('#mgrView').hidden = true; }
 }
-function updLine(d){ const el=$('#updLine'); if (!el) return; d=d||DATA; if (!d||!d.updated){ el.hidden=true; return; } const dt=new Date(d.updated), same=dt.toDateString()===new Date().toDateString(); el.hidden=false; el.textContent='Данные обновлены '+(same?'сегодня в ':dt.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'})+' в ')+dt.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' · таблицы подтягиваются раз в 30 минут'; }
+function updLine(d){ const el=$('#updLine'); if (!el) return; d=d||DATA; if (!d||!d.updated){ el.hidden=true; return; } const dt=new Date(d.updated), same=dt.toDateString()===new Date().toDateString(); el.hidden=false; el.textContent=(d.guest?'Доступ к отчётам до '+grFmt(d.guest.until)+' · ':'')+'Данные обновлены '+(same?'сегодня в ':dt.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'})+' в ')+dt.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' · таблицы подтягиваются раз в 30 минут'; }
 function setTab(t){
   WRAP.dataset.tab = t; updLine(); try{ mnavSync(t); }catch(e){}
 
@@ -2853,13 +2875,14 @@ function setTab(t){
   document.querySelectorAll('.pane').forEach(p=>p.hidden = p.dataset.pane!==t);
   if (t==='bonus') ensureCalc();
   if (t==='tmbonus') ensureTmb();
-  { const mh=$('#mgrHead'); if (mh) mh.hidden = (t==='tmbonus'||t==='links'||t==='dl'||t==='dayplan'||t==='analytics'||t==='auth'||t==='vmr'||t==='attach'||t==='pulse'); }
+  { const mh=$('#mgrHead'); if (mh) mh.hidden = (t==='tmbonus'||t==='links'||t==='dl'||t==='dayplan'||t==='analytics'||t==='auth'||t==='access'||t==='vmr'||t==='attach'||t==='pulse'); }
   if (t==='links') loadLinks();
   if (t==='reports') loadReports();
   if (t==='dl') loadDL();
   if (t==='analytics') loadAnalytics();
   if (t==='dayplan') loadDayPlan();
   if (t==='auth') loadAuth();
+  if (t==='access') loadAccess();
   if (t==='vmr') loadMyVmr();
   if (t==='attach') loadAttach();
   if (t==='pulse') loadPulse();
@@ -2893,6 +2916,7 @@ async function load(silent, fresh){
   const token = store.get('token'); if(!token) return showLogin();
   if (!DATA && !fresh){ try{ const c=JSON.parse(store.get('dc')||'null'); if (c && c.tk===token.slice(-12) && c.d){ paint(c.d); } }catch(e){} }
   const btn = $('#btnRefresh'); btn.classList.add('spin');
+  const slowT = (!silent && !DATA) ? setTimeout(()=>{ if (!DATA && !$('#loading').hidden) $('#loading').textContent='Сервер собирает данные заново (так бывает, когда кэш устарел) — подождите до минуты…'; }, 7000) : 0;
   try{
     const d = await api({action:'data', token, fresh:!!fresh});
     if (d.error==='auth') return showLogin('Сессия истекла. Войдите снова.');
@@ -2902,7 +2926,7 @@ async function load(silent, fresh){
     if (!load.once){ load.once=1; setTimeout(checkNewsDot, 2500); setTimeout(notifPoll, 3500); setTimeout(()=>{ lib('chart').catch(()=>{}); lib('h2c').catch(()=>{}); lib('pdf').catch(()=>{}); }, 6000); }
   }catch(e){
     if(!silent) $('#loading').textContent='Не удалось загрузить данные. Нажмите «Обновить».';
-  }finally{ btn.classList.remove('spin'); }
+  }finally{ clearTimeout(slowT); btn.classList.remove('spin'); }
 }
 function switchRole(role,d){
   const want = role+':'+tabsFor(role,d).map(x=>x[0]).join();
@@ -3154,15 +3178,15 @@ function nearGroups(d){
 }
 function nmKey(s){return String(s||'').toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ').trim()}
 function nearBlock(g,N){
+  const cv=v=>v!=null?(v*100).toFixed(2).replace('.',',')+'%':'—';
   const row=(x,own)=>{const t=x.tr||{},c=x.cv||{};
-    const fcp=(t.fc!=null&&t.plan>0)?`<td class="pcell ${clsPct(t.fc/t.plan*100)}">${fmt(t.fc)}</td>`:`<td>${t.fc!=null?fmt(t.fc):'—'}</td>`;
-    const cv=v=>v!=null?(v*100).toFixed(2).replace('.',',')+'%':'—';
-    return `<tr class="${own?'nr-own':''}"><td><span class="nr-b">${esc(x.brand.toUpperCase())}</span>${own?' <small class="nr-me">ваш</small>':''}<div class="nr-n">${esc(x.name)}</div></td>
-      <td>${t.plan!=null?fmt(t.plan):'—'}</td><td>${t.fact!=null?fmt(t.fact):'—'}</td>${fcp}
-      <td>${cv(c.fact)}${c.plan!=null?`<small class="nr-pl"> / ${cv(c.plan)}</small>`:''}</td></tr>`};
-  return `<div class="nr-blk"><h3>${esc(g.salon)}</h3><div class="mtable"><table class="nr-t">
-    <thead><tr><th>Салон</th><th>План трафика, чел</th><th>Факт трафика, чел</th><th>Прогноз трафика, чел</th><th>Конверсия факт / план</th></tr></thead>
-    <tbody>${g.own?row(g.own,true):''}${g.near.map(x=>row(x,false)).join('')}</tbody></table></div></div>`;
+    const pf = (t.plan>0&&t.fact!=null) ? Math.min(100,t.fact/t.plan*100) : null;
+    const fcCls = (t.fc!=null&&t.plan>0) ? 'pcell '+clsPct(t.fc/t.plan*100) : '';
+    const cvCls = (c.fact!=null&&c.plan>0) ? 'pcell '+clsPct(c.fact/c.plan*100) : '';
+    return `<div class="nr-row${own?' nr-own':''}"><div class="nr-who"><span class="nr-b">${esc(x.brand.toUpperCase())}</span>${own?'<small class="nr-me">ваш салон</small>':''}<div class="nr-n">${esc(x.name)}</div></div>
+      <div class="nr-m"><div><small>План трафика</small><b>${t.plan!=null?fmt(t.plan):'—'}</b></div><div><small>Факт трафика</small><b>${t.fact!=null?fmt(t.fact):'—'}</b></div><div><small>Прогноз на месяц</small><b><span class="${fcCls}">${t.fc!=null?fmt(t.fc):'—'}</span></b></div><div><small>Конверсия</small><b><span class="${cvCls}">${cv(c.fact)}</span></b><em>${c.plan!=null?'план '+cv(c.plan):''}</em></div></div>
+      ${pf==null?'':`<div class="nr-bar" title="Факт трафика к плану"><i style="width:${pf.toFixed(0)}%"></i></div>`}</div>`};
+  return `<div class="nr-blk"><div class="nr-gh"><b>${esc(g.salon)}</b><span>и салоны на этом же адресе</span></div>${g.own?row(g.own,true):''}${g.near.map(x=>row(x,false)).join('')}</div>`;
 }
 function salonCompare(d){
   const keys = DIR_ORDER.filter(k=>d.salons.some(s=>s.dirs.some(x=>x.key===k)));
@@ -3173,9 +3197,9 @@ function salonCompare(d){
        ${d.salons.map(s=>`<tr><td>${esc(s.name)}</td>${keys.map(k=>{const x=s.dirs.find(z=>z.key===k);
          if(!x||!(x.plan>0))return '<td class="z">—</td>';const p=x.fact/x.plan*100;return `<td class="pcell ${clsPct(p)}">${fmt(p)}%</td>`}).join('')}</tr>`).join('')}
        </tbody></table></div><div class="note-s" style="margin-top:10px">Процент выполнения плана месяца по каждому направлению.</div>` : '';
-  const nr = ng.length ? `<h3 class="nr-h">Смежные салоны · трафик и конверсия</h3>${ng.map(g=>nearBlock(g,N)).join('')}
-       <div class="note-s">Смежные — тот же адрес, другой бренд (МТС, МФ, Т2). Трафик и конверсия — из «KPI ОСС»${N.asOf?' на '+esc(N.asOf):''}; прогноз трафика = факт ÷ прошедшие дни × дни месяца${N.passed?` (${N.passed} из ${N.dim})`:''}.</div>` : '';
-  return `<div class="card fade"><h2>Салоны рядом</h2>${own}${nr}</div>`;
+  const nr = ng.length ? `<h3 class="nr-h">Трафик и конверсия соседних салонов</h3><div class="note-s nr-how">Соседние — тот же адрес, другой бренд (МТС, МФ, Т2). Трафик — люди в салоне, конверсия — доля покупателей. Цвет прогноза и конверсии: зелёный — в плане, жёлтый — близко, красный — отстаёт. Полоска — факт трафика к плану.</div>${ng.map(g=>nearBlock(g,N)).join('')}
+       <div class="note-s">Источник: «KPI ОСС»${N.asOf?' на '+esc(N.asOf):''}. Прогноз трафика = факт ÷ прошедшие дни × дни месяца${N.passed?` (${N.passed} из ${N.dim})`:''}.</div>` : '';
+  return `<div class="card fade"><h2>Салоны рядом</h2>${own?`<h3 class="nr-h" style="margin-top:4px">Выполнение плана по салонам</h3>`+own:''}${nr}</div>`;
 }
 
 /* --- по дням --- */
@@ -3405,17 +3429,59 @@ async function loadLinks(){
   });
 }
 
+
+/* =================== Доступы (только ТМ): временный доступ РТТ/УТТ к отчётам =================== */
+let GRC = null, GRD = 7;
+const grFmt = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); };
+function grLeft(iso){ const ms = new Date(iso) - Date.now(); if (ms<=0) return 'закончился'; const h = Math.floor(ms/36e5), d = Math.floor(h/24); return d>=1 ? 'ещё '+d+' дн. '+(h%24)+' ч' : h>=1 ? 'ещё '+h+' ч' : 'ещё '+Math.max(1,Math.round(ms/6e4))+' мин'; }
+function accessPane(r){
+  if (!r || r.error) return `<div class="card empty">${r&&r.error==='forbidden'?'Раздел доступен только ТМ.':'Не удалось загрузить доступы. Нажмите «Обновить».'}</div>`;
+  const act = r.grants.filter(g=>g.active), old = r.grants.filter(g=>!g.active).slice(0,15);
+  const opts = r.people.map(p=>`<option value="${esc(p.key)}">${esc(p.name)} · ${esc(p.role)}</option>`).join('');
+  const tmr = new Date(Date.now()+864e5), isoD = d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const row = g => `<div class="gr-row"><div class="gr-n"><b>${esc(g.name)}</b><small>${esc(g.role)} · выдал ${esc(g.by||'—')}</small></div><div class="gr-u"><b>${g.active?esc(grLeft(g.until)):(g.revoked?'отозван':'закончился')}</b><small>${g.active?'до ':''}${esc(grFmt(g.until))}</small></div>${g.active?`<button class="btn ghost gr-x" data-grrev="${esc(g.key)}" type="button">Закрыть</button>`:'<span></span>'}</div>`;
+  return `<div class="card fade"><h2>Доступ к отчётам на время</h2>
+    <p class="note-s" style="margin:0 0 12px">Выберите РТТ/УТТ и срок — на это время ему откроются отчёты ТМ. Открываются «Отчёты», «Сотрудники ДЛ», «План на день», полная «Аналитика» и «ВМР». Не открываются: «Бонус ТМ», «Входы», «Ссылки», «Weekly Pulse» и эта страница. Доступ закрывается сам.</p>
+    <div class="gr-form"><select id="grWho" class="vm-sel"><option value="">Кому открыть…</option>${opts}</select>
+      <div class="seg gr-days" id="grDays">${[[1,'1 день'],[3,'3 дня'],[7,'7 дней'],[14,'14 дней'],[30,'30 дней'],[0,'До даты']].map(x=>`<button type="button" data-grd="${x[0]}" aria-pressed="${GRD===x[0]}">${x[1]}</button>`).join('')}</div>
+      <label class="gr-date" id="grDateW" ${GRD===0?'':'hidden'}><span>Включительно до</span><input type="date" id="grDate" min="${isoD(new Date())}" max="${isoD(new Date(Date.now()+120*864e5))}" value="${isoD(tmr)}"></label>
+      <button class="btn" id="grGo" type="button">Открыть доступ</button></div><div class="note-s" id="grMsg" style="margin-top:8px"></div></div>
+    <div class="card fade"><h2>Сейчас открыт доступ</h2>${act.length?act.map(row).join(''):'<div class="empty">Временных доступов нет.</div>'}</div>
+    ${old.length?`<div class="card fade"><h2>История</h2>${old.map(row).join('')}</div>`:''}`;
+}
+function accessBind(){
+  const el = $('#m-access'); if (!el) return; const msg = t => { const m = $('#grMsg'); if (m) m.textContent = t; };
+  el.querySelectorAll('[data-grd]').forEach(b=>b.onclick=()=>{ GRD = Number(b.dataset.grd); el.querySelectorAll('[data-grd]').forEach(x=>x.setAttribute('aria-pressed', String(x===b))); const w = $('#grDateW'); if (w) w.hidden = GRD!==0; });
+  const go = $('#grGo'); if (go) go.onclick = async ()=>{ const key = $('#grWho').value; if (!key) return msg('Выберите сотрудника'); go.disabled = true; msg('Открываем доступ…');
+    try{ const body = {action:'grants_set', token:store.get('token'), key}; if (GRD===0){ const dv = ($('#grDate')||{}).value; if (!dv){ go.disabled = false; return msg('Выберите дату'); } body.untilDate = dv; } else body.days = GRD; const r = await api(body); if (r && r.error==='bad_date'){ go.disabled = false; return msg('Дата должна быть в будущем (не дальше 120 дней)'); } if (r&&r.ok){ await loadAccess(true); const m = $('#grMsg'); if (m) m.textContent = 'Доступ открыт до '+grFmt(r.until); } else { msg('Не удалось открыть доступ'); go.disabled = false; } }catch(e){ msg('Нет связи с сервером'); go.disabled = false; } };
+  el.querySelectorAll('[data-grrev]').forEach(b=>b.onclick=async ()=>{ b.disabled = true; try{ await api({action:'grants_set', token:store.get('token'), key:b.dataset.grrev, revoke:true}); }catch(e){} loadAccess(true); });
+}
+async function loadAccess(force){
+  const el = $('#m-access'); if (!el) return;
+  if (!GRC || force){ el.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем доступы…</div>'; try{ GRC = await api({action:'grants_get', token:store.get('token')}); }catch(e){ GRC = {error:'net'}; } }
+  el.innerHTML = accessPane(GRC); accessBind();
+}
+function demoGrants(b){
+  const P = [['ivanov','Иванов Пётр Андреевич','РТТ'],['smirn','Смирнова Анна Олеговна','УТТ'],['kuz','Кузнецов Илья Сергеевич','РТТ']];
+  const G = demoGrants.G || (demoGrants.G = [{key:'smirn',name:'Смирнова Анна Олеговна',role:'УТТ',until:new Date(Date.now()+2*864e5+3*36e5).toISOString(),by:'ТМ Демо',when:new Date().toISOString(),active:true,revoked:false}]);
+  if (b.action==='grants_set'){ const p = P.find(x=>x[0]===b.key); if (!p) return {error:'bad_request'}; G.forEach(g=>{ if (g.key===b.key && g.active){ g.active = false; g.revoked = !!b.revoke; g.until = new Date().toISOString(); } });
+    if (b.revoke) return {ok:true}; const until = b.untilDate ? new Date(b.untilDate+'T23:59:59+03:00').toISOString() : new Date(Date.now()+b.days*864e5).toISOString(); G.unshift({key:p[0],name:p[1],role:p[2],until,by:'ТМ Демо',when:new Date().toISOString(),active:true,revoked:false}); return {ok:true,until}; }
+  return {people:P.map(p=>({key:p[0],name:p[1],role:p[2]})),grants:G,now:new Date().toISOString()};
+}
+
 /* ---------- ДЕМО-данные (работают, пока API_URL пуст) ---------- */
 function demoApi(b){
   if (b.action==='auth_log') return Promise.resolve(demoAuthLog());
+  if (b.action==='grants_get' || b.action==='grants_set') return Promise.resolve(demoGrants(b));
+  if (b.action==='dl_bonus') return Promise.resolve(demoDlBonus());
   if (b.action==='notif_list'){ const t = Date.now(), tm = DEMO_TM(), items = [{id:'d1',t:new Date(t-36e5).toISOString(),kind:'release',title:'🚀 Скорее беги в приложение!',text:'Там новая штука появилась 👀',tab:'news'}];
     if (ROLE==='manager') items.unshift({id:'d2',t:new Date(t-6e5).toISOString(),kind:'vmr',title:'👥 Анкета на твоего сотрудника',text:'На твоего сотрудника Зайцева Полина (Мира 30а) пришла анкета с результатом ⚠️ 74%',tab:'vmr'}); else items.unshift({id:'d3',t:new Date(t-6e5).toISOString(),kind:'vmr',title:'📋 Пришла анкета ВМР',text:'На тебя пришла анкета с результатом ⚠️ 78%',tab:'vmr'});
     return Promise.resolve({items:items}); }
   if (b.action==='attach') return Promise.resolve(demoAttach());
   if (b.action==='pulse_data'){ const sn = ((typeof DATA!=='undefined' && DATA && DATA.salons)||[]).map(s=>s.name), P = ['01.09.26 - 15.09.26','16.09.26 - 30.09.26','01.10.26 - 15.10.26','16.10.26 - 31.10.26','01.11.26 - 15.11.26'];
     const inv = [['','Салоны/Неделя','Регион','ТМ'].concat(P)].concat(sn.map((n,i)=>[String(i+1),n,'Казань','Миллер  '].concat(P.map((_,j)=>((i+j)%4===0?'0':'1')))));
-    const cols = ['|','|','|','|Бренд','|','|','|','|Наименование ТТ','Трафик|План, чел','Трафик|Факт, чел','Конв|План, %','Конв|Факт, %','L4L|План','L4L|Факт, %','M2M|План','M2M|Прогн, %','Кредиты|План, руб','Кредиты|Выпол-е,%','Ср. цена|Телефона, руб'];
-    const rows = sn.map((n,i)=>['','','','БЛН','','','',n,1200+i*50,700+i*40,0.2,0.17+i*0.01,100,0.9+i*0.05,80,0.8+i*0.07,250000,0.7+i*0.1,21000+i*900]);
+    const cols = ['|','|','|','|Бренд','|','|','|','|Наименование ТТ','Трафик|План, чел','Трафик|Факт, чел','Конв|План, %','Конв|Факт, %','Кредиты|План, руб','Кредиты|Выпол-е,%','Ср. цена|Телефона, руб']; while (cols.length<94) cols.push('|'); cols.push('Прогн, %|','Прогн, %|','Прогн, %|','Прогн, %|','Прогн, %|','Прогн, %|','Прогн, %|');
+    const rows = sn.map((n,i)=>{ const r = ['','','','БЛН','','','',n,1200+i*50,700+i*40,0.2,0.17+i*0.01,250000,0.7+i*0.1,21000+i*900]; while (r.length<94) r.push(''); const f = 230000+i*12000; return r.concat([i%4===3?'':200000+i*9000, i%4===3?'':f, i%4===3?'':(i%3?0.15+i*0.02:-0.2), '', 210000+i*7000, f, 0.1-i*0.03]); });
     return Promise.resolve({inv:inv, eco:{cols:cols, rows:rows, dim:30, passed:9, asOf:'09.11.2026'}}); }
   if (b.action==='vmr_mine'){ const g = demoVmrGrid(), hi = g.findIndex(r=>r.indexOf('ТТ')>=0), H = g[hi], iT = H.indexOf('ТТ'), iF = H.indexOf('Фио сотрудника'), body = g.slice(hi+1);
     let keep; if (ROLE==='manager'){ const t3 = [...new Set(body.map(r=>r[iT]))].slice(0,3); keep = body.filter(r=>t3.includes(r[iT])); } else { const sn = String(store.get('demoName')||'').split(/\s+/)[0]; keep = body.filter(r=>String(r[iF]).split(' ')[0]===sn); if (!keep.length) keep = body.filter(r=>r[iF]===body[0][iF]); }
@@ -3577,10 +3643,40 @@ async function rpLoad(key, force, host){
   }catch(e){ if (!cached) el.innerHTML = '<div class="card empty">Нет связи. Нажмите «Обновить».</div>'; }
 }
 function loadDayPlan(){ const el=$('#m-dayplan'); if (el && DATA){ el.innerHTML=dayPlanPane(DATA); bindDayPlan(); } }
+let DLV = 'rate', DLB = null;
 function loadDL(force){
   const el = $('#m-dl'); if (!el) return;
-  if (!$('#dlBody')) el.innerHTML = '<div id="dlBody" class="stack"></div>';
+  if (!$('#dlBody')){
+    el.innerHTML = `<div class="rp-top"><div class="chips rp-chips" role="group" aria-label="Раздел"><button class="chipb" data-dlv="rate">🏆 Рейтинг и планы</button><button class="chipb" data-dlv="bonus">💰 Бонус</button></div></div><div id="dlBody" class="stack"></div>`;
+    el.querySelectorAll('[data-dlv]').forEach(b=>b.onclick=()=>{ DLV = b.dataset.dlv; loadDL(); scrollTo({top:0,behavior:'smooth'}); });
+  }
+  el.querySelectorAll('[data-dlv]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.dlv===DLV)));
+  if (DLV==='bonus') return dlBonusLoad(force);
   rpLoad('dl', force, '#dlBody');
+}
+async function dlBonusLoad(force){
+  const el = $('#dlBody'); if (!el) return;
+  if (!DLB || force){ el.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Считаем бонус по сотрудникам…</div>'; try{ DLB = await api({action:'dl_bonus', token:store.get('token'), fresh:!!force}); }catch(e){ DLB = {error:'net'}; } }
+  if (DLV!=='bonus') return;
+  el.innerHTML = dlBonusPane(DLB); animate();
+}
+function dlBonusPane(r){
+  if (!r || r.error){ if (r && r.error==='auth') { showLogin('Сессия истекла. Войдите снова.'); return ''; } return `<div class="card empty">Не удалось посчитать бонус${r&&r.error?' ('+esc(r.error)+')':''}. Нажмите «Обновить».</div>`; }
+  const rows = r.rows||[], G = r.groups||[];
+  if (!rows.length) return '<div class="card empty">Пока нет данных по бонусу сотрудников.</div>';
+  const sum = k => rows.reduce((a,x)=>a+(x[k]||0),0), fcS = rows.reduce((a,x)=>a+(x.fc||0),0), gS = {}; G.forEach(g=>gS[g]=rows.reduce((a,x)=>a+(x.groups[g]||0),0));
+  const pace = x => x.planH>0 ? x.workH/x.planH : null;
+  const sm = `<div class="card fade"><h2>Бонус сотрудников${r.month?' · '+esc(r.month):''}</h2><div class="hero-row num" style="margin-top:8px"><div><b>${fmt(sum('workH'))} ч</b><span>Отработано из ${fmt(sum('planH'))} ч</span></div><div><b>${fmt(sum('total'))} ₽</b><span>Бонус на сегодня</span></div><div><b>${fmt(fcS)} ₽</b><span>Прогноз ЗП на месяц</span></div></div>
+    <p class="note-s" style="margin-top:10px">Прогноз = бонус на сегодня ÷ отработанные часы × плановые часы. Это бонусная часть ЗП: оклад в данных не учитывается. Часы — «Факт 1С» (план — по графику).</p></div>`;
+  const head = `<tr><th>Сотрудник</th><th>ТТ</th><th>План, ч</th><th>Отработано, ч</th><th>% часов</th>${G.map(g=>`<th>${esc(g)}</th>`).join('')}<th>Бонус, ₽</th><th>Прогноз ЗП, ₽</th></tr>`;
+  const body = rows.map(x=>{ const p = pace(x); return `<tr><td>${esc(x.name)}<small style="display:block;color:var(--muted);font-weight:500">${esc(x.role||'')}</small></td><td>${esc(x.tt||'')}</td><td>${fmt(x.planH)}</td><td>${fmt(x.workH)}</td><td>${p==null?'—':fmt(p*100)+'%'}</td>${G.map(g=>`<td>${x.groups[g]?fmt(x.groups[g]):'·'}</td>`).join('')}<td><b>${fmt(x.total)}</b></td><td><b>${x.fc==null?'—':fmt(x.fc)}</b></td></tr>`; }).join('');
+  const foot = `<tr class="tot"><td><b>Итого</b></td><td></td><td>${fmt(sum('planH'))}</td><td>${fmt(sum('workH'))}</td><td></td>${G.map(g=>`<td><b>${fmt(gS[g])}</b></td>`).join('')}<td><b>${fmt(sum('total'))}</b></td><td><b>${fmt(fcS)}</b></td></tr>`;
+  return sm + `<div class="card fade"><h2>Часы, бонус по группам и прогноз ЗП</h2><div class="mtable"><table><thead>${head}</thead><tbody>${body}${foot}</tbody></table></div></div>`;
+}
+function demoDlBonus(){
+  const g = (DEMO_RPT.dl && DEMO_RPT.dl.grid) || [], G = ['Сим-карты','Телефоны и планшеты','Аксессуары','Страхование и защита','Услуги'];
+  const rows = g.slice(2).filter(x=>String(x[7]||'').trim()).map((x,i)=>{ const planH = Number(String(x[2]).replace(',','.'))||150, workH = Number(String(x[3]).replace(',','.'))||Math.round(planH*.7), gr = {}; let t = 0; G.forEach((n,j)=>{ const v = Math.round((400+((i*37+j*53)%900))*workH/60); gr[n] = v; t += v; }); return {name:String(x[7]), role:i%7===0?'Старший продавец':'Продавец', tt:String(x[1]), planH, workH, factGraph:workH, groups:gr, total:t, fc:t/workH*planH}; }).sort((a,b)=>b.fc-a.fc);
+  return {groups:G, rows, month:'Ноябрь 2026', at:new Date().toISOString()};
 }
 function loadReports(force){
   const el = $('#m-reports'); if (!el) return;
@@ -4350,7 +4446,7 @@ const menuKey = () => 'menuPref:'+(store.get('login')||'guest');
 function menuPref(){ try{ return JSON.parse(store.get(menuKey())||'{}')||{}; }catch(e){ return {}; } }
 function menuSave(p){ store.set(menuKey(), JSON.stringify(Object.assign(menuPref(), p))); }
 function menuOrdered(T){
-  const o = menuPref().order; if (!Array.isArray(o) || !o.length) return T;
+  return T; const o = menuPref().order; if (!Array.isArray(o) || !o.length) return T;
   const rank = id => { const i=o.indexOf(id); return i<0 ? 1e6 : i; };
   return T.map((t,i)=>[t,i]).sort((a,b)=>rank(a[0][0])-rank(b[0][0]) || a[1]-b[1]).map(x=>x[0]);
 }
@@ -4363,51 +4459,16 @@ function menuApply(){
   $('#tabseg').classList.toggle('reord', true);
   if (!desk){ nav.style.left=nav.style.top=''; document.body.classList.remove('menu-dock'); return; }
   const w = nav.classList.contains('collapsed') ? 54 : 212, h = nav.offsetHeight || 400;
-  let x = typeof p.x==='number' ? p.x : 14, y = typeof p.y==='number' ? p.y : 96;
+  let x = 14, y = 96;
   x = Math.max(4, Math.min(innerWidth-w-4, x)); y = Math.max(4, Math.min(innerHeight-Math.min(h,innerHeight-8)-4, y));
   nav.style.left = x+'px'; nav.style.top = y+'px';
   document.body.classList.toggle('menu-dock', !nav.classList.contains('collapsed') && x<=40 && innerWidth>1100);
 }
 function menuInit(){
   const nav = $('#tabnav'), seg = $('#tabseg'); if (!nav || menuInit.done) return; menuInit.done = true;
-  /* перемещение панели (ПК) */
-  const dragPanel = (h, onClick) => h.addEventListener('pointerdown', e=>{
-    if (!menuDesk() || e.button>0 || e.target.closest('.mcol')) return;
-    const sx=e.clientX, sy=e.clientY, r=nav.getBoundingClientRect(), ox=sx-r.left, oy=sy-r.top; let moved=false;
-    h.setPointerCapture(e.pointerId);
-    const mv = ev=>{ if (!moved && Math.hypot(ev.clientX-sx,ev.clientY-sy)<5) return; moved=true;
-      const x=Math.max(4,Math.min(innerWidth-nav.offsetWidth-4,ev.clientX-ox)), y=Math.max(4,Math.min(innerHeight-nav.offsetHeight-4,ev.clientY-oy));
-      nav.style.left=x+'px'; nav.style.top=y+'px'; document.body.classList.remove('menu-dock'); };
-    const up = ()=>{ h.removeEventListener('pointermove',mv); h.removeEventListener('pointerup',up); h.removeEventListener('pointercancel',up);
-      if (moved){ menuSave({x:parseInt(nav.style.left)||0, y:parseInt(nav.style.top)||0}); menuApply(); } else if (onClick) onClick(); };
-    h.addEventListener('pointermove',mv); h.addEventListener('pointerup',up); h.addEventListener('pointercancel',up);
-  });
-  dragPanel($('#mgrip'));
-  dragPanel($('#mfab'), ()=>{ menuSave({collapsed:false}); menuApply(); });
+  /* меню закреплено: без перетаскивания панели и кнопок */
+  $('#mfab').onclick = ()=>{ menuSave({collapsed:false}); menuApply(); };
   $('#mcol').onclick = ()=>{ menuSave({collapsed:true}); menuApply(); };
-  /* перестановка кнопок: мышью — перетаскиванием, на телефоне — долгим нажатием */
-  let st=null;
-  const items = () => [...seg.querySelectorAll('button')];
-  const vertical = () => nav.classList.contains('menu-float');
-  const act = () => { if (!st || st.on) return; st.on=true; MENU_DRAG=true; st.b.classList.add('drag'); try{ seg.setPointerCapture(st.id); }catch(e){} if (navigator.vibrate) navigator.vibrate(12); };
-  seg.addEventListener('pointerdown', e=>{
-    const b=e.target.closest('button'); if (!b || (e.pointerType==='mouse' && e.button>0)) return;
-    st={b,id:e.pointerId,x:e.clientX,y:e.clientY,on:false,touch:e.pointerType!=='mouse',t:0};
-    if (st.touch) st.t=setTimeout(act,420);
-  });
-  seg.addEventListener('pointermove', e=>{
-    if (!st) return;
-    if (!st.on){ const d=Math.hypot(e.clientX-st.x,e.clientY-st.y); if (st.touch){ if (d>9){ clearTimeout(st.t); st=null; } } else if (d>6) act(); return; }
-    const v=vertical(), pos=v?e.clientY:e.clientX, list=items().filter(x=>x!==st.b);
-    let before=null; for (const x of list){ const r=x.getBoundingClientRect(), c=v?r.top+r.height/2:r.left+r.width/2; if (pos<c){ before=x; break; } }
-    if (before!==st.b.nextElementSibling && before!==st.b){ seg.insertBefore(st.b, before); }
-    if (!v){ const sr=seg.getBoundingClientRect(); if (e.clientX<sr.left+40) seg.scrollLeft-=14; else if (e.clientX>sr.right-40) seg.scrollLeft+=14; }
-  });
-  const end = ()=>{ if (!st) return; clearTimeout(st.t); const was=st.on, b=st.b; st=null;
-    if (was){ b.classList.remove('drag'); menuSave({order: items().map(x=>x.dataset.tab)}); menuGroups(); setTimeout(()=>{ MENU_DRAG=false; }, 80); } };
-  seg.addEventListener('pointerup', end); seg.addEventListener('pointercancel', end);
-  seg.addEventListener('touchmove', e=>{ if (st && st.on) e.preventDefault(); }, {passive:false});
-  seg.addEventListener('contextmenu', e=>{ if (st && st.on) e.preventDefault(); });
   addEventListener('resize', menuApply);
   matchMedia('(min-width:901px) and (hover:hover) and (pointer:fine)').addEventListener?.('change', menuApply);
 }
@@ -4525,7 +4586,7 @@ function anSim(m){
 let ANCACHE = {};
 async function anFetch(key){ try{ const r = await api({action:'tm_report', token:store.get('token'), name:key}); return r && !r.error ? r : null; }catch(e){ return null; } }
 function loadAnalytics(){
-  const el = $('#m-analytics'); if (!el || !DATA) return; const d = DATA, tm = !!d.canLinks;
+  const el = $('#m-analytics'); if (!el || !DATA) return; const d = DATA, tm = !!(d.canLinks || d.guest);
   el.innerHTML = `<div class="stack"><div id="anHeat">${anHeat(d)}</div><div id="anPace">${anPace(d)}</div>${tm?'<div id="anContrib"><div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем сотрудников…</div></div><div id="anSim"><div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем SIM…</div></div>':''}</div>`;
   anBind();
   if (!tm) return;
@@ -5062,7 +5123,7 @@ function rvBind(root, k, getBase){
   box.querySelectorAll('[data-rv]').forEach(b=>b.onclick = () => { const f = b.dataset.rv, v = b.dataset.v; REV[k][f] = (f==='m'||f==='w') ? (v==='all'?'all':Number(v)) : f==='all' ? v==='1' : v; if (f==='m') REV[k].w = 'all'; rr(); });
 }
 async function loadMyVmr(force){
-  if (DATA && DATA.canLinks) return loadTmVmr();
+  if (DATA && (DATA.canLinks || DATA.guest)) return loadTmVmr();
   const host = $(ROLE==='manager' ? '#m-vmr' : '#vmrc'); if (!host) return;
   if (!MYVMR || force){ host.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем проверки ВМР…</div>'; try{ const r = await api({action:'vmr_mine', token:store.get('token')}); MYVMR = r && r.grid ? {rows:vmrParse(r.grid)||[]} : {err:r&&r.error||'x', missing:r&&r.missing}; }catch(e){ MYVMR = {err:'net'}; } }
   if (!MYVMR.rows) { host.innerHTML = `<div class="card empty">${MYVMR.missing?'Выгрузка ВМР не найдена.':'Не удалось загрузить проверки ВМР.'}</div>`; return; }
@@ -5195,7 +5256,7 @@ function wpLib(){ if (window.PptxGenJS) return Promise.resolve(); return _lp.ppt
 function loadPulse(){
   const el = $('#m-pulse'); if (!el) return;
   if (!DATA || !DATA.canLinks){ el.innerHTML = '<div class="card empty">Weekly Pulse доступен только ТМ.</div>'; return; }
-  el.innerHTML = `<div class="stack"><div class="card fade wp-c"><div class="eyebrow">Собрание с управленцами</div><h2>Презентация в новом дизайне</h2><div class="at-s">33 слайда: бизнес-процессы, СИМ, экономический блок. Графики и таблицы строятся из данных сайта на момент нажатия, с анимациями и переходами Morph. Вручную заполняются: остатки сим, ген. уборка, заявки, комбо, не зарегистрированные.</div><div class="wp-act"><button type="button" class="btn" id="wpGo2">Скачать презентацию (33 слайда)</button><span class="note-s" id="wpSt2"></span></div><div class="wp-sel"><details><summary>Отчёты в презентации (<span id="wpSelN"></span>)</summary><div id="wpSelL"></div><div class="wp-b"><button type="button" class="btn ghost" id="wpAll">Выбрать все</button><button type="button" class="btn ghost" id="wpNone">Снять все</button></div><div class="note-s">Основные 33 слайда остаются как есть. Если выбраны другие отчёты сайта, они добавляются в конец отдельным блоком. Новые отчёты сайта появляются здесь автоматически.</div></details></div></div><div class="card fade wp-c"><div class="eyebrow">Weekly Pulse</div><h2>Краткая презентация недели</h2>
+  el.innerHTML = `<div class="stack"><div class="card fade wp-c"><div class="eyebrow">Собрание с управленцами</div><h2>Презентация в новом дизайне</h2><div class="at-s">37 слайдов: бизнес-процессы, СИМ, экономический блок. Графики и таблицы строятся из данных сайта на момент нажатия, с анимациями и переходами Morph. Вручную заполняются: остатки сим, ген. уборка, заявки, комбо, не зарегистрированные.</div><div class="wp-act"><button type="button" class="btn" id="wpGo2">Скачать презентацию (37 слайдов)</button><span class="note-s" id="wpSt2"></span></div><div class="wp-sel"><details><summary>Отчёты в презентации (<span id="wpSelN"></span>)</summary><div id="wpSelL"></div><div class="wp-b"><button type="button" class="btn ghost" id="wpAll">Выбрать все</button><button type="button" class="btn ghost" id="wpNone">Снять все</button></div><div class="note-s">Основные 33 слайда остаются как есть. Если выбраны другие отчёты сайта, они добавляются в конец отдельным блоком. Новые отчёты сайта появляются здесь автоматически.</div></details></div></div><div class="card fade wp-c"><div class="eyebrow">Weekly Pulse</div><h2>Краткая презентация недели</h2>
     <div class="at-s">Соберём слайды из данных сайта: итоги месяца, динамику за 7 дней к предыдущим 7, светофор салонов, потери, Attachment, ВМР и фокус на следующую неделю. Выберите, что включить.</div>
     <div class="wp-list">${WP_SLIDES.map(x=>`<label class="wp-i"><input type="checkbox" data-wp="${x[0]}"${WP_UI.on.includes(x[0])?' checked':''}><span>${esc(x[1])}</span></label>`).join('')}</div>
     <div class="chips" role="group"><button type="button" class="chip${WP_UI.dark?'':' on'}" data-wpt="0">Светлая тема</button><button type="button" class="chip${WP_UI.dark?' on':''}" data-wpt="1">Тёмная тема</button></div>
@@ -5294,13 +5355,13 @@ async function wpBuild(){
 /* =================== Реестр отчётов сайта и поиск =================== */
 const SR_KW = {results:'месяц итоги план факт выполнение', dayres:'день вчера итоги дня', days:'по дням календарь динамика', forecast:'прогноз темп', dayplan:'план на день ежедневный остаток', summary:'общий свод минимальный прогноз', pulse:'weekly pulse презентация слайды pptx собрание управленцы', diag:'диагностика потери проблемы причины', attach:'attachment аттачмент допы аксессуары привязка телефон', analytics:'аналитика тепловая карта темп сотрудники sim', cards:'карточки защита экрана пзу часы наушники', recon:'сопоставления 1с регистрации трафик конверсия', reports:'отчеты выгрузки', dl:'сотрудники дл рейтинг продавцы', bonus:'бонус доход зарплата премия', tmbonus:'бонус тм калькулятор', vmr:'вмр качество проверки анкеты видео', auth:'входы журнал авторизации', links:'ссылки таблицы доступы настройки', main:'результаты главная', point:'точка салон торговая точка', rating:'рейтинг место'};
 const SR_RPT_KW = {details:'детали продаж салоны чеки', fact:'факт продаж план', sim:'детализация сим тарифы группы', recon:'сопоставления 1с регистрации трафик конверсия'};
-const SR_NOPRES = ['bonus','tmbonus','auth','links','pulse','rating','main','point','reports'];   // разделы без данных для презентации
+const SR_NOPRES = ['bonus','tmbonus','auth','access','links','pulse','rating','main','point','reports'];   // разделы без данных для презентации
 const SR_COVERED = ['tab:analytics','tab:attach','tab:vmr','tab:summary','tab:dl','tab:cards','rpt:sim'];   // уже есть в основной презентации (33 слайда)
 const srNorm = s => String(s||'').toLowerCase().replace(/ё/g,'е');
 function siteReports(){
   const out = [], seen = {}; let T = []; try{ T = tabsFor(ROLE, DATA) || []; }catch(e){}
   T.forEach(x=>{ const id = 'tab:'+x[0]; if (seen[id]) return; seen[id] = 1; out.push({id, t:x[1], tab:x[0], kind:'tab', g:(typeof tabGroup==='function' ? tabGroup(x[0]) : '')||'Разделы', kw:SR_KW[x[0]]||'', pres:SR_NOPRES.indexOf(x[0])<0}); });
-  if (DATA && DATA.canLinks) RPTS.forEach(r=>{ const id = 'rpt:'+r[0]; if (seen[id]) return; seen[id] = 1; out.push({id, t:r[1], tab:'reports', rpt:r[0], kind:'rpt', g:'Отчёты', kw:SR_RPT_KW[r[0]]||'', pres:true}); });
+  if (DATA && (DATA.canLinks || DATA.guest)) RPTS.forEach(r=>{ const id = 'rpt:'+r[0]; if (seen[id]) return; seen[id] = 1; out.push({id, t:r[1], tab:'reports', rpt:r[0], kind:'rpt', g:'Отчёты', kw:SR_RPT_KW[r[0]]||'', pres:true}); });
   return out;
 }
 function srGo(it){ try{ if (it.rpt) RPT = it.rpt; setTab(it.tab); scrollTo({top:0, behavior:'smooth'}); }catch(e){} }
@@ -5379,44 +5440,48 @@ function wp2Inject(buf, heroIdx, JSZ){
 async function wp2Build(){
   const st = $('#wpSt2'), btn = $('#wpGo2'); btn.disabled = true; st.textContent = 'Собираем данные…';
   try{
-    const [W] = await Promise.all([wp2Data(), wpLib(), wp2Zip()]); st.textContent = 'Рисуем 33 слайда…';
+    const [W] = await Promise.all([wp2Data(), wpLib(), wp2Zip()]); st.textContent = 'Рисуем слайды…';
     const pres = new PptxGenJS(); pres.layout = 'LAYOUT_WIDE'; pres.title = 'Собрание с управленцами'; pres.author = 'SUPER PROдажник by Miller';
-    const d = W.d, A = W.A, dim = W.dim, ps = W.ps, FN = 'Calibri', AC = '0A84FF', VI = 'BF5AF2';
-    const C = {bg:'F4F6FB', card:'FFFFFF', ln:'E3E7F0', tx:'1D1D1F', mu:'6B7280', hd:'E9EDF6'};
-    const TN = {g:['DDF5E5','167A38'], a:['FFF0D2','9A6200'], r:['FFDDE4','C0264A'], n:['FFFFFF','1D1D1F']};
+    const d = W.d, A = W.A, dim = W.dim, ps = W.ps, FN = 'Helvetica Neue', AC = '007AFF', VI = 'AF52DE';
+    const C = {bg:'F5F5F7', card:'FFFFFF', ln:'E5E5EA', tx:'1D1D1F', mu:'6E6E73', hd:'FFFFFF'};
+    const TN = {g:['E8F7ED','1F8A3B'], a:['FFF3DC','B26A00'], r:['FFE8E6','D1241A'], n:['FFFFFF','1D1D1F']};
     const lv = p => p==null ? 'n' : p>=ST_OK ? 'g' : p>=ST_WARN ? 'a' : 'r';
     const today = new Date(), dateStr = today.toLocaleDateString('ru-RU'), P = d.month||'';
-    const salNames = W.sal.map(z=>z.name), sh = n => rpShort(n);
+    const salNames = W.sal.map(z=>z.name), sh = n => rpShort(n); const salFZ = W.sal.length>20?7:W.sal.length>12?8:9;
     const heroIdx = []; let N = 0;
     const base = (title, sub) => { const s = pres.addSlide(); N++; s.background = {color:C.bg};
-      s.addShape('ellipse',{x:8.6+1.9*Math.sin(N*.7),y:-2.2+1.3*Math.cos(N*.5),w:6.6,h:6.6,fill:{color:'BFD8FF',transparency:55},line:{type:'none'},objectName:'!!glow1'});
-      s.addShape('ellipse',{x:-2.4+1.7*Math.cos(N*.6),y:4.6+1.1*Math.sin(N*.8),w:6.2,h:6.2,fill:{color:'E4CFFF',transparency:60},line:{type:'none'},objectName:'!!glow2'});
-      s.addShape('roundRect',{x:0.55,y:0.5,w:0.09,h:0.62,fill:{color:AC},line:{type:'none'},rectRadius:0.04,objectName:'!!bar'});
-      s.addText(title,{x:0.8,y:0.36,w:9.6,h:0.62,fontFace:FN,fontSize:28,bold:true,color:C.tx,valign:'middle',objectName:'!!title'});
-      if (sub) s.addText(sub,{x:0.8,y:0.98,w:9.6,h:0.3,fontFace:FN,fontSize:12.5,color:C.mu,valign:'middle',objectName:'!!sub'});
-      s.addText(`SUPER PROдажник · Собрание с управленцами · ${dateStr}`,{x:0.8,y:7.08,w:9,h:0.25,fontFace:FN,fontSize:9.5,color:C.mu,objectName:'!!foot'});
-      s.addText(String(N),{x:11.9,y:7.08,w:0.9,h:0.25,fontFace:FN,fontSize:9.5,color:C.mu,align:'right',objectName:'!!num'});
-      s.addImage({data:WP2_LOGO.h_dark,x:13.333-0.55-2.3,y:0.47,w:2.3,h:2.3*104/560,objectName:'!!logo'}); return s; };
-    const dark = (title, sub, big) => { const s = pres.addSlide(); N++; heroIdx.push(N); s.background = {color:'101A38'};
-      s.addShape('ellipse',{x:7.8+Math.sin(N)*1.2,y:-2.6,w:8,h:8,fill:{color:AC,transparency:62},line:{type:'none'},objectName:'!!glow1'});
-      s.addShape('ellipse',{x:-3,y:3.6+Math.cos(N)*.6,w:8,h:8,fill:{color:VI,transparency:68},line:{type:'none'},objectName:'!!glow2'});
-      s.addShape('roundRect',{x:0.8,y:big?3.0:2.9,w:0.1,h:big?1.9:1.2,fill:{color:AC},line:{type:'none'},rectRadius:0.05,objectName:'!!bar'});
-      s.addImage({data:big?WP2_LOGO.v_white:WP2_LOGO.h_white,x:big?0.8:0.8,y:big?0.7:0.6,w:big?2.6:3.0,h:big?2.6*285/645:3.0*104/560,objectName:'!!logo'});
-      s.addText(title,{x:1.15,y:big?3.0:2.9,w:11,h:big?1.1:0.8,fontFace:FN,fontSize:big?50:40,bold:true,color:'FFFFFF',valign:'middle',objectName:'hero'});
-      s.addText(sub||'',{x:1.15,y:big?4.15:3.75,w:11,h:0.8,fontFace:FN,fontSize:big?22:18,color:'B9C4E6',valign:'top',objectName:'hero2'}); return s; };
-    const card = (s,x,y,w,h) => s.addShape('roundRect',{x,y,w,h,fill:{color:C.card},line:{color:C.ln,width:0.75},rectRadius:0.12,objectName:'card'});
-    const note = (s,t,y) => s.addText(t,{x:0.8,y:y||6.7,w:11.8,h:0.3,fontFace:FN,fontSize:10,color:C.mu,objectName:'note'});
-    const cell = (v,o) => ({text:v==null?'':String(v),options:Object.assign({fontFace:FN,fontSize:11,color:C.tx,valign:'middle',fill:{color:'FFFFFF'}},o||{})});
-    const hc = (v,o) => cell(v,Object.assign({bold:true,color:C.mu,fill:{color:C.hd},align:'center',fontSize:10.5},o||{}));
+      s.addText(title,{x:0.7,y:0.4,w:9.8,h:0.7,fontFace:FN,fontSize:34,bold:true,charSpacing:-0.5,color:C.tx,valign:'middle',objectName:'!!title'});
+      if (sub) s.addText(sub,{x:0.72,y:1.08,w:9.8,h:0.34,fontFace:FN,fontSize:14,color:C.mu,valign:'middle',objectName:'!!sub'});
+      s.addText(`SUPER PROдажник · Собрание с управленцами · ${dateStr}`,{x:0.72,y:7.1,w:9,h:0.24,fontFace:FN,fontSize:9,color:'86868B',objectName:'!!foot'});
+      s.addText(String(N),{x:11.9,y:7.1,w:0.9,h:0.24,fontFace:FN,fontSize:9,color:'86868B',align:'right',objectName:'!!num'});
+      s.addImage({data:WP2_LOGO.h_dark,x:13.333-0.7-1.9,y:0.52,w:1.9,h:1.9*104/560,objectName:'!!logo'}); return s; };
+    const dark = (title, sub, big) => { const s = pres.addSlide(); N++; heroIdx.push(N); s.background = {color:'000000'};
+      s.addShape('ellipse',{x:big?3.2:7.4,y:big?4.2:3.6,w:big?7:6.4,h:big?5:4.6,fill:{color:AC,transparency:86},line:{type:'none'},objectName:'!!glow1'});
+      s.addShape('ellipse',{x:big?6.2:-1.4,y:big?5.2:4.8,w:big?6:5.6,h:big?4:4,fill:{color:VI,transparency:88},line:{type:'none'},objectName:'!!glow2'});
+      if (big){
+        s.addImage({data:WP2_LOGO.v_white,x:(13.333-3.2)/2,y:0.95,w:3.2,h:3.2*285/645,objectName:'!!logo'});
+        s.addText(title,{x:0.8,y:3.55,w:11.73,h:1.1,fontFace:FN,fontSize:60,bold:true,charSpacing:-1.2,color:'F5F5F7',align:'center',valign:'middle',objectName:'hero'});
+        s.addText(sub||'',{x:0.8,y:4.75,w:11.73,h:0.7,fontFace:FN,fontSize:22,color:'86868B',align:'center',valign:'top',objectName:'hero2'});
+      } else {
+        s.addImage({data:WP2_LOGO.h_white,x:0.9,y:0.7,w:2.4,h:2.4*104/560,objectName:'!!logo'});
+        s.addText(title,{x:0.9,y:2.6,w:11.5,h:1.2,fontFace:FN,fontSize:56,bold:true,charSpacing:-1.2,color:'F5F5F7',valign:'middle',objectName:'hero'});
+        s.addText(sub||'',{x:0.92,y:3.85,w:11.5,h:0.8,fontFace:FN,fontSize:22,color:'86868B',valign:'top',objectName:'hero2'});
+      } return s; };
+    const card = (s,x,y,w,h) => s.addShape('roundRect',{x,y,w,h,fill:{color:C.card},line:{type:'none'},rectRadius:0.2,shadow:{type:'outer',color:'000000',opacity:0.07,blur:16,offset:2,angle:90},objectName:'card'});
+    const note = (s,t,y) => s.addText(t,{x:0.8,y:y||6.7,w:11.8,h:0.3,fontFace:FN,fontSize:10,color:'86868B',objectName:'note'});
+    const BRD = [{type:'none'},{type:'none'},{type:'solid',pt:0.5,color:'E5E5EA'},{type:'none'}];
+    const cell = (v,o) => ({text:v==null?'':String(v),options:Object.assign({fontFace:FN,fontSize:11,color:C.tx,valign:'middle',fill:{color:'FFFFFF'},border:BRD},o||{})});
+    const hc = (v,o) => cell(v,Object.assign({bold:true,color:'86868B',align:'center',fontSize:10,border:[{type:'none'},{type:'none'},{type:'solid',pt:1,color:'D2D2D7'},{type:'none'}]},o||{}));
     const tint = (v,l,o) => cell(v,Object.assign({fill:{color:TN[l][0]},color:TN[l][1],bold:true,align:'center'},o||{}));
-    const rh = (n,mx,mn) => Math.max(mn||0.26, Math.min(mx||0.42, 5.3/(n+1)));
-    const tbl = (s,rows,o) => s.addTable(rows,Object.assign({border:{type:'solid',pt:0.5,color:C.ln},margin:[0.02,0.08,0.02,0.08],objectName:'tbl'},o));
-    const chartOpt = (o) => Object.assign({fontFace:FN,showLegend:true,legendPos:'b',legendFontSize:10,legendColor:C.mu,catAxisLabelFontSize:10,valAxisLabelFontSize:10,catAxisLabelColor:C.mu,valAxisLabelColor:C.mu,valGridLine:{color:C.ln,size:0.5},catGridLine:{style:'none'},valAxisMinVal:0,objectName:'chart'},o);
+    const rh = (n,mx,mn) => Math.max(mn||0.26, Math.min(mx||0.42, 4.85/(n+1)));
+    const tbl = (s,rows,o) => { if (o && o.rowH && o.rowH<0.3){ const fz = Math.max(6.5, Math.round(o.rowH*34*2)/2); rows.forEach(r=>r.forEach(c=>{ if (c && c.options && (c.options.fontSize||11)>fz) c.options.fontSize = fz; })); } return s.addTable(rows,Object.assign({border:{type:'none'},margin:[0.01,0.06,0.01,0.06],objectName:'tbl'},o)); };
+    const chartOpt = (o) => { const r = Object.assign({fontFace:FN,showLegend:true,legendPos:'b',legendFontSize:10,legendColor:C.mu,catAxisLabelFontSize:10,valAxisLabelFontSize:10,catAxisLabelColor:C.mu,valAxisLabelColor:C.mu,valGridLine:{color:'EDEDF0',size:0.5},catGridLine:{style:'none'},valAxisMinVal:0,objectName:'chart'},o); if (W.sal.length>12 && r.catAxisLabelFontSize===salFZ) r.showValue = false; return r; };
     const short = (arr,n) => arr.map(v=>String(v).length>n ? String(v).slice(0,n-1)+'…' : String(v));
     const pctS = v => v==null ? '—' : fmt(v)+'%';
 
-    /* --- данные направлений по дням --- */
-    const sal0 = W.sal0, LBL = {phones:'Телефоны',acc:'Аксессуары',serv:'Услуги',sim:'SIM',ins:'Страховки'}, COL = {phones:'0A84FF',acc:'BF5AF2',serv:'30D158',sim:'FF9F0A',ins:'FF375F'};
+    
+/* --- данные направлений по дням --- */
+    const sal0 = W.sal0, LBL = {phones:'Телефоны',acc:'Аксессуары',serv:'Услуги',sim:'SIM',ins:'Страховки'}, COL = {phones:'007AFF',acc:'AF52DE',serv:'34C759',sim:'FF9500',ins:'FF3B30'};
     const dirDays = k => { const by = {}; let plan = 0, unit = '₽'; sal0.forEach(s=>s.dirs.forEach(x=>{ if (x.key!==k) return; plan += x.plan||0; unit = x.unit||unit; x.days.forEach(z=>{ const n = Number(z.d.slice(0,2)); by[n] = (by[n]||0)+(z.v||0); }); })); return {by, plan, unit}; };
     const scale = u => u==='шт' ? 1 : 1000, uL = u => u==='шт' ? 'шт' : 'тыс. ₽';
     const paceSlide = (title, k) => { const s = base(title, `${LBL[k]} · темп по неделям · день ${ps} из ${dim}`), {by, plan, unit} = dirDays(k), k1 = scale(unit);
@@ -5438,12 +5503,12 @@ async function wp2Build(){
       note(s,`Всего за ${ds.length} дн.: ${fmt(tot/k1)} ${uL(unit)} · дней не ниже нужного: ${ok} из ${ds.length}`,6.85); return s; };
     const staffSlide = (title, k) => { const s = base(title, `${LBL[k]} · вклад сотрудников за месяц`); const rows = (W.dlRows||[]).filter(r=>r.f[k]>0).sort((a,b)=>b.f[k]-a.f[k]);
       if (!rows.length){ card(s,0.6,1.5,12.2,5.3); s.addText('Нет данных по сотрудникам (отчёт «Сотрудники ДЛ»)',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'}); return s; }
-      const tot = rows.reduce((t,r)=>t+r.f[k],0), top = rows.slice(0,12), u = k==='sim' ? 'шт' : '₽';
+      const tot = rows.reduce((t,r)=>t+r.f[k],0), top = rows.slice(0,16), u = k==='sim' ? 'шт' : '₽';
       card(s,0.6,1.5,6.4,5.3); s.addChart(pres.charts.BAR,[{name:`Доля в факте, %`,labels:short(top.map(r=>r.name.split(/\s+/).slice(0,2).join(' ')),22),values:top.map(r=>Math.round(r.f[k]/tot*1000)/10)}],chartOpt({x:0.75,y:1.6,w:6.1,h:5.1,barDir:'bar',chartColors:[COL[k]],showLegend:false,showValue:true,dataLabelFontSize:9,dataLabelColor:C.tx,catAxisOrientation:'maxMin'}));
-      card(s,7.2,1.5,5.6,5.3); tbl(s,[[hc('Сотрудник'),hc('Салон'),hc(u),hc('Доля')]].concat(top.map(r=>[cell(r.name.split(/\s+/).slice(0,2).join(' '),{bold:true,fontSize:10}),cell(sh(r.tt),{fontSize:9}),cell(fmt(r.f[k]),{align:'right'}),cell(fmt(r.f[k]/tot*100,1)+'%',{align:'center'})])),{x:7.35,y:1.65,w:5.3,colW:[1.9,1.6,0.9,0.9],rowH:rh(top.length,0.4,0.3),fontSize:10}); return s; };
-    const salTable = (title, sub, head, rowsFn, opt) => { const s = base(title, sub); card(s,0.6,1.5,12.2,5.3); const rs = salNames.length ? salNames : ['—'];
-      tbl(s,[head.map(h=>hc(h))].concat(rs.map(n=>rowsFn(n))),{x:0.75,y:1.65,w:11.9,colW:opt&&opt.colW||[4.5].concat(head.slice(1).map(()=>(11.9-4.5)/(head.length-1))),rowH:rh(rs.length,0.4,0.3)}); if (opt&&opt.note) note(s,opt.note,6.85); return s; };
-    const eco = W.pulse && W.pulse.eco, ecoRow = n => eco ? eco.rows.find(r=>String(r[7]||'').trim().toLowerCase()===String(n).trim().toLowerCase()) : null;
+      card(s,7.2,1.5,5.6,5.3); tbl(s,[[hc('Сотрудник'),hc('Салон'),hc(u),hc('Доля')]].concat(top.map(r=>[cell(r.name.split(/\s+/).slice(0,2).join(' '),{bold:true,fontSize:10}),cell(sh(r.tt),{fontSize:9}),cell(fmt(r.f[k]),{align:'right'}),cell(fmt(r.f[k]/tot*100,1)+'%',{align:'center'})])),{x:7.35,y:1.65,w:5.3,colW:[1.9,1.6,0.9,0.9],rowH:rh(top.length,0.4,0.15),fontSize:10}); return s; };
+    const salTable = (title, sub, head, rowsFn, opt) => { const s = base(title, sub); card(s,0.6,1.5,12.2,5.3); const rs = salNames.length ? salNames : ['—'], two = rs.length>18, parts = two ? [rs.slice(0,Math.ceil(rs.length/2)), rs.slice(Math.ceil(rs.length/2))] : [rs], tw = two ? 5.8 : 11.9, c0 = two ? 2.4 : 4.5, cw = opt&&opt.colW&&!two ? opt.colW : [c0].concat(head.slice(1).map(()=>(tw-c0)/(head.length-1)));
+      parts.forEach((p,pi)=>tbl(s,[head.map(h=>hc(h))].concat(p.map(n=>rowsFn(n))),{x:0.75+pi*6.1,y:1.65,w:tw,colW:cw,rowH:rh(parts[0].length,0.4,0.15)})); if (opt&&opt.note) note(s,opt.note,6.85); return s; };
+    const eco = W.pulse && W.pulse.eco, nz = x => String(x||'').toLowerCase().replace(/ё/g,'е').replace(/[^0-9a-zа-я]+/g,' ').trim(), ecoRow = n => { if (!eco) return null; const k = nz(n); let r = eco.rows.find(q=>nz(q[7])===k); if (r) return r; const c = eco.rows.filter(q=>{ const t = nz(q[7]); return t && (t.indexOf(k)===0 || k.indexOf(t)===0 || t.indexOf(k)>=0 || k.indexOf(t)>=0); }); return c.length===1 ? c[0] : null; };
     const ecoCols = rx => eco ? eco.cols.map((c,i)=>[c,i]).filter(x=>rx.test(x[0])) : [];
     const ecoFmt = (v,h) => { if (v===''||v==null) return '—'; if (typeof v==='number') return (/%/.test(h) && Math.abs(v)<=5) ? fmt(v*100,1)+'%' : fmt(v, Math.abs(v)<10?2:0); const p = pctVal(v); return p==null ? String(v) : String(v); };
     const pctVal = v => { const t = String(v).replace(/[\s ]/g,'').replace(',','.'); return /^-?\d+(\.\d+)?%?$/.test(t) ? parseFloat(t) : null; };
@@ -5456,46 +5521,50 @@ async function wp2Build(){
     /* 4. ген. уборка */
     salTable('Ген. уборка','Отметки проведения: 1 — проведена, 0 — нет',['Торговая точка','До 10','До 20','До 30'],n=>[cell(sh(n),{bold:true}),cell('',{align:'center'}),cell('',{align:'center'}),cell('',{align:'center'})],{colW:[5.3,2.2,2.2,2.2],note:'Отметки вносятся вручную.'});
     /* 5. инвентаризация */
-    { const s = base('Инвентаризация','Салоны с проведённой инвентаризацией по периодам'); const g = W.pulse && W.pulse.inv; card(s,0.6,1.5,7.6,5.3); card(s,8.4,1.5,4.4,5.3);
+    { const s = base('Инвентаризация','Проведена ли инвентаризация в салонах · последние 4 периода'); const g = W.pulse && W.pulse.inv; card(s,0.6,1.5,12.2,5.3);
       if (!g || g.length<2) s.addText('Таблица инвентаризаций недоступна',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
-      else { const H = g[0], pc = []; for (let c=4; c<H.length; c++) if (String(H[c]||'').trim()) pc.push(c); const use = pc.slice(-4);
-        let rows = g.slice(1).filter(r=>String(r[3]||'').trim().toLowerCase()===W.sur); const bl = rows.filter(r=>/блн/i.test(r[1])); if (bl.length) rows = bl;
-        const lab = use.map(c=>String(H[c]).replace(/\s+/g,' ')), yes = use.map(c=>rows.filter(r=>String(r[c]||'').trim()==='1').length), no = use.map(c=>rows.filter(r=>String(r[c]||'').trim()==='0').length);
-        s.addChart(pres.charts.BAR,[{name:'Проведена',labels:lab,values:yes},{name:'Не проведена',labels:lab,values:no}],chartOpt({x:0.75,y:1.6,w:7.3,h:5.1,barGrouping:'stacked',chartColors:['30D158','FF375F'],showValue:true,dataLabelColor:'FFFFFF',dataLabelFontSize:11,barGapWidthPct:45}));
-        const last = use[use.length-1], miss = rows.filter(r=>String(r[last]||'').trim()==='0').map(r=>sh(r[1]));
-        s.addText([{text:'Не проведена в последнем периоде',options:{bold:true,color:AC,breakLine:true,fontSize:14}}].concat(miss.length ? miss.map(t=>({text:t,options:{bullet:true,breakLine:true,fontSize:12}})) : [{text:'Все салоны отработали',options:{fontSize:12,color:C.mu}}]),{x:8.6,y:1.65,w:4.0,h:5.0,fontFace:FN,color:C.tx,valign:'top',paraSpaceAfter:5,objectName:'note'}); } }
-    /* 6–7. ВМР */
+      else { const H = g[0], nzz = x => String(x||'').toLowerCase().replace(/ё/g,'е').replace(/[^0-9a-zа-я]+/g,' ').trim(), body = g.slice(1);
+        const find = n => { const m = nzz(n); return body.find(r=>nzz(r[1])===m) || body.find(r=>{ const t = nzz(r[1]); return t && (t.indexOf(m)>=0 || m.indexOf(t)>=0); }); };
+        const rows = salNames.map(n=>({n, r:find(n)})), has = v => String(v==null?'':v).trim()!=='';
+        const pc = []; for (let c=4; c<H.length; c++) if (has(H[c]) && /\d/.test(String(H[c]))) pc.push(c);
+        const filled = pc.filter(c=>rows.some(x=>x.r && has(x.r[c]))), use = (filled.length?filled:pc).slice(-4);
+        const yn = v => { v = String(v==null?'':v).trim(); if (!v) return ''; return v==='0' ? 'n' : 'y'; };
+        const two = rows.length>18, half = Math.ceil(rows.length/2), halves = two ? [rows.slice(0,half), rows.slice(half)] : [rows], tw = two ? 5.8 : 11.9, c0 = two ? 2.5 : 5.0;
+        halves.forEach((hr,hi)=>tbl(s,[[hc('Торговая точка')].concat(use.map(c=>hc(String(H[c]).replace(/\s+/g,' '),{fontSize:two?8:9.5})))].concat(hr.map(x=>[cell(sh(x.n),{bold:true})].concat(use.map(c=>{ const k = x.r ? yn(x.r[c]) : ''; return k==='y' ? tint('Да','g') : k==='n' ? tint('Нет','r') : cell('—',{align:'center',color:'AEAEB2'}); })))),{x:0.75+hi*6.1,y:1.65,w:tw,colW:[c0].concat(use.map(()=>(tw-c0)/use.length)),rowH:rh(halves[0].length,0.44,0.15)}));
+        note(s,'Проведено: '+use.map(c=>String(H[c]).replace(/\s+/g,' ')+' — '+rows.filter(x=>x.r&&yn(x.r[c])==='y').length+' из '+rows.filter(x=>x.r&&yn(x.r[c])).length).join(' · ')+'. «—» — данных пока нет.',6.85); } }
+    
+/* 6–7. ВМР */
     { const vr = (W.vrows||[]).filter(r=>!W.sur || !r.tm || r.tm.toLowerCase().indexOf(W.sur)>=0), mx = vr.filter(r=>r.dt).map(r=>r.m).sort((a,b)=>a-b).pop()||0, cur = vr.filter(r=>r.m===mx||!mx);
       const gb = (arr,f) => { const m = {}; arr.forEach(r=>{ const k = f(r)||'—'; (m[k]=m[k]||[]).push(r.s); }); return Object.keys(m).map(k=>({k, n:m[k].length, a:avg(m[k])})); };
       const noData = s => { card(s,0.6,1.5,12.2,5.3); s.addText('Нет проверок ВМР за период',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'}); };
-      const barT = (s,x,y,w,h,arr,col,horiz) => { const lab = short(arr.map(z=>z.k),horiz?24:14); s.addChart(horiz ? pres.charts.BAR : [{type:pres.charts.BAR,data:[{name:'Оценка, %',labels:lab,values:arr.map(z=>Math.round(z.a))}],options:{chartColors:[col],barGapWidthPct:50,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:lab,values:arr.map(()=>85)}],options:{chartColors:['FF375F'],lineSize:2,lineDataSymbolSize:1}}], horiz ? [{name:'Оценка, %',labels:lab,values:arr.map(z=>Math.round(z.a))}] : chartOpt({x,y,w,h}), horiz ? chartOpt({x,y,w,h,barDir:'bar',chartColors:[col],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100}) : undefined); };
+      const barT = (s,x,y,w,h,arr,col,horiz) => { const lab = short(arr.map(z=>z.k),horiz?24:14); s.addChart(horiz ? pres.charts.BAR : [{type:pres.charts.BAR,data:[{name:'Оценка, %',labels:lab,values:arr.map(z=>Math.round(z.a))}],options:{chartColors:[col],barGapWidthPct:50,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:lab,values:arr.map(()=>85)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}], horiz ? [{name:'Оценка, %',labels:lab,values:arr.map(z=>Math.round(z.a))}] : chartOpt({x,y,w,h}), horiz ? chartOpt({x,y,w,h,barDir:'bar',chartColors:[col],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100}) : undefined); };
       { const s = base('ВМР · целевое 85%','Средняя оценка за '+(mx?MN_RU[mx]:'месяц')+' · по торговым точкам, сценариям и сотрудникам');
         if (!cur.length) noData(s);
-        else { const byT = gb(cur,r=>vmrTT(r.tt)).sort((a,b)=>a.a-b.a).slice(0,13), byS = gb(cur,r=>r.scen), byE = gb(cur,r=>r.fio).sort((a,b)=>a.a-b.a).slice(0,6);
+        else { const byT = gb(cur,r=>vmrTT(r.tt)).sort((a,b)=>a.a-b.a), byS = gb(cur,r=>r.scen), byE = gb(cur,r=>r.fio).sort((a,b)=>a.a-b.a).slice(0,6);
           card(s,0.6,1.5,6.2,5.3); card(s,7.0,1.5,5.8,2.55); card(s,7.0,4.25,5.8,2.55);
-          s.addChart([{type:pres.charts.BAR,data:[{name:'Оценка, %',labels:short(byT.map(z=>z.k),14),values:byT.map(z=>Math.round(z.a))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:short(byT.map(z=>z.k),14),values:byT.map(()=>85)}],options:{chartColors:['FF375F'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.7,y:1.6,w:6.0,h:5.1}));
-          s.addChart(pres.charts.BAR,[{name:'Сценарии, %',labels:byS.map(z=>z.k),values:byS.map(z=>Math.round(z.a))}],chartOpt({x:7.1,y:1.55,w:5.6,h:2.45,barDir:'bar',chartColors:['BF5AF2'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100}));
-          s.addChart(pres.charts.BAR,[{name:'Слабее всего, %',labels:short(byE.map(z=>z.k),24),values:byE.map(z=>Math.round(z.a))}],chartOpt({x:7.1,y:4.3,w:5.6,h:2.45,barDir:'bar',chartColors:['FF9F0A'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100})); } }
+          s.addChart([{type:pres.charts.BAR,data:[{name:'Оценка, %',labels:short(byT.map(z=>z.k),14),values:byT.map(z=>Math.round(z.a))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:short(byT.map(z=>z.k),14),values:byT.map(()=>85)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.7,y:1.6,w:6.0,h:5.1}));
+          s.addChart(pres.charts.BAR,[{name:'Сценарии, %',labels:byS.map(z=>z.k),values:byS.map(z=>Math.round(z.a))}],chartOpt({x:7.1,y:1.55,w:5.6,h:2.45,barDir:'bar',chartColors:['AF52DE'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100}));
+          s.addChart(pres.charts.BAR,[{name:'Слабее всего, %',labels:short(byE.map(z=>z.k),24),values:byE.map(z=>Math.round(z.a))}],chartOpt({x:7.1,y:4.3,w:5.6,h:2.45,barDir:'bar',chartColors:['FF9500'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100})); } }
       { const s = base('ВМР · по критериям','Доля проверок, где критерий выполнен'); const crit = VMR_CR.map(c=>{ const v = cur.map(r=>r.cr[c[0]]).filter(x=>x!=null); return {k:c[1], key:c[0], a:v.length?avg(v)*100:null}; }).filter(z=>z.a!=null);
         card(s,0.6,1.5,7.6,5.3); card(s,8.4,1.5,4.4,5.3);
         if (!crit.length) s.addText('Нет данных',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
-        else { s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнено, %',labels:short(crit.map(z=>z.k),16),values:crit.map(z=>Math.round(z.a))}],options:{chartColors:[AC],barGapWidthPct:40,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:short(crit.map(z=>z.k),16),values:crit.map(()=>85)}],options:{chartColors:['FF375F'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.3,h:5.1,catAxisLabelFontSize:8.5}));
+        else { s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнено, %',labels:short(crit.map(z=>z.k),16),values:crit.map(z=>Math.round(z.a))}],options:{chartColors:[AC],barGapWidthPct:40,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:short(crit.map(z=>z.k),16),values:crit.map(()=>85)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.3,h:5.1,catAxisLabelFontSize:8.5}));
           const wk = crit.slice().sort((a,b)=>a.a-b.a)[0], tts = {}; cur.forEach(r=>{ if (r.cr[wk.key]!=null) (tts[vmrTT(r.tt)] = tts[vmrTT(r.tt)]||[]).push(r.cr[wk.key]); }); const tl = Object.keys(tts).map(k=>({k,a:avg(tts[k])*100})).sort((a,b)=>a.a-b.a).slice(0,10);
           s.addText('Слабый критерий: «'+wk.k+'» — по ТТ',{x:8.6,y:1.6,w:4.0,h:0.5,fontFace:FN,fontSize:12.5,bold:true,color:AC,valign:'top',objectName:'note'});
-          s.addChart(pres.charts.BAR,[{name:'%',labels:short(tl.map(z=>z.k),22),values:tl.map(z=>Math.round(z.a))}],chartOpt({x:8.5,y:2.15,w:4.2,h:4.55,barDir:'bar',chartColors:['FF375F'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100})); } } }
+          s.addChart(pres.charts.BAR,[{name:'%',labels:short(tl.map(z=>z.k),22),values:tl.map(z=>Math.round(z.a))}],chartOpt({x:8.5,y:2.15,w:4.2,h:4.55,barDir:'bar',chartColors:['FF3B30'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100})); } } }
     dark('СИМ-карты','Темп · сотрудники · тарифы');
     paceSlide('Сим · темп по неделям','sim'); daysSlide('Сим · по дням','sim'); staffSlide('Сим · доля сотрудников','sim');
     /* 12. тарифы */
     { const s = base('Сим · доля тарифов','Структура продаж по группам тарифов за месяц'), m = W.simM; card(s,0.6,1.5,5.8,5.3); card(s,6.6,1.5,6.2,5.3);
       if (!m || !m.tot) s.addText('Нет данных «Детализация СИМ»',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
       else { const ord = m.gl.map((x,i)=>i).sort((a,b)=>m.tot.v[b]-m.tot.v[a]).filter(i=>m.tot.v[i]>0), nm = i => m.gl[i].n==='#N/A'?'Без группы':m.gl[i].n;
-        s.addChart(pres.charts.DOUGHNUT,[{name:'Доля',labels:ord.map(nm),values:ord.map(i=>m.tot.v[i])}],{x:0.75,y:1.65,w:5.5,h:5.0,holeSize:55,showPercent:true,showLegend:true,legendPos:'b',legendFontSize:10,legendColor:C.mu,dataLabelColor:'FFFFFF',dataLabelFontSize:10,chartColors:['0A84FF','BF5AF2','30D158','FF9F0A','FF375F','64D2FF','AC8E68','8E8E93'],objectName:'chart'});
-        s.addChart(pres.charts.BAR,[{name:'Продано, шт',labels:short(ord.slice(0,12).map(nm),26),values:ord.slice(0,12).map(i=>m.tot.v[i])}],chartOpt({x:6.75,y:1.6,w:5.9,h:5.1,barDir:'bar',chartColors:['0A84FF'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin'})); } }
+        s.addChart(pres.charts.DOUGHNUT,[{name:'Доля',labels:ord.map(nm),values:ord.map(i=>m.tot.v[i])}],{x:0.75,y:1.65,w:5.5,h:5.0,holeSize:55,showPercent:true,showLegend:true,legendPos:'b',legendFontSize:10,legendColor:C.mu,dataLabelColor:'FFFFFF',dataLabelFontSize:10,chartColors:['007AFF','AF52DE','34C759','FF9500','FF3B30','5AC8FA','A2845E','8E8E93'],objectName:'chart'});
+        s.addChart(pres.charts.BAR,[{name:'Продано, шт',labels:short(ord.slice(0,12).map(nm),26),values:ord.slice(0,12).map(i=>m.tot.v[i])}],chartOpt({x:6.75,y:1.6,w:5.9,h:5.1,barDir:'bar',chartColors:['007AFF'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin'})); } }
     /* 13. дорогие сим */
     { const s = base('Сим · дорогие тарифы','Структура групп тарифов по каждой ТТ, 100%'), m = W.simM; card(s,0.6,1.5,12.2,5.3);
       if (!m || !m.salons.length) s.addText('Нет данных «Детализация СИМ»',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
-      else { const ord = m.gl.map((x,i)=>i).sort((a,b)=>m.tot.v[b]-m.tot.v[a]).filter(i=>m.tot.v[i]>0).slice(0,8), sl = m.salons.slice(0,14), lab = short(sl.map(r=>sh(r.n)),16);
-        s.addChart(pres.charts.BAR,ord.map(i=>({name:String(m.gl[i].n).slice(0,22),labels:lab,values:sl.map(r=>{ const t = r.v.reduce((a,b)=>a+b,0)||1; return Math.round(r.v[i]/t*1000)/10; })})),chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,barGrouping:'percentStacked',chartColors:['0A84FF','BF5AF2','30D158','FF9F0A','FF375F','64D2FF','AC8E68','8E8E93'],barGapWidthPct:40,catAxisLabelFontSize:9})); } }
+      else { const ord = m.gl.map((x,i)=>i).sort((a,b)=>m.tot.v[b]-m.tot.v[a]).filter(i=>m.tot.v[i]>0).slice(0,8), sl = m.salons, lab = short(sl.map(r=>sh(r.n)),16);
+        s.addChart(pres.charts.BAR,ord.map(i=>({name:String(m.gl[i].n).slice(0,22),labels:lab,values:sl.map(r=>{ const t = r.v.reduce((a,b)=>a+b,0)||1; return Math.round(r.v[i]/t*1000)/10; })})),chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,barGrouping:'percentStacked',chartColors:['007AFF','AF52DE','34C759','FF9500','FF3B30','5AC8FA','A2845E','8E8E93'],barGapWidthPct:40,catAxisLabelFontSize:salFZ})); } }
     salTable('Зареги не в AS','Регистрации, не попавшие в AS · вносится вручную',['Торговая точка','Не в AS, шт','Комментарий'],n=>[cell(sh(n),{bold:true}),cell(''),cell('')],{colW:[4.5,2.4,5.0],note:'Источник данных уточняется.'});
     salTable('Пополнения','Пополнения по торговым точкам · вносится вручную',['Торговая точка','Пополнения, ₽','Комментарий'],n=>[cell(sh(n),{bold:true}),cell(''),cell('')],{colW:[4.5,2.4,5.0],note:'Источник данных уточняется.'});
     /* 16. правила активации */
@@ -5504,51 +5573,72 @@ async function wp2Build(){
       s.addText(WP2_RULES.a.map(t=>({text:t,options:{bullet:true,breakLine:true}})),{x:0.8,y:2.4,w:4.2,h:4.2,fontFace:FN,fontSize:13,color:C.tx,valign:'top',paraSpaceAfter:6});
       s.addText(WP2_RULES.b.map(t=>({text:t,options:{bullet:true,breakLine:true}})),{x:5.6,y:1.7,w:7.0,h:5.0,fontFace:FN,fontSize:12,color:C.tx,valign:'top',paraSpaceAfter:6}); }
     dark('Экономический блок','Телефоны · аксессуары · услуги · страховки');
-    /* 18. L4L и M2M */
-    { const s = base('L4L и M2M','Из «Экономических KPI» (KPI ОСС) · по торговым точкам'); const cs = ecoCols(/l4l|m2m/i).slice(0,8);
-      if (!eco || !cs.length){ card(s,0.6,1.5,12.2,5.3); s.addText('В «Экономических KPI» не найдены столбцы L4L / M2M — проверьте заголовки',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:15,color:C.mu,align:'center'}); }
-      else { const nv = (r,c) => { const v = r ? r[c[1]] : null; const n = typeof v==='number' ? v : pctVal(v); return n==null ? null : (/%/.test(c[0]) && Math.abs(n)<=5 ? Math.round(n*1000)/10 : Math.round(n*10)/10); };
-        const pc = cs.filter(c=>/%/.test(c[0])), oc = cs.filter(c=>!/%/.test(c[0])), groups = [pc, oc].filter(x=>x.length), lab = short(salNames.map(sh),16), PAL = ['0A84FF','BF5AF2','30D158','FF9F0A'];
-        groups.forEach((gr,gi)=>{ const w = groups.length>1 ? 6.0 : 12.2, x = 0.6+gi*6.2; card(s,x,1.5,w,5.3);
-          s.addChart(pres.charts.BAR,gr.map(c=>({name:c[0].replace('|',' · '),labels:lab,values:salNames.map(n=>nv(ecoRow(n),c))})),chartOpt({x:x+0.15,y:1.6,w:w-0.3,h:5.1,chartColors:PAL.slice(gi*2).concat(PAL),barGapWidthPct:50,catAxisLabelFontSize:9,showValue:true,dataLabelFontSize:8})); }); } }
-    /* 19. трафик × конверсия × ср. цена */
+    /* 18. L4L и M2M — отдельными слайдами */
+    { const fi = rx => eco ? eco.cols.findIndex(c=>rx.test(c)) : -1, tx = i => String(eco.cols[i]||'').split('|').map(x=>x.trim()).filter(Boolean).join(' · ');
+      const num = v => typeof v==='number' ? v : pctVal(v), pc = v => { const n = num(v); return n==null ? null : (Math.abs(n)<=10 ? n*100 : n); };
+      const rowsX = salNames.map(n=>({n, r:ecoRow(n)}));
+      [['L4L',/l4l/i,'к прошлому году','007AFF',96,['Продажи прошлого года, ₽','Прогноз месяца, ₽']],['M2M',/m2m/i,'к прошлому месяцу','AF52DE',100,['Прогноз прошлого месяца, ₽','Прогноз месяца, ₽']]].forEach(([nm,rx,vs,col,fb,lbl])=>{
+        let gi = fi(rx); if (gi<2 && eco && eco.cols.length>fb && eco.rows.some(r=>typeof r[fb]==='number' && typeof r[fb-1]==='number' && typeof r[fb-2]==='number' && Math.abs(r[fb])<=10)) gi = fb;
+        const hd = i => /^(прогн|план|факт)[^|]*\|?$/i.test(String(eco.cols[i]||'').trim()) ? null : tx(i);
+         s = base(nm+' · рубли и проценты','Из «Экономических KPI» (KPI ОСС) · динамика '+vs); card(s,0.6,1.5,12.2,5.3);
+        if (!eco || gi<2) { s.addText('В «Экономических KPI» не найден столбец '+nm+' — проверьте заголовки',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:15,color:C.mu,align:'center'}); return; }
+        const b = [gi-2,gi-1,gi], sum = k => rowsX.reduce((t,x)=>t+(x.r && num(x.r[b[0]])>0 && num(x.r[b[k]])!=null ? num(x.r[b[k]]) : 0),0), tn = p => p>=10?'g':p>=0?'a':'r';
+        const head = [hc('Торговая точка'),hc(hd(b[0])||lbl[0],{fontSize:9}),hc(hd(b[1])||lbl[1],{fontSize:9}),hc(nm+', %',{fontSize:9})];
+        const body = rowsX.map(x=>{ const p = x.r ? pc(x.r[b[2]]) : null; return [cell(sh(x.n),{bold:true}),cell(x.r&&num(x.r[b[0]])!=null?fmt(num(x.r[b[0]])):'',{align:'right'}),cell(x.r&&num(x.r[b[1]])!=null?fmt(num(x.r[b[1]])):'',{align:'right'}),p==null?cell('',{align:'center'}):tint(fmt(p)+'%',tn(p))]; });
+        const a0 = sum(0), a1 = sum(1), tp = a0 ? (a1/a0-1)*100 : null, F = {fill:{color:'F5F5F7'}};
+        body.push([cell('Итого',Object.assign({bold:true},F)),cell(fmt(a0),Object.assign({align:'right',bold:true},F)),cell(fmt(a1),Object.assign({align:'right',bold:true},F)),tp==null?cell('',F):tint(fmt(tp)+'%',tn(tp))]);
+        tbl(s,[head].concat(body),{x:0.75,y:1.65,w:11.9,colW:[4.6,2.6,2.6,2.1],rowH:rh(rowsX.length+1,0.42,0.15)});
+        note(s,'Столбцы 2–3 — рубли, 4 — процент '+nm+' ('+vs+').',6.85);
+        const s2 = base(nm+' · проценты по салонам','Динамика '+vs); card(s2,0.6,1.5,12.2,5.3);
+        s2.addChart(pres.charts.BAR,[{name:nm+', %',labels:short(salNames.map(sh),16),values:rowsX.map(x=>{ const p = x.r ? pc(x.r[b[2]]) : null; return p==null ? null : Math.round(p); })}],chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,chartColors:[col],barGapWidthPct:45,catAxisLabelFontSize:salFZ,valAxisMinVal:undefined,showLegend:false}));
+      }); }
+    
+/* 19. трафик × конверсия × ср. цена */
     { const s = base('Трафик × Конверсия × Средняя цена','Из «Экономических KPI» (KPI ОСС) · по торговым точкам');
       const ix = rx => { const f = ecoCols(rx)[0]; return f ? f[1] : -1; }, tp = ix(/^Трафик\|План/), tf = ix(/^Трафик\|Факт/), cp = ix(/^Конв\|План/), cf = ix(/^Конв\|Факт/), ap = ix(/ср\S*\.?\s*(цен|чек)/i);
       if (!eco){ card(s,0.6,1.5,12.2,5.3); s.addText('Нет данных «Экономические KPI»',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'}); }
       else { const g = (r,i) => r&&i>=0 ? r[i] : null, pv = v => typeof v==='number' ? v : (v==null?null:pctVal(v)), cv = x => x==null ? null : Math.round((x<=1.5?x*100:x)*10)/10, lab = short(salNames.map(sh),14), rs = salNames.map(ecoRow);
         card(s,0.6,1.5,4.0,5.3); card(s,4.7,1.5,4.0,5.3); card(s,8.8,1.5,4.0,5.3);
         s.addText('Трафик, чел',{x:0.8,y:1.55,w:3.6,h:0.35,fontFace:FN,fontSize:12.5,bold:true,color:AC,objectName:'note'}); s.addText('Конверсия, %',{x:4.9,y:1.55,w:3.6,h:0.35,fontFace:FN,fontSize:12.5,bold:true,color:AC,objectName:'note'}); s.addText('Средняя цена, ₽',{x:9.0,y:1.55,w:3.6,h:0.35,fontFace:FN,fontSize:12.5,bold:true,color:AC,objectName:'note'});
-        const o = {y:1.95,h:4.8,w:3.8,catAxisLabelFontSize:8.5,barGapWidthPct:40,legendFontSize:9};
-        s.addChart(pres.charts.BAR,[{name:'План',labels:lab,values:rs.map(r=>pv(g(r,tp)))},{name:'Факт',labels:lab,values:rs.map(r=>pv(g(r,tf)))}],chartOpt(Object.assign({x:0.7,chartColors:['B9C4E6','0A84FF']},o)));
-        s.addChart(pres.charts.BAR,[{name:'План',labels:lab,values:rs.map(r=>cv(pv(g(r,cp))))},{name:'Факт',labels:lab,values:rs.map(r=>cv(pv(g(r,cf))))}],chartOpt(Object.assign({x:4.8,chartColors:['E4CFFF','BF5AF2']},o)));
-        if (ap>=0) s.addChart(pres.charts.BAR,[{name:'Ср. цена',labels:lab,values:rs.map(r=>pv(g(r,ap)))}],chartOpt(Object.assign({x:8.9,chartColors:['30D158'],showLegend:false},o))); else s.addText('Столбец со средней ценой не найден в KPI',{x:8.9,y:3.5,w:3.8,h:0.8,fontFace:FN,fontSize:12,color:C.mu,align:'center',objectName:'note'}); } }
+        const o = {y:1.95,h:4.8,w:3.8,catAxisLabelFontSize:salFZ,barGapWidthPct:40,legendFontSize:9};
+        s.addChart(pres.charts.BAR,[{name:'План',labels:lab,values:rs.map(r=>pv(g(r,tp)))},{name:'Факт',labels:lab,values:rs.map(r=>pv(g(r,tf)))}],chartOpt(Object.assign({x:0.7,chartColors:['D1D1D6','007AFF']},o)));
+        s.addChart(pres.charts.BAR,[{name:'План',labels:lab,values:rs.map(r=>cv(pv(g(r,cp))))},{name:'Факт',labels:lab,values:rs.map(r=>cv(pv(g(r,cf))))}],chartOpt(Object.assign({x:4.8,chartColors:['E3D3F5','AF52DE']},o)));
+        if (ap>=0) s.addChart(pres.charts.BAR,[{name:'Ср. цена',labels:lab,values:rs.map(r=>pv(g(r,ap)))}],chartOpt(Object.assign({x:8.9,chartColors:['34C759'],showLegend:false},o))); else s.addText('Столбец со средней ценой не найден в KPI',{x:8.9,y:3.5,w:3.8,h:0.8,fontFace:FN,fontSize:12,color:C.mu,align:'center',objectName:'note'}); } }
     /* 20. общий свод */
     { const s = base('Общий свод','Прогноз выполнения плана · день '+ps+' из '+dim); card(s,0.6,1.5,5.6,5.3); card(s,6.4,1.5,6.4,5.3);
-      s.addChart([{type:pres.charts.BAR,data:[{name:'Прогноз, %',labels:W.dirs.map(z=>z.label),values:W.dirs.map(z=>Math.round(z.fcPct||0))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:W.dirs.map(z=>z.label),values:W.dirs.map(()=>100)}],options:{chartColors:['FF375F'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.7,y:1.6,w:5.4,h:5.1}));
-      const dirs = DIR_ORDER.filter(k=>W.sal.some(z=>z.st.some(q=>q.key===k))), rows = W.sal.slice().sort((a,b)=>(a.avg==null?999:a.avg)-(b.avg==null?999:b.avg)).slice(0,13);
-      tbl(s,[[hc('Салон')].concat(dirs.map(k=>hc(LBL[k],{fontSize:9})))].concat(rows.map(z=>[cell(sh(z.name),{bold:true,fontSize:9})].concat(dirs.map(k=>{ const q = z.st.find(w=>w.key===k); return q&&q.fcPct!=null ? tint(fmt(q.fcPct)+'%',lv(q.fcPct),{fontSize:9.5}) : cell('—',{align:'center'}); }))),),{x:6.55,y:1.65,w:6.1,colW:[2.0].concat(dirs.map(()=>4.1/dirs.length)),rowH:rh(rows.length,0.38,0.28)}); note(s,'Справа — тепловая карта салонов: прогноз выполнения плана на конец месяца.',6.85); }
+      s.addChart([{type:pres.charts.BAR,data:[{name:'Прогноз, %',labels:W.dirs.map(z=>z.label),values:W.dirs.map(z=>Math.round(z.fcPct||0))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:W.dirs.map(z=>z.label),values:W.dirs.map(()=>100)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.7,y:1.6,w:5.4,h:5.1}));
+      const dirs = DIR_ORDER.filter(k=>W.sal.some(z=>z.st.some(q=>q.key===k))), rows = W.sal.slice().sort((a,b)=>(a.avg==null?999:a.avg)-(b.avg==null?999:b.avg));
+      tbl(s,[[hc('Салон')].concat(dirs.map(k=>hc(LBL[k],{fontSize:9})))].concat(rows.map(z=>[cell(sh(z.name),{bold:true,fontSize:9})].concat(dirs.map(k=>{ const q = z.st.find(w=>w.key===k); return q&&q.fcPct!=null ? tint(fmt(q.fcPct)+'%',lv(q.fcPct),{fontSize:9.5}) : cell('—',{align:'center'}); }))),),{x:6.55,y:1.65,w:6.1,colW:[2.0].concat(dirs.map(()=>4.1/dirs.length)),rowH:rh(rows.length,0.38,0.15)}); note(s,'Справа — тепловая карта салонов: прогноз выполнения плана на конец месяца.',6.85); }
     paceSlide('Телефоны · темп по неделям','phones');
     /* 22. кредит и заявки */
     { const s = base('Кредит и заявки','Выполнение кредитного плана по KPI ОСС · заявки вносятся вручную'); card(s,0.6,1.5,8.0,5.3); card(s,8.8,1.5,4.0,5.3);
       const ix = rx => { const f = ecoCols(rx)[0]; return f ? f[1] : -1; }, cr = ix(/^Кредит[^|]*\|Выпол/i), vals = salNames.map(n=>{ const r = ecoRow(n); return r&&cr>=0 ? (typeof r[cr]==='number' ? r[cr]*100 : pctVal(r[cr])) : null; });
       if (vals.every(v=>v==null)) s.addText('Нет данных по кредиту в «Экономических KPI»',{x:0.8,y:3.6,w:7.6,h:0.5,fontFace:FN,fontSize:15,color:C.mu,align:'center'});
-      else { const lab = short(salNames.map(sh),16); s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнение, %',labels:lab,values:vals.map(v=>v==null?null:Math.round(v))}],options:{chartColors:['30D158'],barGapWidthPct:45,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:['FF375F'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.7,h:5.1,catAxisLabelFontSize:9})); }
-      tbl(s,[[hc('Салон'),hc('Заявки')]].concat(salNames.map(n=>[cell(sh(n),{bold:true,fontSize:10}),cell('')])),{x:8.95,y:1.65,w:3.7,colW:[2.4,1.3],rowH:rh(salNames.length,0.4,0.28)}); }
+      else { const lab = short(salNames.map(sh),16); s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнение, %',labels:lab,values:vals.map(v=>v==null?null:Math.round(v))}],options:{chartColors:['34C759'],barGapWidthPct:45,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.7,h:5.1,catAxisLabelFontSize:salFZ})); }
+      tbl(s,[[hc('Салон'),hc('Заявки')]].concat(salNames.map(n=>[cell(sh(n),{bold:true,fontSize:10}),cell('')])),{x:8.95,y:1.65,w:3.7,colW:[2.4,1.3],rowH:rh(salNames.length,0.4,0.15)}); }
     salTable('Выдача КД','Выдача кредитных договоров · вносится вручную',['Торговая точка','Выдано, шт','Комментарий'],n=>[cell(sh(n),{bold:true}),cell(''),cell('')],{colW:[4.5,2.4,5.0],note:'Источник данных уточняется.'});
     /* 24. голые смартфоны */
     { const s = base('Продажа «голых» смартфонов','Чеки со смартфоном без допов (аксессуары, услуги, страховки) · месяц'); card(s,0.6,1.5,12.2,5.3); const M = W.att && W.att.month;
       if (!M) s.addText('Нет данных Attachment',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
       else { const rows = M.salon.filter(z=>z.n>0).sort((a,b)=>b.none/b.n-a.none/a.n); const nn = z => z.none/z.n*100;
-        s.addChart(pres.charts.BAR,[{name:'Доля чеков без допов, %',labels:short(rows.map(z=>sh(z.k)),22),values:rows.map(z=>Math.round(nn(z)))}],chartOpt({x:0.75,y:1.6,w:6.3,h:5.1,barDir:'bar',chartColors:['FF375F'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin'}));
-        tbl(s,[[hc('ТТ'),hc('Чеков'),hc('Без допов'),hc('Доля')]].concat(rows.slice(0,13).map(z=>[cell(sh(z.k),{bold:true,fontSize:10}),cell(fmt(z.n),{align:'center'}),cell(fmt(z.none),{align:'center'}),tint(fmt(nn(z))+'%',nn(z)<=20?'g':nn(z)<=35?'a':'r')])),{x:7.2,y:1.65,w:5.45,colW:[2.4,1.0,1.1,0.95],rowH:rh(Math.min(rows.length,13),0.38,0.28)}); } }
+        s.addChart(pres.charts.BAR,[{name:'Доля чеков без допов, %',labels:short(rows.map(z=>sh(z.k)),22),values:rows.map(z=>Math.round(nn(z)))}],chartOpt({x:0.75,y:1.6,w:6.3,h:5.1,barDir:'bar',chartColors:['FF3B30'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin'}));
+        tbl(s,[[hc('ТТ'),hc('Чеков'),hc('Без допов'),hc('Доля')]].concat(rows.map(z=>[cell(sh(z.k),{bold:true,fontSize:10}),cell(fmt(z.n),{align:'center'}),cell(fmt(z.none),{align:'center'}),tint(fmt(nn(z))+'%',nn(z)<=20?'g':nn(z)<=35?'a':'r')])),{x:7.2,y:1.65,w:5.45,colW:[2.4,1.0,1.1,0.95],rowH:rh(rows.length,0.38,0.15)}); } }
     paceSlide('Страховки · темп по неделям','ins');
     /* 26. комбо и страховки */
     { const s = base('Комбо и страховки','Страховки — по данным сайта, комбо — вносится вручную'); card(s,0.6,1.5,8.0,5.3); card(s,8.8,1.5,4.0,5.3);
       const lab = short(salNames.map(sh),16), q = n => { const z = W.sal.find(w=>w.name===n); return z && z.st.find(w=>w.key==='ins'); };
-      s.addChart(pres.charts.BAR,[{name:'План, ₽ тыс.',labels:lab,values:salNames.map(n=>{ const x = q(n); return x ? Math.round(x.plan/1000) : null; })},{name:'Факт, ₽ тыс.',labels:lab,values:salNames.map(n=>{ const x = q(n); return x ? Math.round(x.fact/1000) : null; })}],chartOpt({x:0.75,y:1.6,w:7.7,h:5.1,chartColors:['B9C4E6','FF375F'],barGapWidthPct:45,catAxisLabelFontSize:9,showValue:true,dataLabelFontSize:8}));
-      tbl(s,[[hc('Салон'),hc('Комбо')]].concat(salNames.map(n=>[cell(sh(n),{bold:true,fontSize:10}),cell('')])),{x:8.95,y:1.65,w:3.7,colW:[2.4,1.3],rowH:rh(salNames.length,0.4,0.28)}); }
+      s.addChart(pres.charts.BAR,[{name:'План, ₽ тыс.',labels:lab,values:salNames.map(n=>{ const x = q(n); return x ? Math.round(x.plan/1000) : null; })},{name:'Факт, ₽ тыс.',labels:lab,values:salNames.map(n=>{ const x = q(n); return x ? Math.round(x.fact/1000) : null; })}],chartOpt({x:0.75,y:1.6,w:7.7,h:5.1,chartColors:['D1D1D6','FF3B30'],barGapWidthPct:45,catAxisLabelFontSize:salFZ,showValue:true,dataLabelFontSize:8}));
+      tbl(s,[[hc('Салон'),hc('Комбо')]].concat(salNames.map(n=>[cell(sh(n),{bold:true,fontSize:10}),cell('')])),{x:8.95,y:1.65,w:3.7,colW:[2.4,1.3],rowH:rh(salNames.length,0.4,0.15)}); }
     salTable('Проданные, но не зарегистрированные','Вносится вручную',['Торговая точка','Шт','Комментарий'],n=>[cell(sh(n),{bold:true}),cell(''),cell('')],{colW:[4.5,2.4,5.0]});
-    paceSlide('Услуги · темп по неделям','serv'); daysSlide('Услуги · по дням','serv'); staffSlide('Услуги · доля сотрудников','serv');
+    paceSlide('Услуги · темп по неделям','serv'); daysSlide('Услуги · по дням','serv');
+    { const s = base('Услуги · дни с продажами и ₽ в день','Из прошедших дней: в скольких были услуги, и сколько рублей услуг в день'); card(s,0.6,1.5,6.0,5.3); card(s,6.8,1.5,6.0,5.3);
+      const rowsS = sal0.map(z=>{ const x = z.dirs.find(q=>q.key==='serv'); if (!x) return null; const by = {}; x.days.forEach(q=>{ const n = Number(q.d.slice(0,2)); by[n] = (by[n]||0)+(q.v||0); }); let act = 0, sum = 0; for (let n=1; n<=Math.max(1,ps); n++){ const v = by[n]||0; if (v>0) act++; sum += v; } return {n:z.name, act, sum, perDay:sum/Math.max(1,ps), perAct:act?sum/act:0, need:(x.plan||0)/dim}; }).filter(Boolean);
+      if (!rowsS.length) s.addText('Нет данных по услугам',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
+      else { const lab = short(rowsS.map(r=>sh(r.n)),18), many = rowsS.length>12;
+        s.addChart([{type:pres.charts.BAR,data:[{name:'Услуги в день, ₽',labels:lab,values:rowsS.map(r=>Math.round(r.perDay))}],options:{chartColors:['34C759'],barGapWidthPct:45,showValue:!many,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Нужно в день, ₽',labels:lab,values:rowsS.map(r=>Math.round(r.need))}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:4}}],chartOpt({x:0.7,y:1.6,w:5.8,h:5.1,barDir:'col',catAxisLabelFontSize:salFZ}));
+        const tot = rowsS.reduce((a,r)=>({act:a.act+r.act,sum:a.sum+r.sum}),{act:0,sum:0});
+        tbl(s,[[hc('Салон'),hc('Дней с услугами'),hc('Услуги, ₽'),hc('₽ в день'),hc('₽ в день продаж')]].concat(rowsS.map(r=>{ const q = r.act/Math.max(1,ps)*100; return [cell(sh(r.n),{bold:true,fontSize:10}),tint(r.act+' из '+ps,q>=85?'g':q>=60?'a':'r'),cell(fmt(r.sum),{align:'right'}),cell(fmt(r.perDay),{align:'right'}),cell(fmt(r.perAct),{align:'right'})]; })).concat([[cell('Итого',{bold:true,fill:{color:'F5F5F7'}}),cell(tot.act+' из '+(ps*rowsS.length),{align:'center',bold:true,fill:{color:'F5F5F7'}}),cell(fmt(tot.sum),{align:'right',bold:true,fill:{color:'F5F5F7'}}),cell(fmt(tot.sum/Math.max(1,ps)),{align:'right',bold:true,fill:{color:'F5F5F7'}}),cell('',{fill:{color:'F5F5F7'}})]]),{x:6.95,y:1.65,w:5.7,colW:[1.8,1.1,0.95,0.9,0.95],rowH:rh(rowsS.length+1,0.42,0.15)}); } }
+    staffSlide('Услуги · доля сотрудников','serv');
     paceSlide('Аксессуары · темп по неделям','acc');
     /* 32–33. карточки аксессуаров */
     const cardSlide = (title, rx, sub) => { const s = base(title, sub), cd = W.cards.find(c=>c.days && rx.test(c.title||'')); card(s,0.6,1.5,12.2,5.3);
@@ -5556,8 +5646,8 @@ async function wp2Build(){
       const per = cd.v.map(r=>r.reduce((t,v)=>t+(v||0),0)), labs = cd.days.map(x=>x.slice(0,2)), tot = cd.tot || cd.salons.map((_,j)=>cd.v.reduce((t,r)=>t+(r[j]||0),0));
       const cut = labs.findIndex(l=>Number(l)>=((d.today>0&&d.today<99)?d.today:99)); const n = cut>0 ? cut : labs.length;
       s.addChart(pres.charts.BAR,[{name:'Всего за день',labels:labs.slice(0,n),values:per.slice(0,n)}],chartOpt({x:0.75,y:1.6,w:7.2,h:5.1,chartColors:[AC],showLegend:false,barGapWidthPct:40}));
-      const order = cd.salons.map((_,j)=>j).sort((a,b)=>(tot[b]||0)-(tot[a]||0)).slice(0,13);
-      tbl(s,[[hc('Салон'),hc('Итого')]].concat(order.map(j=>[cell(sh(cd.salons[j]),{bold:true,fontSize:10}),cell(fmt(tot[j]||0,cd.pct?1:0),{align:'center'})])),{x:8.15,y:1.65,w:4.5,colW:[3.2,1.3],rowH:rh(order.length,0.38,0.28)}); return s; };
+      const order = cd.salons.map((_,j)=>j).sort((a,b)=>(tot[b]||0)-(tot[a]||0));
+      tbl(s,[[hc('Салон'),hc('Итого')]].concat(order.map(j=>[cell(sh(cd.salons[j]),{bold:true,fontSize:10}),cell(fmt(tot[j]||0,cd.pct?1:0),{align:'center'})])),{x:8.15,y:1.65,w:4.5,colW:[3.2,1.3],rowH:rh(order.length,0.38,0.15)}); return s; };
     cardSlide('Аксессуары · защита экрана',/защит/i,'Продажи защиты экрана по дням и салонам');
     cardSlide('Аксессуары · ПЗУ по дням',/пзу/i,'Продажи ПЗУ по дням и салонам');
 
@@ -5577,28 +5667,28 @@ async function wp2Build(){
       if (ready.length) dark('Дополнительные отчёты', ready.map(xT).join(' · '));
       for (const k of ready){
         if (k==='results'){ const s = xBase(k); card(s,0.6,1.5,7.6,5.3); card(s,8.4,1.5,4.4,5.3); const lab = dirsX.map(z=>z.label);
-          s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнено, %',labels:lab,values:dirsX.map(z=>Math.round(z.plan>0?z.fact/z.plan*100:0))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:['FF375F'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.3,h:5.1}));
+          s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнено, %',labels:lab,values:dirsX.map(z=>Math.round(z.plan>0?z.fact/z.plan*100:0))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.3,h:5.1}));
           tbl(s,[[hc('Направление'),hc('План'),hc('Факт')]].concat(dirsX.map(z=>[cell(z.label,{bold:true,fontSize:10}),cell(fmtU(z.plan,z.unit),{align:'right',fontSize:10}),cell(fmtU(z.fact,z.unit),{align:'right',fontSize:10})])),{x:8.55,y:1.65,w:4.1,colW:[1.5,1.3,1.3],rowH:0.5}); }
         else if (k==='dayres'){ const s = xBase(k); card(s,0.6,1.5,12.2,5.3); const lab = dirsX.map(z=>z.label), v = z => { const d1 = dlOf(z).filter(q=>dayN(q)===endD).reduce((t,q)=>t+(q.v||0),0), need = z.plan/dim; return need>0 ? Math.round(d1/need*100) : 0; };
-          s.addChart([{type:pres.charts.BAR,data:[{name:'Факт дня к норме дня, %',labels:lab,values:dirsX.map(v)}],options:{chartColors:['30D158'],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'Норма 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:['FF375F'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:11.9,h:5.1})); note(s,`Итоги дня: ${endD}-е число, факт дня относительно плана на день.`,6.85); }
+          s.addChart([{type:pres.charts.BAR,data:[{name:'Факт дня к норме дня, %',labels:lab,values:dirsX.map(v)}],options:{chartColors:['34C759'],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'Норма 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:11.9,h:5.1})); note(s,`Итоги дня: ${endD}-е число, факт дня относительно плана на день.`,6.85); }
         else if (k==='days'){ const s = xBase(k); card(s,0.6,1.5,12.2,5.3); const ds = []; for (let n=1; n<=Math.max(1,endD); n++) ds.push(n);
-          s.addChart(pres.charts.LINE,dirsX.map(z=>({name:z.label,labels:ds.map(String),values:ds.map(n=>{ const need = z.plan/dim, f = dlOf(z).filter(q=>dayN(q)===n).reduce((t,q)=>t+(q.v||0),0); return need>0 ? Math.round(f/need*100) : null; })})),chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,chartColors:['0A84FF','BF5AF2','30D158','FF9F0A','FF375F'],lineSize:2.5,lineDataSymbolSize:5})); note(s,'Факт каждого дня к плану на день, % (100% — норма).',6.85); }
+          s.addChart(pres.charts.LINE,dirsX.map(z=>({name:z.label,labels:ds.map(String),values:ds.map(n=>{ const need = z.plan/dim, f = dlOf(z).filter(q=>dayN(q)===n).reduce((t,q)=>t+(q.v||0),0); return need>0 ? Math.round(f/need*100) : null; })})),chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,chartColors:['007AFF','AF52DE','34C759','FF9500','FF3B30'],lineSize:2.5,lineDataSymbolSize:5})); note(s,'Факт каждого дня к плану на день, % (100% — норма).',6.85); }
         else if (k==='forecast'){ const s = xBase(k); card(s,0.6,1.5,12.2,5.3); const lab = dirsX.map(z=>z.label);
-          s.addChart(pres.charts.BAR,[{name:'Факт к плану месяца, %',labels:lab,values:dirsX.map(z=>Math.round(z.plan>0?z.fact/z.plan*100:0))},{name:'Прогноз на конец месяца, %',labels:lab,values:dirsX.map(z=>Math.round(z.fcPct||0))}],chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,chartColors:['B9C4E6','0A84FF'],barGapWidthPct:45,showValue:true,dataLabelFontSize:10})); }
+          s.addChart(pres.charts.BAR,[{name:'Факт к плану месяца, %',labels:lab,values:dirsX.map(z=>Math.round(z.plan>0?z.fact/z.plan*100:0))},{name:'Прогноз на конец месяца, %',labels:lab,values:dirsX.map(z=>Math.round(z.fcPct||0))}],chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,chartColors:['D1D1D6','007AFF'],barGapWidthPct:45,showValue:true,dataLabelFontSize:10})); }
         else if (k==='diag'){ const s = xBase(k); card(s,0.6,1.5,6.4,5.3); card(s,7.2,1.5,5.6,5.3); const L = dirsX.filter(z=>z.unit!=='шт').sort((a,b)=>b.gap-a.gap);
-          if (!L.length || L.every(z=>!(z.gap>0))) emptyX(s,'Дефицита до плана нет — все денежные направления идут по плану'); else { s.addChart(pres.charts.BAR,[{name:'Не хватает до плана, тыс. ₽',labels:L.map(z=>z.label),values:L.map(z=>Math.max(0,Math.round(z.gap/1000)))}],chartOpt({x:0.75,y:1.6,w:6.1,h:5.1,barDir:'bar',chartColors:['FF375F'],showLegend:false,showValue:true,dataLabelFontSize:10,catAxisOrientation:'maxMin'}));
+          if (!L.length || L.every(z=>!(z.gap>0))) emptyX(s,'Дефицита до плана нет — все денежные направления идут по плану'); else { s.addChart(pres.charts.BAR,[{name:'Не хватает до плана, тыс. ₽',labels:L.map(z=>z.label),values:L.map(z=>Math.max(0,Math.round(z.gap/1000)))}],chartOpt({x:0.75,y:1.6,w:6.1,h:5.1,barDir:'bar',chartColors:['FF3B30'],showLegend:false,showValue:true,dataLabelFontSize:10,catAxisOrientation:'maxMin'}));
             const wd = dirsX.slice().sort((a,b)=>(a.fcPct==null?999:a.fcPct)-(b.fcPct==null?999:b.fcPct)).slice(0,4);
             s.addText([{text:'Что делать',options:{bold:true,color:AC,fontSize:15,breakLine:true}}].concat(wd.map(z=>({text:`${z.label}: ${DG_ADV[z.key]||'разобрать причины отставания'}`,options:{bullet:true,breakLine:true,fontSize:12}}))),{x:7.4,y:1.65,w:5.2,h:5.0,fontFace:FN,color:C.tx,valign:'top',paraSpaceAfter:6,objectName:'note'}); } }
         else if (k==='dayplan'){ const s = xBase(k); card(s,0.6,1.5,12.2,5.3); const dl = DIR_ORDER.filter(q=>W.sal.some(z=>z.st.some(w=>w.key===q))), left = Math.max(1, dim-ps);
-          tbl(s,[[hc('Торговая точка')].concat(dl.map(q=>hc(LBL[q])))].concat(W.sal.map(z=>[cell(sh(z.name),{bold:true})].concat(dl.map(q=>{ const w = z.st.find(x=>x.key===q); return cell(w ? fmt(Math.max(0,Math.ceil((w.plan-w.fact)/left))) : '—',{align:'center'}); })))),{x:0.75,y:1.65,w:11.9,colW:[4.2].concat(dl.map(()=>7.7/dl.length)),rowH:rh(W.sal.length,0.4,0.28)}); note(s,`Сколько нужно продавать в день до конца месяца (осталось ${left} дн.): остаток плана ÷ дни.`,6.85); }
+          tbl(s,[[hc('Торговая точка')].concat(dl.map(q=>hc(LBL[q])))].concat(W.sal.map(z=>[cell(sh(z.name),{bold:true})].concat(dl.map(q=>{ const w = z.st.find(x=>x.key===q); return cell(w ? fmt(Math.max(0,Math.ceil((w.plan-w.fact)/left))) : '—',{align:'center'}); })))),{x:0.75,y:1.65,w:11.9,colW:[4.2].concat(dl.map(()=>7.7/dl.length)),rowH:rh(W.sal.length,0.4,0.15)}); note(s,`Сколько нужно продавать в день до конца месяца (осталось ${left} дн.): остаток плана ÷ дни.`,6.85); }
         else if (k==='recon'){ const g = await loadG('recon'), s = xBase(k); card(s,0.6,1.5,12.2,5.3);
           const hi = g ? g.findIndex(r=>r.filter(c=>/^\d{2}\.\d{2}/.test(c)).length>=3) : -1;
           if (hi<0) s.addText('Нет данных отчёта',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
           else { const H = g[hi], ix = H.map((c,i)=>/^\d{2}\.\d{2}/.test(c)?i:-1).filter(i=>i>=0), lab = ix.map(i=>H[i].slice(0,5)), row = rx => g.find(r=>rx.test(r[1]||'')), nv = (r,i) => { const n = r ? rpNum(r[i]) : null; return n; };
             const sim1 = row(/^сим\s*1с/i), plan = row(/^план\s*$/i), tr = row(/^трафик/i), cv = row(/^конверсия/i), pc = row(/плановая конв/i);
             card(s,0.6,1.5,6.0,5.3); card(s,6.8,1.5,6.0,5.3);
-            s.addChart([{type:pres.charts.BAR,data:[{name:'Сим 1С, шт',labels:lab,values:ix.map(i=>nv(sim1,i))}],options:{chartColors:['FF9F0A'],barGapWidthPct:40}},{type:pres.charts.LINE,data:[{name:'План, шт',labels:lab,values:ix.map(i=>nv(plan,i))}],options:{chartColors:['1D1D1F'],lineSize:2.5,lineDataSymbolSize:3}}],chartOpt({x:0.7,y:1.6,w:5.8,h:5.1}));
-            s.addChart([{type:pres.charts.BAR,data:[{name:'Трафик, чел',labels:lab,values:ix.map(i=>nv(tr,i))}],options:{chartColors:['B9C4E6'],barGapWidthPct:40}},{type:pres.charts.LINE,data:[{name:'Конверсия, %',labels:lab,values:ix.map(i=>nv(cv,i))}],options:{chartColors:['BF5AF2'],lineSize:2.5,lineDataSymbolSize:3,secondaryValAxis:true,secondaryCatAxis:true}}],chartOpt({x:6.9,y:1.6,w:5.8,h:5.1,valAxes:[{showValAxisTitle:false},{showValAxisTitle:false,valGridLine:{style:'none'}}],catAxes:[{catAxisLabelFontSize:10},{catAxisHidden:true}]})); } }
+            s.addChart([{type:pres.charts.BAR,data:[{name:'Сим 1С, шт',labels:lab,values:ix.map(i=>nv(sim1,i))}],options:{chartColors:['FF9500'],barGapWidthPct:40}},{type:pres.charts.LINE,data:[{name:'План, шт',labels:lab,values:ix.map(i=>nv(plan,i))}],options:{chartColors:['1D1D1F'],lineSize:2.5,lineDataSymbolSize:3}}],chartOpt({x:0.7,y:1.6,w:5.8,h:5.1}));
+            s.addChart([{type:pres.charts.BAR,data:[{name:'Трафик, чел',labels:lab,values:ix.map(i=>nv(tr,i))}],options:{chartColors:['D1D1D6'],barGapWidthPct:40}},{type:pres.charts.LINE,data:[{name:'Конверсия, %',labels:lab,values:ix.map(i=>nv(cv,i))}],options:{chartColors:['AF52DE'],lineSize:2.5,lineDataSymbolSize:3,secondaryValAxis:true,secondaryCatAxis:true}}],chartOpt({x:6.9,y:1.6,w:5.8,h:5.1,valAxes:[{showValAxisTitle:false},{showValAxisTitle:false,valGridLine:{style:'none'}}],catAxes:[{catAxisLabelFontSize:10},{catAxisHidden:true}]})); } }
         else if (k==='details'){ await grid(k,'details'); }
         else if (k==='fact'){ await grid(k,'fact'); }
         xDone.push(xT(k));
@@ -5638,8 +5728,8 @@ const MN_ICO = {
   rating:'<path d="M12 3.500l2.600 5.400 5.900.8-4.300 4.100 1 5.800-5.200-2.800-5.200 2.800 1-5.800-4.300-4.100 5.900-.8z"/>',
   more:'<rect x="4" y="4" width="6.500" height="6.500" rx="2"/><rect x="13.500" y="4" width="6.500" height="6.500" rx="2"/><rect x="4" y="13.500" width="6.500" height="6.500" rx="2"/><rect x="13.500" y="13.500" width="6.500" height="6.500" rx="2"/>'
 };
-MN_ICO.tmbonus = MN_ICO.bonus; MN_ICO.pulse = '<rect x="3" y="4" width="18" height="12" rx="2.500"/><path d="M12 16v4M8 20h8M7 11l2.500-3 2.500 4 2-2.500 2 1.500"/>';
-const MN_SHORT = {results:'Месяц', dayres:'Итоги дня', days:'По дням', forecast:'Прогноз', main:'Результаты', point:'Точка', diag:'Диагноз', attach:'Attachment', analytics:'Аналитика', tmbonus:'Бонус ТМ'};
+MN_ICO.access = MN_ICO.auth || MN_ICO.links || MN_ICO.bonus; MN_ICO.tmbonus = MN_ICO.bonus; MN_ICO.pulse = '<rect x="3" y="4" width="18" height="12" rx="2.500"/><path d="M12 16v4M8 20h8M7 11l2.500-3 2.500 4 2-2.500 2 1.500"/>';
+const MN_SHORT = {access:'Доступы', results:'Месяц', dayres:'Итоги дня', days:'По дням', forecast:'Прогноз', main:'Результаты', point:'Точка', diag:'Диагноз', attach:'Attachment', analytics:'Аналитика', tmbonus:'Бонус ТМ'};
 const mnIco = id => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${MN_ICO[id]||MN_ICO.main}</svg>`;
 let MN_ALL = [], MN_PRIM = [], MN_OPEN = false;
 function mnavBuild(T, role){
@@ -5804,7 +5894,7 @@ document.addEventListener('pointerdown', e => {
 })();
 
 /* группы меню: подписи над первой кнопкой каждой группы (ПК — вертикальная панель, телефон — разделители) */
-const TAB_GROUPS = [['Итоги и темп',['results','dayres','days','forecast','dayplan','summary','pulse']],['Диагностика',['diag','attach','analytics','cards','recon']],['Команда и бонус',['dl','reports','bonus','tmbonus']],['Качество',['vmr']],['Контроль',['auth','links']]];
+const TAB_GROUPS = [['Итоги и темп',['results','dayres','days','forecast','dayplan','summary','pulse']],['Диагностика',['diag','attach','analytics','cards','recon']],['Команда и бонус',['dl','reports','bonus','tmbonus']],['Качество',['vmr']],['Контроль',['auth','access','links']]];
 const tabGroup = id => { for (const g of TAB_GROUPS) if (g[1].indexOf(id)>=0) return g[0]; return ''; };
 function menuGroups(){
   const seg = document.getElementById('tabseg'); if (!seg) return; const mgr = !!(DATA && DATA.role==='manager'); let prev = null;
