@@ -1728,6 +1728,10 @@ html[data-ios="bk"] .ngr button[aria-pressed=true],html[data-ios="bk"] .chipb[ar
 html[data-ios="bk"] #tabseg>button.on{box-shadow:3px 3px 0 #b6ff3b}
 html[data-ios="bk"] .mnav{box-shadow:0 10px 30px rgba(91,61,245,.28),4px 4px 0 rgba(182,255,59,.55)}
 @media (prefers-reduced-motion:reduce){html[data-pre] :is(.fade,.rv.in,.ncard,.dlc,.bnc,.m,.vm-k,.dr-t,.at-ck,.pane){animation:none!important}html[data-pre] body::before,html[data-ios="bk"] .eyebrow::before{animation:none!important}}
+
+.wp-pre{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.th-pre-b{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 14px 6px 8px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--text);font-weight:650;font-size:14px;cursor:pointer}.th-pre-b i{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}.th-pre-b.on{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+
+.rp-up{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -4140,6 +4144,8 @@ const DEMO_RPT = {"details": {"name": "Детали продаж салоны", 
 /* =================== ОТЧЁТЫ: листы таблицы в стиле сайта (без горизонтального скролла) =================== */
 const RPTS = [['details','Детали продаж','📊'],['sim','Детализация СИМ','📶'],['recon','Сопоставления 1С и рег.','🔗'],];
 let RPT = 'details';
+const RP_MAN = {};
+const rpCanUp = () => !!((DATA&&DATA.canLinks) || store.get('demoName'));
 const RP_ERR = /^#(N\/A|DIV\/0!|REF!|VALUE!|NAME\?|NUM!|NULL!|ERROR!)/i;
 const rpClean = g => g.map(r=>r.map(c=>{c=String(c==null?'':c).trim(); return RP_ERR.test(c)?'':c;}));
 const rpNum = s => { s=String(s==null?'':s).replace(/[\s ]/g,'').replace('%','').replace(',','.'); if(s===''||isNaN(s)) return null; return parseFloat(s); };
@@ -4156,6 +4162,7 @@ const rpKey = k => 'rp:'+k;
 function rpClear(){ try{ Object.keys(localStorage).filter(k=>k.indexOf('rp:')===0||k==='dc').forEach(k=>localStorage.removeItem(k)); }catch(e){} }
 async function rpLoad(key, force, host){
   const el = $(host||'#rpBody'); if (!el) return;
+  if (!host && RP_MAN[key]){ rpDraw(key, RP_MAN[key]); return; }          // вручную загруженный Excel (только в этой сессии)
   if (key==='cards') return cardsLoad(el, force);
   if (key==='recon') return reconLoad(el, force);
   let cached = null; try{ cached = JSON.parse(store.get(rpKey(key))||'null'); }catch(e){}
@@ -4268,7 +4275,16 @@ function loadReports(force){
   if (!$('#rpBody')){
     el.innerHTML = `<div class="rp-top"><div class="chips rp-chips" role="group" aria-label="Отчёт">${RPTS.map(t=>`<button class="chipb" data-rp="${t[0]}">${t[2]} ${esc(t[1])}</button>`).join('')}</div></div><div id="rpBody" class="stack"></div>`;
     el.querySelectorAll('[data-rp]').forEach(b=>b.onclick=()=>{ RPT=b.dataset.rp; loadReports(); scrollTo({top:0,behavior:'smooth'}); });
+    if (rpCanUp()){ const top = el.querySelector('.rp-top'); top.insertAdjacentHTML('beforeend','<div class="rp-up"><button type="button" class="chipb" id="rpUp">📎 Загрузить Excel</button><button type="button" class="chipb" id="rpUpX" hidden>Вернуть данные сайта</button><input type="file" id="rpFile" hidden accept=".xlsx,.xls,.csv"><span class="note-s" id="rpUpSt"></span></div>');
+      $('#rpUp').onclick = () => $('#rpFile').click();
+      $('#rpUpX').onclick = () => { delete RP_MAN[RPT]; loadReports(true); };
+      $('#rpFile').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; const st = $('#rpUpSt'); st.textContent = 'Читаем файл…';
+        try{ await lib('xlsx'); const wb = XLSX.read(await f.arrayBuffer(), {type:'array'}), nm = wb.SheetNames.find(n=>/детал|свод|факт|сим/i.test(n)) || wb.SheetNames[0], g = XLSX.utils.sheet_to_json(wb.Sheets[nm], {header:1, raw:false, defval:''});
+          if (!g.length) throw new Error('пусто'); RP_MAN[RPT] = {name:f.name+' · '+nm, grid:g, at:Date.now(), manual:true}; st.textContent = ''; loadReports(); }
+        catch(err){ console.error(err); st.textContent = 'Не удалось прочитать файл. Нужен .xlsx с таблицей на первом листе.'; } };
+    }
   }
+  { const man = !!RP_MAN[RPT], sp = RPT==='cards'||RPT==='recon'; const u = $('#rpUp'), x = $('#rpUpX'); if (u) u.hidden = sp; if (x) x.hidden = !man; }
   el.querySelectorAll('[data-rp]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.rp===RPT)));
   rpLoad(RPT, force);
 }
@@ -6078,7 +6094,9 @@ function attBind(host){ const rr = () => { host.innerHTML = attView(); attBind(h
 
 /* =================== Weekly Pulse (ТМ): презентация .pptx =================== */
 const WP_SLIDES = [['month','Итоги месяца по направлениям'],['week','Неделя к неделе'],['salons','Светофор салонов'],['leaders','Лидеры и аутсайдеры'],['loss','Где теряем и что делать'],['attach','Attachment: допы на телефон'],['vmr','ВМР и качество'],['focus','Фокус на следующую неделю']];
-let WP_UI = {on:WP_SLIDES.map(x=>x[0]), dark:false};
+let WP_UI = {on:WP_SLIDES.map(x=>x[0]), pre:''};
+const wpPre = () => preById(WP_UI.pre || (THEME&&THEME.pre) || 'classic') || THEME_PRE[0];
+const wpHex = c => String(c).replace('#','').toUpperCase();
 const WP_LIB = ['https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js','https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js'];
 function wpLib(){ if (window.PptxGenJS) return Promise.resolve(); return _lp.pptx || (_lp.pptx = new Promise((res,rej)=>{ let i = 0; const next = () => { if (i>=WP_LIB.length){ delete _lp.pptx; rej(new Error('lib')); return; } const s = document.createElement('script'); s.src = WP_LIB[i++]; s.async = true; s.onload = () => window.PptxGenJS ? res() : next(); s.onerror = next; document.head.appendChild(s); }; next(); })); }
 function loadPulse(){
@@ -6087,11 +6105,11 @@ function loadPulse(){
   el.innerHTML = `<div class="stack"><div class="card fade wp-c"><div class="eyebrow">Собрание с управленцами</div><h2>Презентация в новом дизайне</h2><div class="at-s">37 слайдов: бизнес-процессы, СИМ, экономический блок. Графики и таблицы строятся из данных сайта на момент нажатия, с анимациями и переходами Morph. Вручную заполняются: остатки сим, ген. уборка, заявки, комбо, не зарегистрированные.</div><div class="wp-act"><button type="button" class="btn" id="wpGo2">Скачать презентацию (37 слайдов)</button><span class="note-s" id="wpSt2"></span></div><div class="wp-sel"><details><summary>Отчёты в презентации (<span id="wpSelN"></span>)</summary><div id="wpSelL"></div><div class="wp-b"><button type="button" class="btn ghost" id="wpAll">Выбрать все</button><button type="button" class="btn ghost" id="wpNone">Снять все</button></div><div class="note-s">Основные 33 слайда остаются как есть. Если выбраны другие отчёты сайта, они добавляются в конец отдельным блоком. Новые отчёты сайта появляются здесь автоматически.</div></details></div></div><div class="card fade wp-c"><div class="eyebrow">Weekly Pulse</div><h2>Краткая презентация недели</h2>
     <div class="at-s">Соберём слайды из данных сайта: итоги месяца, динамику за 7 дней к предыдущим 7, светофор салонов, потери, Attachment, ВМР и фокус на следующую неделю. Выберите, что включить.</div>
     <div class="wp-list">${WP_SLIDES.map(x=>`<label class="wp-i"><input type="checkbox" data-wp="${x[0]}"${WP_UI.on.includes(x[0])?' checked':''}><span>${esc(x[1])}</span></label>`).join('')}</div>
-    <div class="chips" role="group"><button type="button" class="chip${WP_UI.dark?'':' on'}" data-wpt="0">Светлая тема</button><button type="button" class="chip${WP_UI.dark?' on':''}" data-wpt="1">Тёмная тема</button></div>
+    <div class="wp-pre" role="group" aria-label="Тема презентации">${THEME_PRE.map(x=>`<button type="button" class="th-pre-b${wpPre().id===x.id?' on':''}" data-wpt="${x.id}" aria-pressed="${wpPre().id===x.id}"><i style="background:linear-gradient(135deg,${x.a},${x.b})"></i>${esc(x.n)}</button>`).join('')}</div>
     <div class="wp-act"><button type="button" class="btn" id="wpGo">Скачать .pptx</button><span class="note-s" id="wpSt"></span></div>
     <div class="note-s">Слайд «Титул» добавляется всегда. Данные — на момент последнего обновления таблицы. Файл формируется в браузере.</div></div></div>`;
   el.querySelectorAll('[data-wp]').forEach(c=>c.onchange = () => { WP_UI.on = [...el.querySelectorAll('[data-wp]')].filter(x=>x.checked).map(x=>x.dataset.wp); });
-  el.querySelectorAll('[data-wpt]').forEach(b=>b.onclick = () => { WP_UI.dark = b.dataset.wpt==='1'; el.querySelectorAll('[data-wpt]').forEach(x=>x.classList.toggle('on', x===b)); });
+  el.querySelectorAll('[data-wpt]').forEach(b=>b.onclick = () => { WP_UI.pre = b.dataset.wpt; el.querySelectorAll('[data-wpt]').forEach(x=>{ x.classList.toggle('on', x===b); x.setAttribute('aria-pressed', x===b); }); });
   $('#wpGo').onclick = wpBuild; $('#wpGo2').onclick = wp2Build;
   const selDraw = () => { const L = siteReports().filter(x=>x.pres), off = wp2Off(), gs = []; L.forEach(x=>{ if (gs.indexOf(x.g)<0) gs.push(x.g); });
     $('#wpSelL').innerHTML = gs.map(g=>`<div class="wp-g">${esc(g)}</div>`+L.filter(x=>x.g===g).map(x=>`<label class="wp-i"><input type="checkbox" data-wsel="${esc(x.id)}"${off.indexOf(x.id)<0?' checked':''}><span>${esc(x.t)}${SR_COVERED.indexOf(x.id)>=0?'<em>уже в презентации</em>':'<em>добавится в конец</em>'}</span></label>`).join('')).join('');
@@ -6116,8 +6134,8 @@ async function wpBuild(){
   try{
     const [W] = await Promise.all([wpData(), wpLib()]); st.textContent = 'Рисуем слайды…';
     const pres = new PptxGenJS(); pres.layout = 'LAYOUT_WIDE'; pres.title = 'Weekly Pulse'; pres.author = 'SUPER PROдажник';
-    const dk = WP_UI.dark, C = dk ? {bg:'0F1322',card:'1A2036',tx:'F2F4F8',mu:'9AA3B8',ln:'2A3250'} : {bg:'F4F6FB',card:'FFFFFF',tx:'1D1D1F',mu:'6B7280',ln:'E3E7F0'};
-    const AC = '0A84FF', OK = dk?'3DDC6B':'1FA84A', WN = dk?'FFB02E':'D98200', BD = dk?'FF5C7A':'E5334F', FN = 'Calibri';
+    const PR = wpPre(), dk = false, C = {bg:'F4F6FB',card:'FFFFFF',tx:'1D1D1F',mu:'6B7280',ln:'E3E7F0'};
+    const AC = wpHex(PR.a), OK = '1FA84A', WN = 'D98200', BD = 'E5334F', FN = 'Calibri';
     const col = p => p==null ? C.mu : p>=ST_OK ? OK : p>=ST_WARN ? WN : BD;
     const tint = p => p==null ? C.card : dk ? (p>=ST_OK?'143A25':p>=ST_WARN?'3D2E10':'43182A') : (p>=ST_OK?'DDF5E5':p>=ST_WARN?'FFF0D2':'FFDDE4');
     const d = W.d, A = W.A, P = d.month || '';
@@ -6273,7 +6291,7 @@ async function wp2Build(){
   try{
     const [W] = await Promise.all([wp2Data(), wpLib(), wp2Zip(), wp2Logo()]); st.textContent = 'Рисуем слайды…';
     const pres = new PptxGenJS(); pres.layout = 'LAYOUT_WIDE'; pres.title = 'Собрание с управленцами'; pres.author = 'SUPER PROдажник by Miller';
-    const d = W.d, A = W.A, dim = W.dim, ps = W.ps, FN = 'Helvetica Neue', AC = '007AFF', VI = 'AF52DE';
+    const d = W.d, A = W.A, dim = W.dim, ps = W.ps, FN = 'Helvetica Neue', PR = wpPre(), AC = wpHex(PR.a), VI = wpHex(PR.b);
     const C = {bg:'F5F5F7', card:'FFFFFF', ln:'E5E5EA', tx:'1D1D1F', mu:'6E6E73', hd:'FFFFFF'};
     const TN = {g:['E8F7ED','1F8A3B'], a:['FFF3DC','B26A00'], r:['FFE8E6','D1241A'], n:['FFFFFF','1D1D1F']};
     const lv = p => p==null ? 'n' : p>=ST_OK ? 'g' : p>=ST_WARN ? 'a' : 'r';
@@ -6283,18 +6301,18 @@ async function wp2Build(){
     const base = (title, sub) => { const s = pres.addSlide(); N++; s.background = {color:C.bg};
       s.addText(title,{x:0.7,y:0.4,w:9.8,h:0.7,fontFace:FN,fontSize:34,bold:true,charSpacing:-0.5,color:C.tx,valign:'middle',objectName:'!!title'});
       if (sub) s.addText(sub,{x:0.72,y:1.08,w:9.8,h:0.34,fontFace:FN,fontSize:14,color:C.mu,valign:'middle',objectName:'!!sub'});
-      s.addText(`SUPER PROдажник · Собрание с управленцами · ${dateStr}`,{x:0.72,y:7.1,w:9,h:0.24,fontFace:FN,fontSize:9,color:'86868B',objectName:'!!foot'});
+      s.addText(`Собрание с управленцами · ${dateStr}`,{x:0.72,y:7.1,w:9,h:0.24,fontFace:FN,fontSize:9,color:'86868B',objectName:'!!foot'});
       s.addText(String(N),{x:11.9,y:7.1,w:0.9,h:0.24,fontFace:FN,fontSize:9,color:'86868B',align:'right',objectName:'!!num'});
-      s.addImage({data:WP2_LOGO.h_dark||WP2_NOLOGO,x:13.333-0.7-1.9,y:0.52,w:1.9,h:1.9*104/560,objectName:'!!logo'}); return s; };
+      s.addImage({data:WP2_LOGO.m||WP2_NOLOGO,x:13.333-0.7-0.62,y:0.46,w:0.62,h:0.62,objectName:'!!logo'}); return s; };
     const dark = (title, sub, big) => { const s = pres.addSlide(); N++; heroIdx.push(N); s.background = {color:'000000'};
       s.addShape('ellipse',{x:big?3.2:7.4,y:big?4.2:3.6,w:big?7:6.4,h:big?5:4.6,fill:{color:AC,transparency:86},line:{type:'none'},objectName:'!!glow1'});
       s.addShape('ellipse',{x:big?6.2:-1.4,y:big?5.2:4.8,w:big?6:5.6,h:big?4:4,fill:{color:VI,transparency:88},line:{type:'none'},objectName:'!!glow2'});
       if (big){
-        s.addImage({data:WP2_LOGO.v_white||WP2_NOLOGO,x:(13.333-3.2)/2,y:0.95,w:3.2,h:3.2*285/645,objectName:'!!logo'});
+        s.addImage({data:WP2_LOGO.m||WP2_NOLOGO,x:(13.333-1.5)/2,y:1.2,w:1.5,h:1.5,objectName:'!!logo'});
         s.addText(title,{x:0.8,y:3.55,w:11.73,h:1.1,fontFace:FN,fontSize:60,bold:true,charSpacing:-1.2,color:'F5F5F7',align:'center',valign:'middle',objectName:'hero'});
         s.addText(sub||'',{x:0.8,y:4.75,w:11.73,h:0.7,fontFace:FN,fontSize:22,color:'86868B',align:'center',valign:'top',objectName:'hero2'});
       } else {
-        s.addImage({data:WP2_LOGO.h_white||WP2_NOLOGO,x:0.9,y:0.7,w:2.4,h:2.4*104/560,objectName:'!!logo'});
+        s.addImage({data:WP2_LOGO.m||WP2_NOLOGO,x:0.9,y:0.7,w:0.7,h:0.7,objectName:'!!logo'});
         s.addText(title,{x:0.9,y:2.6,w:11.5,h:1.2,fontFace:FN,fontSize:56,bold:true,charSpacing:-1.2,color:'F5F5F7',valign:'middle',objectName:'hero'});
         s.addText(sub||'',{x:0.92,y:3.85,w:11.5,h:0.8,fontFace:FN,fontSize:22,color:'86868B',valign:'top',objectName:'hero2'});
       } return s; };
