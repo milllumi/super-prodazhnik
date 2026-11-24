@@ -46,7 +46,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 21600;                                 // кэш данных: 6 ч (максимум CacheService); warmCache() обновляет его после выгрузки продаж (08:20 и 15:20)
-const CACHE_EPOCH = 'e11';
+const CACHE_EPOCH = 'e12';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -1137,7 +1137,12 @@ function tmReport_(req) {
   if (!u) return { error: 'auth' };
   if (!TM_REPORTS[req.name]) return { error: 'bad_request' };
   if (!repAllowed_(ss, u, req.name === 'dl' ? 'dl' : req.name === 'vmr' ? 'vmr' : 'reports')) return { error: 'forbidden' };   // ТМ или временный доступ (по отмеченным разделам)
-  return tmReportRaw_(ss, req.name);
+  if (req.name === 'vmr' && u.roleTitle !== 'ТМ') { const m = vmrMine_(req); return m && m.grid ? Object.assign({ at: new Date().toISOString() }, m) : m; }   // ВМР у РТТ/УТТ — только их ТТ (в т.ч. при выданном доступе)
+  const rep = tmReportRaw_(ss, req.name);
+  if (req.name !== 'dl' || u.roleTitle === 'ТМ' || !rep.grid) return rep;                // «Сотрудники ДЛ» у РТТ/УТТ — только их сотрудники
+  const shops = kpiShops_(ss, readAccess_(ss))[u.key] || [];
+  const grid = rep.grid.filter(function (r, i) { return i < 2 || shops.some(function (sh) { return salonShort_(sh) === String(r[1] || '').trim() || sameSalon_(String(r[1] || ''), sh); }); });
+  return Object.assign({}, rep, { grid: grid });
 }
 function tmReportRaw_(ss, name) {
   const title = TM_REPORTS[name];
@@ -1252,8 +1257,14 @@ function reconBuild_(ss, u) {
   };
   if (isTM && goals.conv[sn] != null) tot.planConv = goals.conv[sn];
   else { let w = 0, t = 0; per.forEach(function (o) { const tr = o.series.traffic.reduce(function (a, b) { return a + (b || 0); }, 0); if (o.series.planConv != null && tr > 0) { w += o.series.planConv * tr; t += tr; } }); tot.planConv = t ? w / t : null; }
+  const nearOpts = [];                                                         // смежные салоны (тот же адрес, другой бренд) — для РТТ/УТТ
+  if (!isTM) { try {
+    const have = {}; names.forEach(function (n) { have[norm_(n)] = 1; });
+    const ng = nearSalons_(ss, names);
+    ((ng && ng.groups) || []).forEach(function (g) { g.near.forEach(function (x) { if (have[norm_(x.name)]) return; have[norm_(x.name)] = 1; nearOpts.push({ key: x.name, label: x.name, near: true, nearTo: g.salon, series: one(x.name) }); }); });
+  } catch (e) {} }
   return { month: cal.month, days: days, opStale: !!op.stale && !op.any,
-    options: [{ key: 'all', label: 'Всего по ' + surname, series: tot }].concat(per), updated: new Date().toISOString() };
+    options: [{ key: 'all', label: 'Всего по ' + surname, series: tot }].concat(per, nearOpts), updated: new Date().toISOString() };
 }
 
 /* ---------- «Остальные карточки» из «Деталей продаж салоны»: всё, кроме телефонов/аксессуаров/услуг/страховок/сим ---------- */
@@ -1936,7 +1947,7 @@ function salonRate_(book, salon) {
 function dlBonusGet_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
-  const team = u.roleTitle !== 'ТМ' && (!!req.team || !grantHas_(ss, u, 'dl'));      // по умолчанию РТТ/УТТ видят только своих сотрудников; при выданном доступе «Сотрудники ДЛ» — вид ТМ (вся сеть)
+  const team = u.roleTitle !== 'ТМ';                                        // РТТ/УТТ (в т.ч. с выданным доступом) видят только сотрудников своих салонов; вся сеть — только у ТМ
   if (team ? !u.manager : !repAllowed_(ss, u, 'dl')) return { error: 'forbidden' };
   const full = cached_('dl:bonus', TTL_, function () {
     const rows = dlModel_(ss).rows, inc = incomeModel_(ss), gset = {}, out = [], wkOf = {}, weeks = [], book = salaryBook_(ss);
@@ -2160,7 +2171,7 @@ const NOTIF_SHEET = 'Уведомления';
 // ВАЖНО: при каждом обновлении сайта добавляйте сюда запись (новая версия `v`) — она сама станет новостью и уведомлением для всех.
 const RELEASES = [
   { v: '2026-12-11', title: 'Бонус по салонам, «Сопоставления», доступы',
-    text: 'Что нового:\n• «Бонус сотрудников» и «Бонус команды»: сотрудники сгруппированы по салонам, у каждого салона — подытог.\n• По умолчанию РТТ/УТТ в «Сотрудниках ДЛ → Бонус» видят только сотрудников своих салонов; при выданном доступе — вид ТМ (вся сеть).\n• «Сопоставления»: исправлена подгрузка «Сим 1с» — график «Сим 1с / Трафик / Конверсия» снова показывает данные.\n• Временный доступ: ТМ отмечает галочками разделы (Отчёты, Сотрудники ДЛ, План на день, Итоги дня, Карточки, Аналитика, ВМР); «Итоги дня», «План на день», «Карточки» и «Аналитика» открываются в виде ТМ — по всей сети.' },
+    text: 'Что нового:\n• «Бонус сотрудников» и «Бонус команды»: сотрудники сгруппированы по салонам, у каждого салона — подытог.\n• «Сотрудники ДЛ» (рейтинг и бонус) у РТТ/УТТ — только сотрудники их салонов, в том числе при выданном доступе; вся сеть — у ТМ.\n• «Сопоставления»: исправлена подгрузка «Сим 1с» — график «Сим 1с / Трафик / Конверсия» снова показывает данные.\n• «Сопоставления» у РТТ/УТТ: помимо своих салонов можно переключиться на смежные (тот же адрес, другой бренд) — трафик, сим 1с и конверсия.\n• «Сотрудники ДЛ» переработаны: вместо широкой таблицы — карточки сотрудников (рейтинг, часы, полосы выполнения плана по направлениям с прогнозом, качество), группировка по салонам, сортировка и поиск; таблица осталась во вкладке «Таблица». Бонус — карточки с раскрывающимся расчётом (оклад, защита, группы, недели).\n• ВМР у РТТ/УТТ — только проверки по их салонам, в том числе при выданном доступе.\n• Временный доступ: ТМ отмечает галочками разделы (Отчёты, Сотрудники ДЛ, План на день, Итоги дня, Карточки, Аналитика, ВМР); «Итоги дня», «План на день», «Карточки» и «Аналитика» открываются в виде ТМ — по всей сети; «Сотрудники ДЛ» — всегда только свои сотрудники.' },
   { v: '2026-12-10', title: 'Бонус сотрудников: оклад и защита бонуса',
     text: 'Что нового:\n• В «Бонус сотрудников» и «Бонус команды» добавлены оклад (факт часов × ставка города) и защита бонуса: если бонус на час ниже ставки грейда сотрудника по салону, бонус доводится до ставки × часы.\n• Прогноз ЗП теперь = оклад + бонус с защитой. Ставки берутся с листа «Надстройка».' },
   { v: '2026-12-09', title: 'Бонус команды для РТТ и УТТ',
