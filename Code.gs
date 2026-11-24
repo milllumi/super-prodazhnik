@@ -52,7 +52,18 @@ const CACHE_EPOCH = 'e12';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
+function cachePut_(key, ttl, val) {              // записать значение в тот же кэш, что читает cached_ (gzip, кусками)
+  key = CACHE_EPOCH + ':' + key;
+  try {
+    const c = CacheService.getScriptCache(), b64 = Utilities.base64Encode(Utilities.gzip(Utilities.newBlob(JSON.stringify(val), 'text/plain', 'v.json')).getBytes());
+    const SZ = 90000, n = Math.ceil(b64.length / SZ), o = {};
+    for (let i = 0; i < n; i++) o['c:' + key + ':' + i] = b64.substr(i * SZ, SZ);
+    o['c:' + key] = String(n);
+    c.putAll(o, ttl);
+  } catch (e) {}
+}
 function cached_(key, ttl, fn) {
+  const rawKey = key;
   key = CACHE_EPOCH + ':' + key;
   const c = CacheService.getScriptCache();
   if (!FRESH_) {
@@ -67,13 +78,7 @@ function cached_(key, ttl, fn) {
     } catch (e) {}
   }
   const val = fn();
-  try {
-    const b64 = Utilities.base64Encode(Utilities.gzip(Utilities.newBlob(JSON.stringify(val), 'text/plain', 'v.json')).getBytes());
-    const SZ = 90000, n = Math.ceil(b64.length / SZ), o = {};
-    for (let i = 0; i < n; i++) o['c:' + key + ':' + i] = b64.substr(i * SZ, SZ);
-    o['c:' + key] = String(n);
-    c.putAll(o, ttl);
-  } catch (e) {}
+  cachePut_(rawKey, ttl, val);
   return val;
 }
 
@@ -92,6 +97,7 @@ function doPost(e) {
     else if (req.action === 'cards_get') out = cardsGet_(req);
     else if (req.action === 'recon_get') out = reconGet_(req);
     else if (req.action === 'pulse_data') out = pulseData_(req);
+    else if (req.action === 'maint') out = maintReq_(req);
     else if (req.action === 'news_list') out = newsList_(req);
     else if (req.action === 'news_add') out = newsAdd_(req);
     else if (req.action === 'news_read') out = newsRead_(req);
@@ -295,20 +301,35 @@ function newsDate_(t) {
   const m = /^(\d{2})\.(\d{2})\.(\d{4})(?:\s+(\d{2}):(\d{2}))?/.exec(String(t || ''));
   return m ? new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), Number(m[4] || 0), Number(m[5] || 0)) : null;
 }
+/* Скорость новостей: лента и «кто прочитал» лежат в кэше (кэш листа новостей — 2 мин, сбрасывается при любой правке; прочтения обновляются на месте) */
+const NEWS_BASE_TTL_ = 120, NEWS_READS_TTL_ = 21600;
+function newsBase_(ss) {
+  return cached_('news:base', NEWS_BASE_TTL_, function () {
+    const v = newsSheet_(ss).getDataRange().getDisplayValues(), out = [];
+    for (let i = 1; i < v.length; i++) { if (v[i][0]) out.push(v[i].slice(0, 9)); }
+    return out;
+  });
+}
+function newsReads_(ss) {                                  // { id: [ {k: ключ, n: имя, r: роль, t: когда} ] }
+  return cached_('news:reads', NEWS_READS_TTL_, function () {
+    const rv = newsReadSheet_(ss).getDataRange().getDisplayValues(), m = {};
+    for (let i = 1; i < rv.length; i++) { const id = String(rv[i][0]); if (id) (m[id] = m[id] || []).push({ k: String(rv[i][1]), n: rv[i][2], r: rv[i][3], t: rv[i][4] }); }
+    return m;
+  });
+}
+function newsDrop_() { cacheDrop_('news:base'); cacheDrop_('news:reads'); }
 function newsList_(req) {
   const ss = ss_();
   const u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
   const tm = u.roleTitle === 'ТМ';
-  const v = newsSheet_(ss).getDataRange().getDisplayValues(), items = [];
-  const rv = newsReadSheet_(ss).getDataRange().getDisplayValues(), mineRead = {}, readers = {};
-  for (let i = 1; i < rv.length; i++) {
-    const id = String(rv[i][0]); if (!id) continue;
-    if (String(rv[i][1]) === u.key) mineRead[id] = rv[i][4];
-    if (tm) (readers[id] = readers[id] || []).push({ n: short_(rv[i][2]), r: rv[i][3], t: rv[i][4] });
-  }
+  const v = newsBase_(ss), items = [], reads = newsReads_(ss), mineRead = {}, readers = {};
+  Object.keys(reads).forEach(function (id) {
+    reads[id].forEach(function (x) { if (x.k === u.key) mineRead[id] = x.t; });
+    if (tm) readers[id] = reads[id].map(function (x) { return { n: short_(x.n), r: x.r, t: x.t }; });
+  });
   const limit = Date.now() - NEWS_MUST_DAYS_ * 86400000;
-  for (let i = 1; i < v.length; i++) {
+  for (let i = 0; i < v.length; i++) {
     const r = v[i]; if (!r[0]) continue;
     const st = norm_(r[6]), mine = norm_(r[2]) === u.key;
     if (st !== ST_PUB && !tm && !mine) continue;               // чужие предложения видит только ТМ
@@ -329,13 +350,12 @@ function newsRead_(req) {
   if (!ids.length) return { ok: true };
   const lock = LockService.getScriptLock(); lock.waitLock(10000);
   try {
-    const pub = {}; const nv = newsSheet_(ss).getDataRange().getDisplayValues();
-    for (let i = 1; i < nv.length; i++) if (norm_(nv[i][6]) === ST_PUB) pub[String(nv[i][0])] = 1;
-    const sh = newsReadSheet_(ss), rv = sh.getDataRange().getDisplayValues(), have = {};
-    for (let i = 1; i < rv.length; i++) if (String(rv[i][1]) === u.key) have[String(rv[i][0])] = 1;
+    const pub = {}; newsBase_(ss).forEach(function (r) { if (norm_(r[6]) === ST_PUB) pub[String(r[0])] = 1; });
+    const reads = newsReads_(ss), have = {};
+    Object.keys(reads).forEach(function (id) { if (reads[id].some(function (x) { return x.k === u.key; })) have[id] = 1; });
     const when = Utilities.formatDate(new Date(), 'Europe/Moscow', 'dd.MM.yyyy HH:mm'), add = [];
-    ids.forEach(function (id) { if (pub[id] && !have[id]) { add.push([id, u.key, u.name, u.roleTitle, when]); have[id] = 1; } });
-    if (add.length) { const rg = sh.getRange(sh.getLastRow() + 1, 1, add.length, 5); rg.setNumberFormat('@'); rg.setValues(add); }
+    ids.forEach(function (id) { if (pub[id] && !have[id]) { add.push([id, u.key, u.name, u.roleTitle, when]); have[id] = 1; (reads[id] = reads[id] || []).push({ k: u.key, n: u.name, r: u.roleTitle, t: when }); } });
+    if (add.length) { const sh = newsReadSheet_(ss), rg = sh.getRange(sh.getLastRow() + 1, 1, add.length, 5); rg.setNumberFormat('@'); rg.setValues(add); cachePut_('news:reads', NEWS_READS_TTL_, reads); }
     return { ok: true, saved: add.length };
   } finally { lock.releaseLock(); }
 }
@@ -364,6 +384,7 @@ function newsAdd_(req) {
     rg.setValues([[id, when, u.name, u.roleTitle, safeCell_(title), safeCell_(text), tm ? ST_PUB : ST_MOD, tm ? u.name : '', meta.length ? JSON.stringify(meta) : '']]);
     if (tm) { const rs = newsReadSheet_(ss), rr = rs.getRange(rs.getLastRow() + 1, 1, 1, 5); rr.setNumberFormat('@'); rr.setValues([[id, u.key, u.name, u.roleTitle, when]]); }
     if (tm) notifyMany_(ss, [{ to: '*', kind: 'news', title: '🚀 Скорее беги в приложение!', text: 'Там новая штука появилась 👀', tab: 'news' }]);
+    newsDrop_();
     return { ok: true, status: tm ? ST_PUB : ST_MOD };
   } finally { lock.releaseLock(); }
 }
@@ -380,6 +401,7 @@ function newsModerate_(req) {
     for (let i = 1; i < v.length; i++) if (String(v[i][0]) === String(req.id)) {
       if (d === 'delete') { sh.deleteRow(i + 1); dropFiles_(ss, String(req.id)); }
       else { sh.getRange(i + 1, 7).setValue(d === 'approve' ? ST_PUB : ST_REJ); sh.getRange(i + 1, 8).setValue(u.name); if (d === 'approve') notifyMany_(ss, [{ to: '*', kind: 'news', title: '🚀 Скорее беги в приложение!', text: 'Там новая штука появилась 👀', tab: 'news' }]); }
+      newsDrop_();
       return { ok: true };
     }
     return { error: 'not_found' };
@@ -519,12 +541,13 @@ function linksSet_(req) {
   if (!(row >= 1 && row <= sh.getLastRow()) || !String(sh.getRange(row, 1).getDisplayValue()).trim()) return { error: 'bad_request' };
   if (val.length > 500 || /^[=+@-]/.test(val)) return { error: 'bad_value' };      // без формул
   sh.getRange(row, 2).setValue(val);
-  CacheService.getScriptCache().removeAll(['kpiShops']);
+  CacheService.getScriptCache().removeAll(['kpiShops']); cacheDrop_('kpi:id');
   return { ok: true };
 }
 
 /* ---------- привязка салонов из KPI ОСС ---------- */
-function kpiSpreadsheetId_(ss) {
+function kpiSpreadsheetId_(ss) { return cached_('kpi:id', 600, function () { const id = kpiSpreadsheetIdRaw_(ss); return { id: id || '' }; }).id || null; }
+function kpiSpreadsheetIdRaw_(ss) {
   const sh = ss.getSheetByName(CONFIG.SHEET_LINKS);
   if (!sh) return null;
   const v = sh.getDataRange().getDisplayValues();
@@ -2224,7 +2247,8 @@ function attComSheet_(ss) {
   if (!sh) { sh = ss.insertSheet(CONFIG.SHEET_ATT_COM); sh.getRange(1, 1, 1, 10).setValues([ATT_COM_HEAD]); sh.setFrozenRows(1); }
   return sh;
 }
-function attComAll_(ss) {
+function attComAll_(ss) { return cached_('att:com', 300, function () { return attComAllRaw_(ss); }); }
+function attComAllRaw_(ss) {
   const v = attComSheet_(ss).getDataRange().getDisplayValues(), out = {};
   for (let i = 1; i < v.length; i++) if (v[i][0]) out[String(v[i][0])] = { by: short_(v[i][2]), role: v[i][3], text: v[i][5], at: v[i][6], ok: norm_(v[i][7]) === 'подтверждён', by2: short_(v[i][8]), at2: v[i][9] };
   return out;
@@ -2243,7 +2267,7 @@ function attComment_(req) {
     const sh = attComSheet_(ss), v = sh.getDataRange().getDisplayValues();
     for (let i = 1; i < v.length; i++) if (String(v[i][0]) === id) return { error: 'exists' };   // отправить можно один раз
     const when = Utilities.formatDate(new Date(), 'Europe/Moscow', 'dd.MM.yyyy HH:mm'), rg = sh.getRange(sh.getLastRow() + 1, 1, 1, 10);
-    rg.setNumberFormat('@'); rg.setValues([[id, u.key, u.name, u.roleTitle, ch.s, safeCell_(text), when, 'на проверке', '', '']]);
+    rg.setNumberFormat('@'); rg.setValues([[id, u.key, u.name, u.roleTitle, ch.s, safeCell_(text), when, 'на проверке', '', '']]); cacheDrop_('att:com');
     try { const tms = readAccess_(ss).filter(function (a) { return a.roleTitle === 'ТМ'; }).map(function (a) { return { to: a.key, kind: 'attc', title: '💬 Комментарий к чеку без допов', text: short_(u.name) + ': ' + (ch.ph ? ch.ph.n : '') + '. Нужно подтвердить.', tab: 'attach' }; }); if (tms.length) notifyMany_(ss, tms); } catch (e) {}
     return { ok: true, comment: { by: short_(u.name), role: u.roleTitle, text: text, at: when, ok: false, by2: '', at2: '' } };
   } finally { lock.releaseLock(); }
@@ -2259,7 +2283,7 @@ function attConfirm_(req) {
     for (let i = 1; i < v.length; i++) if (String(v[i][0]) === id) {
       if (norm_(v[i][7]) === 'подтверждён') return { error: 'locked' };
       const when = Utilities.formatDate(new Date(), 'Europe/Moscow', 'dd.MM.yyyy HH:mm');
-      sh.getRange(i + 1, 8, 1, 3).setValues([['подтверждён', u.name, when]]);
+      sh.getRange(i + 1, 8, 1, 3).setValues([['подтверждён', u.name, when]]); cacheDrop_('att:com');
       try { notifyMany_(ss, [{ to: String(v[i][1]), kind: 'attc', title: '✅ Комментарий подтверждён', text: 'ТМ подтвердил комментарий к чеку.', tab: 'attach' }]); } catch (e) {}
       return { ok: true, comment: { by: short_(v[i][2]), role: v[i][3], text: v[i][5], at: v[i][6], ok: true, by2: short_(u.name), at2: when } };
     }
@@ -2296,7 +2320,7 @@ const NOTIF_SHEET = 'Уведомления';
 // ВАЖНО: при каждом обновлении сайта добавляйте сюда запись (новая версия `v`) — она сама станет новостью и уведомлением для всех.
 const RELEASES = [
   { v: '2026-12-12', title: 'Итоги дня одной таблицей, Attachment и компактные блоки',
-    text: 'Что нового:\n• «Итоги дня»: переключатель разделов (Сводка · Итог дня · План на день · Факт продаж). В «Сводке» — одна таблица план / факт / % / план на завтра по направлениям, её можно скопировать текстом или картинкой.\n• Attachment: в списке «Чеки со смартфоном» добавлен фильтр по торговой точке.\n• Аттачмент в результатах точки показывается в шт на смартфон (раньше ошибочно в %).\n• «Салоны рядом» — только трафик и конверсия, цифры в строках выровнены. «Сотрудники ДЛ» — единый список-таблица с меню в стиле сайта. Разбор ВМР: фильтры свёрнуты, разделы На разбор / Динамика / Комбо.\n• «Бонус команды»: компактные карточки по салонам и новая таблица «Динамика по группам» по неделям.\n• Прогноз: если потерь нет, «Где теряем деньги» показывает позиции с минимальным запасом.\n• Столбцы по дням: при наведении видно значение по каждому салону.\n• Новости: после входа сначала показываются непрочитанные новости, пока все не отмечены «Прочитано» — дальше не пускает. ТМ видит, кто и когда прочитал каждую новость. «Фишки» оформлены фиолетовым с обводкой, новости от ТМ — в стиле «Калькулятор» со шрифтом темы.\n• Attachment: к чекам со смартфоном без допов можно оставить комментарий (нажмите на название телефона — быстрый просмотр). Отправить можно один раз; ТМ подтверждает, после подтверждения комментарий не меняется.\n• Оформление: больше выделения главного — крупные жирные числа, акцентные кромки у плиток, подсвеченные итоговые строки, заметный выбранный фильтр и видимый фокус клавиатуры.\n• «Отчёты» и «Карточки»: при копировании картинки в буфер кладётся и текст (есть и отдельная кнопка «Копировать текстом»): точка — прогноз — продажи за последний день — динамика прогноза, с группами «🏆 Лидеры прогноза» и «⚠️ Аутсайдеры прогноза». В «Отчётах» добавлена строка «🎯 Цель дня» — закрытие плана за последний день. Строка ТМ/«Итого» теперь всегда последняя в таблицах и карточках; в «Салонах рядом» бренды выделены цветом (МФ зелёный, МТС красный, БЛН жёлтый, Т2 чёрный). Текст «Карточек» — общий факт и факт за последний день, группы «🟢 Продажи были» и «🔴 Не было продаж» (с числом дней без продаж).\n• «Сотрудники ДЛ»: переосмыслены кнопки. Вид — «Список» / «Как в таблице»; сортировка по рейтингу, любому направлению (по прогнозу) или имени; группировка «По салонам» / «Без групп» (салоны идут в том же порядке, что и сортировка); у поиска счётчик «Найдено N из M». В виде «Как в таблице» лишние кнопки скрыты с пояснением.\n• «Карточки»: при наведении на любой столбец диаграммы показываются торговые точки и факт продаж по каждой.\n• Чеки: показываются часы и минуты пробития. В рейтинге сотрудников убраны проценты справа.\n• Гостевой доступ: разделы, выданные на время, вынесены в отдельный блок меню «Предоставили доступ», свои разделы остаются как были.' },
+    text: 'Что нового:\n• «Итоги дня»: переключатель разделов (Сводка · Итог дня · План на день · Факт продаж). В «Сводке» — одна таблица план / факт / % / план на завтра по направлениям, её можно скопировать текстом или картинкой.\n• Attachment: в списке «Чеки со смартфоном» добавлен фильтр по торговой точке.\n• Аттачмент в результатах точки показывается в шт на смартфон (раньше ошибочно в %).\n• «Салоны рядом» — только трафик и конверсия, цифры в строках выровнены. «Сотрудники ДЛ» — единый список-таблица с меню в стиле сайта. Разбор ВМР: фильтры свёрнуты, разделы На разбор / Динамика / Комбо.\n• «Бонус команды»: компактные карточки по салонам и новая таблица «Динамика по группам» по неделям.\n• Прогноз: если потерь нет, «Где теряем деньги» показывает позиции с минимальным запасом.\n• Столбцы по дням: при наведении видно значение по каждому салону.\n• Новости: после входа сначала показываются непрочитанные новости, пока все не отмечены «Прочитано» — дальше не пускает. ТМ видит, кто и когда прочитал каждую новость. «Фишки» оформлены фиолетовым с обводкой, новости от ТМ — в стиле «Калькулятор» со шрифтом темы.\n• Attachment: к чекам со смартфоном без допов можно оставить комментарий (нажмите на название телефона — быстрый просмотр). Отправить можно один раз; ТМ подтверждает, после подтверждения комментарий не меняется.\n• Оформление: больше выделения главного — крупные жирные числа, акцентные кромки у плиток, подсвеченные итоговые строки, заметный выбранный фильтр и видимый фокус клавиатуры.\n• «Отчёты» и «Карточки»: при копировании картинки в буфер кладётся и текст (есть и отдельная кнопка «Копировать текстом»): точка — прогноз — продажи за последний день — динамика прогноза, с группами «🏆 Лидеры прогноза» и «⚠️ Аутсайдеры прогноза». В «Отчётах» добавлена строка «🎯 Цель дня» — закрытие плана за последний день. Скорость: страница легче почти вдвое (логотипы презентации вынесены в wp-logo.json и грузятся только при сборке), сайт открывается сразу из кэша и тихо обновляется (баннер «Вышла новая версия»), новости запрашиваются параллельно с данными; на сервере уведомления и комментарии к чекам лежат в кэше, фоновая уборка не задерживает опрос. «Сотрудники ДЛ» → «Бонус» (для ТМ): блок «Защита бонуса по салонам» — прогноз выплаты защиты на месяц, доплата на сегодня и число сотрудников на защите по каждому салону. Новости грузятся быстрее: лента и «кто прочитал» в кэше, отметка «Прочитано» мгновенная, на сервер уходит одной пачкой. «Разбор» ВМР — отдельными блоками «Динамика» и «Комбо и рассрочка»; вкладка «Прогноз» вернулась (в «Ещё»). Attachment: «Сотрудники» сортируются по шт/тел от большего к меньшему, строка красная при аттачменте ниже 1; фильтр по неделям и выбор точки в «Проникновении по группам»; вместо вкладки «Прогноз» в меню — «ВМР». Строка ТМ/«Итого» теперь всегда последняя в таблицах и карточках; в «Салонах рядом» бренды выделены цветом (МФ зелёный, МТС красный, БЛН жёлтый, Т2 чёрный). Текст «Карточек» — общий факт и факт за последний день, группы «🟢 Продажи были» и «🔴 Не было продаж» (с числом дней без продаж).\n• «Сотрудники ДЛ»: переосмыслены кнопки. Вид — «Список» / «Как в таблице»; сортировка по рейтингу, любому направлению (по прогнозу) или имени; группировка «По салонам» / «Без групп» (салоны идут в том же порядке, что и сортировка); у поиска счётчик «Найдено N из M». В виде «Как в таблице» лишние кнопки скрыты с пояснением.\n• «Карточки»: при наведении на любой столбец диаграммы показываются торговые точки и факт продаж по каждой.\n• Чеки: показываются часы и минуты пробития. В рейтинге сотрудников убраны проценты справа.\n• Гостевой доступ: разделы, выданные на время, вынесены в отдельный блок меню «Предоставили доступ», свои разделы остаются как были.' },
   { v: '2026-12-11', title: 'Бонус по салонам, «Сопоставления», доступы',
     text: 'Что нового:\n• Все таблицы приведены к единому стилю (общий класс и общий фон шапки, первого столбца, зебры и итога во всех оформлениях).\n• Исправления интерфейса на телефоне: кнопки не меньше 44px, текст не мельче 11px, шапка не перекрывается кнопками (на узких экранах скрыты название и бейдж «Демо»).\n• Новое оформление «Калькулятор» (как в «Бонус-калькуляторе»): фиолетовый акцент, лаймовые подсветки, шрифты Unbounded и Manrope, точечный фон. Включается в «Оформлении» → «Профиль интерфейса» → «Калькулятор» (светлая и тёмная тема).\n• Единая методика прогноза: темп по завершённым дням × дней в месяце (у сотрудников ДЛ — по сменам); сегодняшний неполный день не берётся.\n• Отчёты объединены: «План на день» и «Факт продаж» теперь внутри «Итогов дня»; «Диагностика» и тепловая карта — внутри «Прогноза»; у РТТ/УТТ вместо «Бонуса команды» — «Сотрудники ДЛ» (рейтинг и бонус только их сотрудников).\n• «Сопоставления»: алерт «Трафик есть — продаж нет».\n• Бонус: коэффициент сезонности по месяцу (янв–июнь 1,1; июль–дек 0,9); салону без категории ставка берётся по названию и городу (как у салонов того же города).\n• Проверка отчётов: сопоставление салонов строже (целые слова, Т2/ТД различаются), «Точка» корректно считает прогноз при графике прошлого месяца, ВМР в рейтинге ДЛ не берёт чужую колонку вне июля–декабря.\n• «Бонус»: если у сотрудника не найден грейд — ему присваивается грейд C (ставка защиты и расчёт по C).\n• «Бонус сотрудников» и «Бонус команды»: сотрудники сгруппированы по салонам, у каждого салона — подытог.\n• «Сотрудники ДЛ» (рейтинг и бонус) у РТТ/УТТ — только сотрудники их салонов, в том числе при выданном доступе; вся сеть — у ТМ.\n• «Сопоставления»: исправлена подгрузка «Сим 1с» — график «Сим 1с / Трафик / Конверсия» снова показывает данные.\n• «Сопоставления» у РТТ/УТТ: помимо своих салонов можно переключиться на смежные (тот же адрес, другой бренд) — трафик, сим 1с и конверсия.\n• «Сотрудники ДЛ» переработаны: вместо широкой таблицы — карточки сотрудников (рейтинг, часы, полосы выполнения плана по направлениям с прогнозом, качество), группировка по салонам, сортировка и поиск; таблица осталась во вкладке «Таблица». Бонус — карточки с раскрывающимся расчётом (оклад, защита, группы, недели).\n• ВМР у РТТ/УТТ — только проверки по их салонам, в том числе при выданном доступе.\n• Временный доступ: ТМ отмечает галочками разделы (Отчёты, Сотрудники ДЛ, План на день, Итоги дня, Карточки, Аналитика, ВМР); «Итоги дня», «План на день», «Карточки» и «Аналитика» открываются в виде ТМ — по всей сети; «Сотрудники ДЛ» — всегда только свои сотрудники.' },
   { v: '2026-12-10', title: 'Бонус сотрудников: оклад и защита бонуса',
@@ -2355,6 +2379,7 @@ function notifyMany_(ss, list) {            // list: [{to, kind, title, text, ta
   const sh = notifSheet_(ss), now = new Date().toISOString();
   const rows = list.map(function (n) { return [Utilities.getUuid().slice(0, 8), now, n.to, n.kind || '', safeCell_(n.title || ''), safeCell_(n.text || ''), n.tab || '']; });
   sh.getRange(sh.getLastRow() + 1, 1, rows.length, 7).setNumberFormat('@').setValues(rows);
+  cacheDrop_('notif:rows');
   try { pushSend_(list); } catch (e) {}
 }
 /* ---------- настоящие push-уведомления через OneSignal (REST). Нужны свойства скрипта ONESIGNAL_APP_ID и ONESIGNAL_API_KEY ---------- */
@@ -2374,16 +2399,23 @@ function PUSH_URL_() { const cfg = (typeof PUSH_CFG_ !== 'undefined' && PUSH_CFG
 function notifList_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
-  try { maintain_(ss); } catch (e) {}
-  const sh = ss.getSheetByName(NOTIF_SHEET), items = [];
-  if (sh && sh.getLastRow() > 1) {
-    const n = Math.min(400, sh.getLastRow() - 1), v = sh.getRange(sh.getLastRow() - n + 1, 1, n, 7).getValues(), lim = new Date(Date.now() - 30 * 864e5).toISOString();
-    for (let i = v.length - 1; i >= 0 && items.length < 40; i--) {
-      const r = v[i], to = String(r[2]);
-      if ((to === '*' || to === u.key) && String(r[1]) >= lim) items.push({ id: String(r[0]), t: String(r[1]), kind: String(r[3]), title: String(r[4]), text: String(r[5]), tab: String(r[6]) });
-    }
+  /* последние 400 уведомлений лежат в кэше на минуту (сбрасывается при новом уведомлении) — опрос раз в 3 мин у всех больше не читает лист; фоновая «уборка» вынесена в action 'maint', чтобы не задерживать ответ */
+  const v = cached_('notif:rows', 60, function () {
+    const sh = ss.getSheetByName(NOTIF_SHEET); if (!sh || sh.getLastRow() < 2) return [];
+    const n = Math.min(400, sh.getLastRow() - 1);
+    return sh.getRange(sh.getLastRow() - n + 1, 1, n, 7).getValues().map(function (r) { return r.map(function (x) { return x instanceof Date ? x.toISOString() : String(x); }); });
+  }), items = [], lim = new Date(Date.now() - 30 * 864e5).toISOString();
+  for (let i = v.length - 1; i >= 0 && items.length < 40; i--) {
+    const r = v[i], to = String(r[2]);
+    if ((to === '*' || to === u.key) && String(r[1]) >= lim) items.push({ id: String(r[0]), t: String(r[1]), kind: String(r[3]), title: String(r[4]), text: String(r[5]), tab: String(r[6]) });
   }
   return { items: items, now: new Date().toISOString(), me: u.key };
+}
+function maintReq_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  try { maintain_(ss); } catch (e) {}
+  return { ok: true };
 }
 // Фоновое обслуживание (не чаще раза в 5 минут): релизы → новость + уведомление всем; ВМР → уведомления сотруднику и РТТ/УТТ
 function maintain_(ss) {
@@ -2408,6 +2440,7 @@ function releasesSync_(ss) {
     notes.push({ to: '*', kind: 'release', title: '🚀 Скорее беги в приложение!', text: 'Там новая штука появилась 👀', tab: 'news' });
     done.push(r.v);
   });
+  newsDrop_();
   notifyMany_(ss, notes);
   props.setProperty('rel_done', done.join(','));
 }
