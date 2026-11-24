@@ -379,6 +379,8 @@ em.up,em.dn{font-style:normal;font-size:11px;font-weight:700;padding:2px 7px;bor
 .mtable table tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--text) 4%,var(--card))}
 .mtable tr.tot td{border-top:2px solid var(--text);background:color-mix(in srgb,var(--text) 8%,var(--card))}
 .dlb td small{display:block;color:var(--muted);font-weight:500;font-size:11.5px}.dlb .mu{color:var(--muted);font-weight:500}.dlb td.bh{background-image:linear-gradient(90deg,color-mix(in srgb,var(--blue) 18%,transparent) var(--w,0%),transparent var(--w,0%))}.dlb td.bb{background-image:linear-gradient(90deg,color-mix(in srgb,var(--green,#34c759) 28%,transparent) var(--w,0%),transparent var(--w,0%))}.dlb tr.prot td{background-color:color-mix(in srgb,#ff9500 12%,transparent)}.dlb .pr{color:#c86a00}.dlb td.up{color:#1a8f3c}.dlb td.dn{color:#d0342c}.dlb th,.dlb td{padding:9px 11px!important}
+.dlb tr.sg td{background:var(--chip,rgba(120,120,128,.12));font-size:13px;padding-top:7px;padding-bottom:7px}
+.gr-secs{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0}.gr-sec{display:flex;align-items:center;gap:6px;font-size:14px}
 .wkb{display:flex;gap:8px;align-items:flex-end;margin:12px 0 4px;overflow-x:auto}.wkc{flex:1 0 64px;display:flex;flex-direction:column;align-items:center;gap:4px;font-variant-numeric:tabular-nums}.wkcol{height:110px;width:100%;display:flex;align-items:flex-end;background:var(--track);border-radius:10px;overflow:hidden}.wkcol u{display:block;width:100%;background:var(--blue);border-radius:10px 10px 0 0;min-height:2px}.wkc b{font-size:13px}.wkc span{font-size:11.5px;color:var(--muted)}.wkd{font-style:normal;font-size:11.5px;font-weight:700;min-height:14px}.wkd.up{color:#1a8f3c}.wkd.dn{color:#d0342c}
 .rp-t tbody tr:nth-child(even) td,.rc-t tbody tr:nth-child(even) td,.pt-t tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--text) 4%,var(--card))}
 /* ===== «жидкое стекло»: полупрозрачные размытые панели и кнопки с бликом; кнопки меню — в исходном виде ===== */
@@ -2841,6 +2843,8 @@ const TABS = {
   manager: [['results','Месяц'],['dayres','Итоги дня'],['days','По дням'],['forecast','Прогноз'],['bonus','Бонус']],
 };
 let TABSET = '', PREV_TAB = null;
+const gHas = (d,k) => !!(d && d.guest && (d.guest.sections||[]).indexOf(k)>=0);               // у гостя открыт раздел
+const viewD = (d,k) => (gHas(d,k) && d.tmData) ? d.tmData : d;                                // «вид ТМ» для открытых разделов
 function tabsFor(role,d){
   const t = TABS[role].slice();
   if (role==='manager' && d){
@@ -2851,7 +2855,7 @@ function tabsFor(role,d){
     if (d.summary) t.splice(4,0,['summary','Общий свод']);
     if (d.canLinks){ t[bi()]=['tmbonus','Бонус ТМ']; t.splice(5,0,['reports','Отчёты']); t.splice(6,0,['dl','Сотрудники ДЛ']); t.splice(7,0,['dayplan','План на день']); t.splice(8,0,['auth','Входы'],['access','Доступы']); t.push(['vmr','ВМР']); t.push(['pulse','Weekly Pulse']); t.push(['links','Ссылки']); if (DEMO) for (let i=t.length-1;i>=0;i--) if (t[i][0]==='tmbonus'||t[i][0]==='links') t.splice(i,1); }
   }
-  if (role==='manager' && d && d.guest && !d.canLinks){ const gi = t.findIndex(x=>x[0]==='forecast'); t.splice(gi>=0?gi+1:t.length,0,['reports','Отчёты'],['dl','Сотрудники ДЛ'],['dayplan','План на день']); }
+  if (role==='manager' && d && d.guest && !d.canLinks){ const gi = t.findIndex(x=>x[0]==='forecast'); t.splice(gi>=0?gi+1:t.length,0,...[['reports','Отчёты'],['dl','Сотрудники ДЛ'],['dayplan','План на день']].filter(x=>gHas(d,x[0]))); }
   if (role==='manager' && d){ const i=t.findIndex(x=>x[0]==='forecast'); if (i>=0) t.splice(i+1,0,['diag','Диагностика'],['attach','Attachment'],['analytics','Аналитика']); if (!d.canLinks && i>=0) t.splice(i+4,0,['vmr','ВМР']);
     const gr = id => { const k = TAB_GROUPS.findIndex(g=>g[1].indexOf(id)>=0); return k<0 ? 99 : k; };
     return t.map((x,j)=>[x,j]).sort((a,b)=>gr(a[0][0])-gr(b[0][0]) || a[1]-b[1]).map(x=>x[0]); }
@@ -3134,7 +3138,7 @@ function renderManager(d){
       ${d.salons.map((s,i)=>`<button class="chipb" data-sel="${i}" aria-pressed="${SEL===String(i)}">${esc(s.name)}</button>`).join('')}</div>`:''}`;
   $('#mgrHead').querySelectorAll('[data-sel]').forEach(b=>b.onclick=()=>{SEL=b.dataset.sel;renderManager(DATA)});
   renderSummary(d);
-  $('#m-dayres').innerHTML = dayResPane(d); $('#m-dayplan').innerHTML = dayPlanPane(d); bindDayRes(); if (WRAP.dataset.tab==='analytics') loadAnalytics();
+  $('#m-dayres').innerHTML = dayResPane(viewD(d,'dayres')); $('#m-dayplan').innerHTML = dayPlanPane(viewD(d,'dayplan')); bindDayRes(); if (WRAP.dataset.tab==='analytics') loadAnalytics();
 
   if (!A.dirs.length){
     const ks = (d.kpiShops||[]);
@@ -3437,6 +3441,7 @@ async function loadLinks(){
 
 /* =================== Доступы (только ТМ): временный доступ РТТ/УТТ к отчётам =================== */
 let GRC = null, GRD = 7;
+const GR_SECS = [['reports','Отчёты'],['dl','Сотрудники ДЛ'],['dayplan','План на день'],['dayres','Итоги дня'],['cards','Карточки'],['analytics','Аналитика'],['vmr','ВМР']], GRS = new Set(['reports','dl','dayplan','dayres','cards','analytics','vmr']);
 const grFmt = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); };
 function grLeft(iso){ const ms = new Date(iso) - Date.now(); if (ms<=0) return 'закончился'; const h = Math.floor(ms/36e5), d = Math.floor(h/24); return d>=1 ? 'ещё '+d+' дн. '+(h%24)+' ч' : h>=1 ? 'ещё '+h+' ч' : 'ещё '+Math.max(1,Math.round(ms/6e4))+' мин'; }
 function accessPane(r){
@@ -3444,11 +3449,12 @@ function accessPane(r){
   const act = r.grants.filter(g=>g.active), old = r.grants.filter(g=>!g.active).slice(0,15);
   const opts = r.people.map(p=>`<option value="${esc(p.key)}">${esc(p.name)} · ${esc(p.role)}</option>`).join('');
   const tmr = new Date(Date.now()+864e5), isoD = d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  const row = g => `<div class="gr-row"><div class="gr-n"><b>${esc(g.name)}</b><small>${esc(g.role)} · выдал ${esc(g.by||'—')}</small></div><div class="gr-u"><b>${g.active?esc(grLeft(g.until)):(g.revoked?'отозван':'закончился')}</b><small>${g.active?'до ':''}${esc(grFmt(g.until))}</small></div>${g.active?`<button class="btn ghost gr-x" data-grrev="${esc(g.key)}" type="button">Закрыть</button>`:'<span></span>'}</div>`;
+  const row = g => `<div class="gr-row"><div class="gr-n"><b>${esc(g.name)}</b><small>${esc(g.role)} · выдал ${esc(g.by||'—')}${g.sections?' · '+esc(GR_SECS.filter(x=>g.sections.indexOf(x[0])>=0).map(x=>x[1]).join(', ')):''}</small></div><div class="gr-u"><b>${g.active?esc(grLeft(g.until)):(g.revoked?'отозван':'закончился')}</b><small>${g.active?'до ':''}${esc(grFmt(g.until))}</small></div>${g.active?`<button class="btn ghost gr-x" data-grrev="${esc(g.key)}" type="button">Закрыть</button>`:'<span></span>'}</div>`;
   return `<div class="card fade"><h2>Доступ к отчётам на время</h2>
-    <p class="note-s" style="margin:0 0 12px">Выберите РТТ/УТТ и срок — на это время ему откроются отчёты ТМ. Открываются «Отчёты», «Сотрудники ДЛ», «План на день», полная «Аналитика» и «ВМР». Не открываются: «Бонус ТМ», «Входы», «Ссылки», «Weekly Pulse» и эта страница. Доступ закрывается сам.</p>
+    <p class="note-s" style="margin:0 0 12px">Выберите РТТ/УТТ, срок и отметьте разделы — они откроются в виде ТМ (по всей сети). Без доступа РТТ/УТТ видят только свои салоны и сотрудников. Не открываются: «Бонус ТМ», «Входы», «Ссылки», «Weekly Pulse» и эта страница. Доступ закрывается сам.</p>
     <div class="gr-form"><select id="grWho" class="vm-sel"><option value="">Кому открыть…</option>${opts}</select>
       <div class="seg gr-days" id="grDays">${[[1,'1 день'],[3,'3 дня'],[7,'7 дней'],[14,'14 дней'],[30,'30 дней'],[0,'До даты']].map(x=>`<button type="button" data-grd="${x[0]}" aria-pressed="${GRD===x[0]}">${x[1]}</button>`).join('')}</div>
+      <div class="gr-secs" id="grSecs">${GR_SECS.map(x=>`<label class="gr-sec"><input type="checkbox" data-grs="${x[0]}" ${GRS.has(x[0])?'checked':''}><span>${x[1]}</span></label>`).join('')}</div>
       <label class="gr-date" id="grDateW" ${GRD===0?'':'hidden'}><span>Включительно до</span><input type="date" id="grDate" min="${isoD(new Date())}" max="${isoD(new Date(Date.now()+120*864e5))}" value="${isoD(tmr)}"></label>
       <button class="btn" id="grGo" type="button">Открыть доступ</button></div><div class="note-s" id="grMsg" style="margin-top:8px"></div></div>
     <div class="card fade"><h2>Сейчас открыт доступ</h2>${act.length?act.map(row).join(''):'<div class="empty">Временных доступов нет.</div>'}</div>
@@ -3457,8 +3463,9 @@ function accessPane(r){
 function accessBind(){
   const el = $('#m-access'); if (!el) return; const msg = t => { const m = $('#grMsg'); if (m) m.textContent = t; };
   el.querySelectorAll('[data-grd]').forEach(b=>b.onclick=()=>{ GRD = Number(b.dataset.grd); el.querySelectorAll('[data-grd]').forEach(x=>x.setAttribute('aria-pressed', String(x===b))); const w = $('#grDateW'); if (w) w.hidden = GRD!==0; });
-  const go = $('#grGo'); if (go) go.onclick = async ()=>{ const key = $('#grWho').value; if (!key) return msg('Выберите сотрудника'); go.disabled = true; msg('Открываем доступ…');
-    try{ const body = {action:'grants_set', token:store.get('token'), key}; if (GRD===0){ const dv = ($('#grDate')||{}).value; if (!dv){ go.disabled = false; return msg('Выберите дату'); } body.untilDate = dv; } else body.days = GRD; const r = await api(body); if (r && r.error==='bad_date'){ go.disabled = false; return msg('Дата должна быть в будущем (не дальше 120 дней)'); } if (r&&r.ok){ await loadAccess(true); const m = $('#grMsg'); if (m) m.textContent = 'Доступ открыт до '+grFmt(r.until); } else { msg('Не удалось открыть доступ'); go.disabled = false; } }catch(e){ msg('Нет связи с сервером'); go.disabled = false; } };
+  el.querySelectorAll('[data-grs]').forEach(c=>c.onchange=()=>{ c.checked ? GRS.add(c.dataset.grs) : GRS.delete(c.dataset.grs); });
+  const go = $('#grGo'); if (go) go.onclick = async ()=>{ const key = $('#grWho').value; if (!key) return msg('Выберите сотрудника'); if (!GRS.size) return msg('Отметьте хотя бы один раздел'); go.disabled = true; msg('Открываем доступ…');
+    try{ const body = {action:'grants_set', token:store.get('token'), key, sections:[...GRS]}; if (GRD===0){ const dv = ($('#grDate')||{}).value; if (!dv){ go.disabled = false; return msg('Выберите дату'); } body.untilDate = dv; } else body.days = GRD; const r = await api(body); if (r && r.error==='bad_date'){ go.disabled = false; return msg('Дата должна быть в будущем (не дальше 120 дней)'); } if (r&&r.ok){ await loadAccess(true); const m = $('#grMsg'); if (m) m.textContent = 'Доступ открыт до '+grFmt(r.until); } else { msg('Не удалось открыть доступ'); go.disabled = false; } }catch(e){ msg('Нет связи с сервером'); go.disabled = false; } };
   el.querySelectorAll('[data-grrev]').forEach(b=>b.onclick=async ()=>{ b.disabled = true; try{ await api({action:'grants_set', token:store.get('token'), key:b.dataset.grrev, revoke:true}); }catch(e){} loadAccess(true); });
 }
 async function loadAccess(force){
@@ -3470,7 +3477,7 @@ function demoGrants(b){
   const P = [['ivanov','Иванов Пётр Андреевич','РТТ'],['smirn','Смирнова Анна Олеговна','УТТ'],['kuz','Кузнецов Илья Сергеевич','РТТ']];
   const G = demoGrants.G || (demoGrants.G = [{key:'smirn',name:'Смирнова Анна Олеговна',role:'УТТ',until:new Date(Date.now()+2*864e5+3*36e5).toISOString(),by:'ТМ Демо',when:new Date().toISOString(),active:true,revoked:false}]);
   if (b.action==='grants_set'){ const p = P.find(x=>x[0]===b.key); if (!p) return {error:'bad_request'}; G.forEach(g=>{ if (g.key===b.key && g.active){ g.active = false; g.revoked = !!b.revoke; g.until = new Date().toISOString(); } });
-    if (b.revoke) return {ok:true}; const until = b.untilDate ? new Date(b.untilDate+'T23:59:59+03:00').toISOString() : new Date(Date.now()+b.days*864e5).toISOString(); G.unshift({key:p[0],name:p[1],role:p[2],until,by:'ТМ Демо',when:new Date().toISOString(),active:true,revoked:false}); return {ok:true,until}; }
+    if (b.revoke) return {ok:true}; const until = b.untilDate ? new Date(b.untilDate+'T23:59:59+03:00').toISOString() : new Date(Date.now()+b.days*864e5).toISOString(); G.unshift({key:p[0],name:p[1],role:p[2],until,by:'ТМ Демо',when:new Date().toISOString(),active:true,revoked:false,sections:b.sections}); return {ok:true,until}; }
   return {people:P.map(p=>({key:p[0],name:p[1],role:p[2]})),grants:G,now:new Date().toISOString()};
 }
 
@@ -3647,7 +3654,7 @@ async function rpLoad(key, force, host){
     if ((host||RPT===key) && !same) rpDraw(key, r, host);
   }catch(e){ if (!cached) el.innerHTML = '<div class="card empty">Нет связи. Нажмите «Обновить».</div>'; }
 }
-function loadDayPlan(){ const el=$('#m-dayplan'); if (el && DATA){ el.innerHTML=dayPlanPane(DATA); bindDayPlan(); } }
+function loadDayPlan(){ const el=$('#m-dayplan'); if (el && DATA){ el.innerHTML=dayPlanPane(viewD(DATA,'dayplan')); bindDayPlan(); } }
 let DLV = 'rate', DLB = null;
 function loadDL(force){
   const el = $('#m-dl'); if (!el) return;
@@ -3681,22 +3688,26 @@ function dlBonusPane(r, team){
   const per = x => x.workH>0 ? x.total/x.workH : null, pct = x => x.planH>0 ? Math.min(100,x.workH/x.planH*100) : 0, v0 = v => v==null?'—':fmt(Math.round(v));
   const sm = `<div class="card fade"><h2>${team?'Бонус команды':'Бонус сотрудников'}${r.month?' · '+esc(r.month):''}</h2><div class="hero-row num" style="margin-top:8px"><div><b>${fmt(salS)} ₽</b><span>Оклад на сегодня</span></div><div><b>${fmt(bonS)} ₽</b><span>Бонус на сегодня${protN?' (с защитой)':''}</span></div><div><b>${fmt(zpS)} ₽</b><span>Прогноз ЗП на месяц</span></div></div>
     <p class="note-s" style="margin-top:10px">Отработано ${fmt(sum('workH'))} из ${fmt(sum('planH'))} ч («Факт 1С», план — по графику). Оклад = отработанные часы × ставка города. Прогноз бонуса = бонус на сегодня ÷ отработанные часы × плановые часы. Прогноз ЗП = оклад и бонус на плановые часы, с защитой бонуса. Защита: если бонус на час ниже ставки грейда сотрудника по салону — бонус доводится до ставки × часы.${protN?` Защита сейчас у ${protN} из ${rows.length}.`:''} РТТ и УТТ не входят.</p></div>`;
+  const salOf = x => String(x.ttFull||x.tt||'').trim()||'Без салона', salShort = n => n.split(/\s+/).slice(0,3).join(' ');
+  const salNames = [...new Set(rows.map(salOf))].sort((a,b)=>a.localeCompare(b,'ru')), multiS = salNames.length>1;
+  const gmap = (f, n, sub) => !multiS ? rows.map(f).join('') : salNames.map(s=>{ const rs = rows.filter(x=>salOf(x)===s); return `<tr class="sg"><td${sub?'':' colspan="'+n+'"'}><b>${esc(salShort(s))}</b> <span class="mu">· ${rs.length} сотр.</span></td>${sub?sub(rs):''}</tr>`+rs.map(f).join(''); }).join('');
+  const sm_ = (rs,k)=>rs.reduce((a,x)=>a+(x[k]||0),0);
   const maxT = Math.max(1,...rows.map(x=>x.total||0));
-  const body = rows.map(x=>{ const p = per(x); return `<tr><td><b>${esc(x.name)}</b><small>${esc(x.role||'')}${x.tt?' · '+esc(x.tt):''}</small></td><td class="bh" style="--w:${pct(x).toFixed(0)}%"><b>${fmt(x.workH)}</b> <span class="mu">из ${fmt(x.planH)}</span></td><td class="bh bb" style="--w:${(x.total/maxT*100).toFixed(0)}%"><b>${fmt(x.total)}</b></td><td>${p==null?'—':fmt(Math.round(p))}</td><td><b>${x.zp!=null?fmt(x.zp):(x.fc==null?'—':fmt(x.fc))}</b></td></tr>`; }).join('');
+  const body = gmap(x=>{ const p = per(x); return `<tr><td><b>${esc(x.name)}</b><small>${esc(x.role||'')}${x.tt?' · '+esc(x.tt):''}</small></td><td class="bh" style="--w:${pct(x).toFixed(0)}%"><b>${fmt(x.workH)}</b> <span class="mu">из ${fmt(x.planH)}</span></td><td class="bh bb" style="--w:${(x.total/maxT*100).toFixed(0)}%"><b>${fmt(x.total)}</b></td><td>${p==null?'—':fmt(Math.round(p))}</td><td><b>${x.zp!=null?fmt(x.zp):(x.fc==null?'—':fmt(x.fc))}</b></td></tr>`; }, 5, rs=>{ const w=sm_(rs,'workH'), pH=sm_(rs,'planH'), t=sm_(rs,'total'), z=rs.reduce((a,x)=>a+(x.zp!=null?x.zp:(x.salaryFc||0)+(x.fcProt!=null?x.fcProt:(x.fc||0))),0); return `<td>${fmt(w)} <span class="mu">из ${fmt(pH)}</span></td><td>${fmt(t)}</td><td>${w>0?fmt(Math.round(t/w)):'—'}</td><td>${fmt(z)}</td>`; });
   const foot = `<tr class="tot"><td>Итого</td><td>${fmt(sum('workH'))} <span class="mu">из ${fmt(sum('planH'))}</span></td><td>${fmt(sum('total'))}</td><td>${sum('workH')>0?fmt(Math.round(sum('total')/sum('workH'))):'—'}</td><td>${fmt(zpS)}</td></tr>`;
   const main = `<div class="card fade"><h2>Бонус и прогноз ЗП</h2><div class="mtable dlb"><table><thead><tr><th>Сотрудник</th><th>Часы, ч</th><th>Бонус, ₽</th><th>₽ за час</th><th>Прогноз ЗП, ₽</th></tr></thead><tbody>${body}${foot}</tbody></table></div></div>`;
-  const sbody = rows.map(x=>`<tr${x.prot?' class="prot"':''}><td><b>${esc(x.name)}</b></td><td>${esc(x.grade||'—')}</td><td>${v0(x.city)}</td><td>${v0(x.salary)}</td><td>${v0(x.rate)}</td><td>${x.perH==null?'—':fmt(Math.round(x.perH))}</td><td>${x.rate==null?'<span class="mu">нет ставки</span>':x.prot?'<b class="pr">защита</b>':'<span class="mu">нет</span>'}</td><td>${x.prot?fmt(Math.round(x.protNow)):'<span class="mu">·</span>'}</td><td>${v0(x.fcProt!=null?x.fcProt:x.fc)}</td><td><b>${v0(x.zp)}</b></td></tr>`).join('');
+  const sbody = gmap(x=>`<tr${x.prot?' class="prot"':''}><td><b>${esc(x.name)}</b></td><td>${esc(x.grade||'—')}</td><td>${v0(x.city)}</td><td>${v0(x.salary)}</td><td>${v0(x.rate)}</td><td>${x.perH==null?'—':fmt(Math.round(x.perH))}</td><td>${x.rate==null?'<span class="mu">нет ставки</span>':x.prot?'<b class="pr">защита</b>':'<span class="mu">нет</span>'}</td><td>${x.prot?fmt(Math.round(x.protNow)):'<span class="mu">·</span>'}</td><td>${v0(x.fcProt!=null?x.fcProt:x.fc)}</td><td><b>${v0(x.zp)}</b></td></tr>`, 10);
   const sfoot = `<tr class="tot"><td>Итого</td><td></td><td></td><td>${fmt(salS)}</td><td></td><td></td><td>${protN}</td><td>${fmt(Math.round(sum('protNow')))}</td><td>${fmt(Math.round(rows.reduce((a,x)=>a+(x.fcProt!=null?x.fcProt:(x.fc||0)),0)))}</td><td>${fmt(zpS)}</td></tr>`;
   const sal = `<div class="card fade"><h2>Оклад и защита бонуса</h2><div class="mtable dlb"><table><thead><tr><th>Сотрудник</th><th>Грейд</th><th>Ставка города, ₽/ч</th><th>Оклад, ₽</th><th>Ставка грейда, ₽/ч</th><th>Бонус, ₽/ч</th><th>Защита</th><th>Доплата сейчас, ₽</th><th>Бонус на месяц с защитой, ₽</th><th>ЗП на месяц, ₽</th></tr></thead><tbody>${sbody}${sfoot}</tbody></table></div><p class="note-s" style="margin:8px 0 0">Ставки — лист «Надстройка»: ставка города по салону, ставка грейда (A/B/C) по салону. Если сотрудника или салона нет в «Надстройке», защита и оклад не считаются.</p></div>`;
   const gmax = {}; G.forEach(g=>gmax[g]=Math.max(1,...rows.map(x=>x.groups[g]||0)));
-  const gbody = rows.map(x=>`<tr><td><b>${esc(x.name)}</b></td>${G.map(g=>{ const v=x.groups[g]||0; return `<td class="bh bg" style="--w:${(v/gmax[g]*100).toFixed(0)}%">${v?fmt(v):'<span class="mu">·</span>'}</td>`; }).join('')}<td><b>${fmt(x.total)}</b></td></tr>`).join('');
+  const gbody = gmap(x=>`<tr><td><b>${esc(x.name)}</b></td>${G.map(g=>{ const v=x.groups[g]||0; return `<td class="bh bg" style="--w:${(v/gmax[g]*100).toFixed(0)}%">${v?fmt(v):'<span class="mu">·</span>'}</td>`; }).join('')}<td><b>${fmt(x.total)}</b></td></tr>`, G.length+2, rs=>G.map(g=>`<td>${fmt(rs.reduce((a,x)=>a+(x.groups[g]||0),0))}</td>`).join('')+`<td><b>${fmt(sm_(rs,'total'))}</b></td>`);
   const gfoot = `<tr class="tot"><td>Итого</td>${G.map(g=>`<td>${fmt(gS[g])}</td>`).join('')}<td>${fmt(sum('total'))}</td></tr>`;
   const grp = `<div class="card fade"><h2>Бонус по группам, ₽</h2><div class="mtable dlb"><table><thead><tr><th>Сотрудник</th>${G.map(g=>`<th>${esc(g)}</th>`).join('')}<th>Всего</th></tr></thead><tbody>${gbody}${gfoot}</tbody></table></div></div>`;
   let wk = '';
   if (W.length){
     const wt = W.map((_,i)=>rows.reduce((a,x)=>a+((x.wk||[])[i]||0),0)), wm = Math.max(1,...wt);
     const bars = `<div class="wkb">${W.map((w,i)=>{ const d = i>0 && wt[i-1]>0 ? (wt[i]/wt[i-1]-1)*100 : null; return `<div class="wkc"><i class="wkd ${d==null?'':d>=0?'up':'dn'}">${d==null?'':(d>=0?'+':'')+Math.round(d)+'%'}</i><div class="wkcol"><u style="height:${(wt[i]/wm*100).toFixed(0)}%"></u></div><b>${fmt(wt[i])}</b><span>${esc(w.label)}</span></div>`; }).join('')}</div>`;
-    const wbody = rows.map(x=>`<tr><td><b>${esc(x.name)}</b></td>${W.map((_,i)=>{ const v=(x.wk||[])[i]||0, pv=i>0?(x.wk||[])[i-1]||0:0; return `<td class="${v&&i>0&&pv?(v>=pv?'up':'dn'):''}">${v?fmt(v):'<span class="mu">·</span>'}</td>`; }).join('')}<td><b>${fmt(x.total)}</b></td></tr>`).join('');
+    const wbody = gmap(x=>`<tr><td><b>${esc(x.name)}</b></td>${W.map((_,i)=>{ const v=(x.wk||[])[i]||0, pv=i>0?(x.wk||[])[i-1]||0:0; return `<td class="${v&&i>0&&pv?(v>=pv?'up':'dn'):''}">${v?fmt(v):'<span class="mu">·</span>'}</td>`; }).join('')}<td><b>${fmt(x.total)}</b></td></tr>`, W.length+2, rs=>W.map((_,i)=>`<td>${fmt(rs.reduce((a,x)=>a+((x.wk||[])[i]||0),0))}</td>`).join('')+`<td><b>${fmt(sm_(rs,'total'))}</b></td>`);
     const wfoot = `<tr class="tot"><td>Итого</td>${wt.map(v=>`<td>${fmt(v)}</td>`).join('')}<td>${fmt(sum('total'))}</td></tr>`;
     wk = `<div class="card fade"><h2>Динамика по неделям, ₽</h2>${bars}<p class="note-s" style="margin:6px 0 10px">Недели — с понедельника по воскресенье; первая и последняя могут быть неполными. Процент — к прошлой неделе.</p><div class="mtable dlb"><table><thead><tr><th>Сотрудник</th>${W.map(w=>`<th>${esc(w.label)}</th>`).join('')}<th>Всего</th></tr></thead><tbody>${wbody}${wfoot}</tbody></table></div></div>`;
   }
@@ -4217,7 +4228,7 @@ function dayPlanPane(d){
       <div class="dr-m">${mob}</div>
       <div class="note-s" style="margin-top:10px">Метка ×N — во сколько раз нужный на день объём выше текущего среднего темпа (зелёный — до ×1,05, жёлтый — до ×1,3, красный — выше); шкала — до ×2. План на день с учётом отставания = (план месяца − факт за прошлые дни) ÷ оставшиеся дни месяца, включая выбранный. «Осталось» — сколько ещё нужно продать до конца месяца.</div></div>`;
 }
-function bindDayPlan(){ const el=$('#m-dayplan'); if (!el) return; el.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{ PLSEL=b.dataset.pl; el.innerHTML=dayPlanPane(DATA); bindDayPlan(); }); }
+function bindDayPlan(){ const el=$('#m-dayplan'); if (!el) return; el.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{ PLSEL=b.dataset.pl; el.innerHTML=dayPlanPane(viewD(DATA,'dayplan')); bindDayPlan(); }); }
 function dayResPane(d){
   const sal = d.salons||[];
   const dirs = DIR_ORDER.filter(k=>sal.some(s=>s.dirs.some(x=>x.key===k)));
@@ -4247,7 +4258,7 @@ function dayResPane(d){
       <div class="mtable dr-wide"><table class="dr-t2"><thead>${head1}${head2}</thead><tbody>${rows}${totRow}</tbody></table></div>
       <div class="note-s" style="margin-top:10px">План на день с учётом отставания = (план месяца − факт за прошлые дни) ÷ оставшиеся дни месяца, включая выбранный. «%» — закрытие плана дня.</div></div>`;
 }
-function bindDayRes(){ bindDayPlan(); $('#m-dayres').querySelectorAll('[data-dr]').forEach(b=>b.onclick=()=>{ DAYSEL=b.dataset.dr; $('#m-dayres').innerHTML=dayResPane(DATA); bindDayRes(); }); }
+function bindDayRes(){ bindDayPlan(); $('#m-dayres').querySelectorAll('[data-dr]').forEach(b=>b.onclick=()=>{ DAYSEL=b.dataset.dr; $('#m-dayres').innerHTML=dayResPane(viewD(DATA,'dayres')); bindDayRes(); }); }
 
 /* =================== ПОДСКАЗКИ при наведении / касании =================== */
 const TIP = document.createElement('div'); TIP.id='tip'; document.body.appendChild(TIP);
@@ -4616,7 +4627,7 @@ function anSim(m){
 let ANCACHE = {};
 async function anFetch(key){ try{ const r = await api({action:'tm_report', token:store.get('token'), name:key}); return r && !r.error ? r : null; }catch(e){ return null; } }
 function loadAnalytics(){
-  const el = $('#m-analytics'); if (!el || !DATA) return; const d = DATA, tm = !!(d.canLinks || d.guest);
+  const el = $('#m-analytics'); if (!el || !DATA) return; const d = viewD(DATA,'analytics'), tm = !!(d.canLinks || gHas(DATA,'analytics'));
   el.innerHTML = `<div class="stack"><div id="anHeat">${anHeat(d)}</div><div id="anPace">${anPace(d)}</div>${tm?'<div id="anContrib"><div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем сотрудников…</div></div><div id="anSim"><div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем SIM…</div></div>':''}</div>`;
   anBind();
   if (!tm) return;
@@ -5153,7 +5164,7 @@ function rvBind(root, k, getBase){
   box.querySelectorAll('[data-rv]').forEach(b=>b.onclick = () => { const f = b.dataset.rv, v = b.dataset.v; REV[k][f] = (f==='m'||f==='w') ? (v==='all'?'all':Number(v)) : f==='all' ? v==='1' : v; if (f==='m') REV[k].w = 'all'; rr(); });
 }
 async function loadMyVmr(force){
-  if (DATA && (DATA.canLinks || DATA.guest)) return loadTmVmr();
+  if (DATA && (DATA.canLinks || gHas(DATA,'vmr'))) return loadTmVmr();
   const host = $(ROLE==='manager' ? '#m-vmr' : '#vmrc'); if (!host) return;
   if (!MYVMR || force){ host.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем проверки ВМР…</div>'; try{ const r = await api({action:'vmr_mine', token:store.get('token')}); MYVMR = r && r.grid ? {rows:vmrParse(r.grid)||[]} : {err:r&&r.error||'x', missing:r&&r.missing}; }catch(e){ MYVMR = {err:'net'}; } }
   if (!MYVMR.rows) { host.innerHTML = `<div class="card empty">${MYVMR.missing?'Выгрузка ВМР не найдена.':'Не удалось загрузить проверки ВМР.'}</div>`; return; }
