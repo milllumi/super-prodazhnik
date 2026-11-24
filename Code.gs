@@ -273,6 +273,7 @@ function warmCache() {
   Object.keys(TM_REPORTS).forEach(function (k) { try { tmReportRaw_(ss, k); } catch (e) {} });
   try { salesModel_(ss); detailsGrid_(ss); incomeModel_(ss); scheduleHours_(ss); } catch (e) {}      // расчёты по чекам (вместо сводных таблиц)
   try { cardsAll_(ss); } catch (e) {}
+  try { dlBonusFull_(ss); } catch (e) {}                              // «Бонус»: считаем заранее, при открытии вкладки — из кэша
   const t0 = Date.now();
   access.forEach(function (u) {                                   // готовые ответы для руководителей и продавцов (в пределах лимита времени)
     if (Date.now() - t0 > 240000) return;
@@ -801,7 +802,7 @@ function sellerData_(ss, sess, access) {
   // «Отработано смен» везде одно и то же число — по графику (смены до сегодняшнего дня); если графика нет — по дням с доходом
   const shifts = (mySched && mySched.done > 0) ? mySched.done : (worked.filter(function (d) { return d.v > 0; }).length || worked.length);
   return {
-    role: 'seller', name: me.name, month: income.month || '', updated: new Date().toISOString(),
+    role: 'seller', name: me.name, month: income.month || '', updated: new Date().toISOString(), lastCheck: lastCheck_(ss), grade: (function () { try { return salaryBook_(ss).grade[meKey] || ''; } catch (e) { return ''; } })(),
     place: rating.filter(function (r) { return r.me; })[0].place, total: rating.length,
     tt: me.tt || (kpiShops_(ss, access)[meKey] || []).join(' · '), hours: me.hours, metrics: me.metrics, quality: me.quality, score: Math.round(me.score),
     schedule: mySched ? { planned: mySched.planned, done: mySched.done, left: mySched.left } : null, cal: sched.cal,
@@ -1099,7 +1100,7 @@ function managerData_(ss, sess, access) {
   const gr = kpiGrades_(ss); let grade = '';
   salons.concat(names.map(function (n) { return { name: n }; })).forEach(function (x) { if (!grade && gr[norm_(x.name)]) grade = gr[norm_(x.name)]; });
   return {
-    role: 'manager', roleTitle: sess.roleTitle, name: sess.name, month: all.month, updated: new Date().toISOString(),
+    role: 'manager', roleTitle: sess.roleTitle, name: sess.name, month: all.month, updated: new Date().toISOString(), lastCheck: lastCheck_(ss),
     daysInMonth: all.daysInMonth, daysPassed: all.daysPassed, salons: salons, kpiShops: names, unmatched: unmatched,
     summary: summaryPage_(ss, salons.map(function (x) { return x.name; }).concat(names), String(sess.name).split(' ')[0]),
     today: readSchedule_(ss).cal.today,
@@ -1503,6 +1504,18 @@ function salesRows_(ss) {
     });
     return { rows: rows, excl: excl };
   });
+}
+// Дата и время последнего загруженного чека: «дд.мм.гггг чч:мм» (по листу выгрузки чеков)
+function lastCheck_(ss) {
+  try {
+    const rows = salesRows_(ss).rows || []; let best = -1, out = '';
+    rows.forEach(function (r) {
+      const p = r.d.split('.'), h = r.h >= 0 ? r.h : 0, m = r.mi >= 0 ? r.mi : 0;
+      const t = ((Number(p[2]) * 12 + Number(p[1])) * 32 + Number(p[0])) * 1440 + h * 60 + m;
+      if (t > best) { best = t; out = r.d + (r.h >= 0 ? ' ' + (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m : ''); }
+    });
+    return out;
+  } catch (e) { return ''; }
 }
 // Агрегация: { cards:{key:{салон:{день:значение}}}, emp:{ФИО:{phones,acc,serv,sim,ins}}, month, year, maxDay, salons:{key:[имена]} }
 function salesAgg_(data) {
@@ -2037,12 +2050,7 @@ function salonRate_(book, salon) {
   for (let i = 0; i < book.salons.length; i++) if (cityTok_(book.salons[i].name) === ct) return book.salons[i];
   return null;
 }
-function dlBonusGet_(req) {
-  const ss = ss_(), u = sessionUser_(ss, req.token);
-  if (!u) return { error: 'auth' };
-  const team = u.roleTitle !== 'ТМ';                                        // РТТ/УТТ (в т.ч. с выданным доступом) видят только сотрудников своих салонов; вся сеть — только у ТМ
-  if (team ? !u.manager : !repAllowed_(ss, u, 'dl')) return { error: 'forbidden' };
-  const full = cached_('dl:bonus', TTL_, function () {
+function dlBonusCompute_(ss) {
     const rows = dlModel_(ss).rows, inc = incomeModel_(ss), gset = {}, out = [], wkOf = {}, weeks = [], book = salaryBook_(ss);
     const MON = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
     rows.forEach(function (r) {
@@ -2079,7 +2087,14 @@ function dlBonusGet_(req) {
     const groups = Object.keys(gset).sort(function (a, b) { return gset[b] - gset[a]; });
     out.sort(function (a, b) { return (b.fc === null ? -1 : b.fc) - (a.fc === null ? -1 : a.fc) || b.total - a.total; });
     return { groups: groups, rows: out, weeks: weeks.map(function (w) { return { label: (w.from === w.to ? w.from : w.from + '–' + w.to) + ' ' + w.mon }; }), month: inc.month, at: new Date().toISOString() };
-  });
+}
+function dlBonusFull_(ss) { return cached_('dl:bonus', TTL_, function () { return dlBonusCompute_(ss); }); }
+function dlBonusGet_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  const team = u.roleTitle !== 'ТМ';                                        // РТТ/УТТ (в т.ч. с выданным доступом) видят только сотрудников своих салонов; вся сеть — только у ТМ
+  if (team ? !u.manager : !repAllowed_(ss, u, 'dl')) return { error: 'forbidden' };
+  const full = dlBonusFull_(ss);
   if (!team) return full;
   const shops = kpiShops_(ss, readAccess_(ss))[u.key] || [];
   const mine = full.rows.filter(function (r) { return r.ttFull && shops.some(function (sh) { return sameSalon_(r.ttFull, sh); }); });
