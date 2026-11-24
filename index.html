@@ -140,7 +140,7 @@ h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
 
 /* rating */
 .rlist{list-style:none;margin:0;padding:0;display:grid}
-.rlist li{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;padding:11px 10px;border-radius:14px;font-size:16px}
+.rlist li{display:grid;grid-template-columns:34px 1fr;align-items:center;gap:10px;padding:11px 10px;border-radius:14px;font-size:16px}
 .rlist li+li{margin-top:2px}
 .rlist .pl{font-weight:700;color:var(--muted);text-align:center}
 .rlist .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -608,6 +608,92 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;bac
 #xtoast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:12px;font-weight:600;font-size:14px;opacity:0;transition:.25s;z-index:320;max-width:calc(100vw - 32px);pointer-events:none}
 #xtoast.on{opacity:1;transform:translate(-50%,0)}
 /* --- итоги дня --- */
+.at-lf{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}.at-sl{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--sub)}.at-sl select{min-height:44px;border-radius:12px;border:.5px solid var(--line);background:var(--card);color:var(--text);padding:0 10px;font:inherit;font-size:14px}
+.rv-flt{margin:8px 0}.rv-flt>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:650;font-size:14px}.rv-flt .vm-ctl{display:flex;flex-direction:column;gap:8px;padding:4px 0 8px}
+.rv-sec{margin:12px 0 4px}.rv-body{margin-top:6px}.rv-body .an-h3:first-child{margin-top:8px}
+.dlc-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:8px}.dlc{padding:10px 12px 8px;border-radius:14px}.dlc-h{margin:6px 0 3px}.dls{margin-top:8px}.dls-h{padding:0 2px 5px}
+.dlu-bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}.dl-hero{gap:6px}
+.nr-m{grid-template-columns:repeat(4,minmax(0,1fr))!important;font-variant-numeric:tabular-nums}.nr-m small,.nr-m em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;min-height:1.2em}.nr-m b{white-space:nowrap;display:block;min-height:1.3em}.nr-m .pcell{min-width:0}
+.nr-grid .nr-row{min-height:92px}.nr-row,.nr-row *{animation:none!important;transition:none!important}.nr-grid .nr-m em{font-size:11px;color:var(--muted)}
+@media(max-width:520px){.nr-grid .nr-m{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+.dlr-card{padding:6px}.dlr-t{font-variant-numeric:tabular-nums;font-size:13px}.dlr-t th.l,.dlr-t td.l{min-width:150px;text-align:left}.dlr-t th.l small{display:block;font-weight:500;color:var(--muted);font-size:11px;white-space:nowrap}
+.dlr-c{text-align:center;min-width:104px}.dlr-c small,.dlr-h small,.dlr-x small{display:block;font-size:11px;color:var(--muted);white-space:nowrap}.dlr-c small b{color:var(--text)}
+.dlr-h{min-width:78px;position:relative;text-align:center}.dlr-h u{display:block;height:3px;border-radius:2px;margin-top:3px;background:linear-gradient(90deg,var(--blue) var(--w),color-mix(in srgb,var(--text) 10%,transparent) var(--w))}
+.dlr-rk{width:36px;text-align:center}.dlr-x{text-align:center;white-space:nowrap}.dlr-sc{text-align:center;font-size:15px}
+.dlr-t tr.dlr-g th{text-align:left;background:color-mix(in srgb,var(--blue) 8%,var(--tbl-bg));font-weight:500;position:static}.dlr-g b{font-size:14px;margin-right:10px}.dlr-g span{font-size:12px;color:var(--muted)}
+.dlu-bar{display:flex;flex-direction:column;gap:8px;margin-top:10px}.dlu-bar .chips{flex-wrap:wrap}.dlu-q{min-height:44px;border-radius:12px;border:.5px solid var(--line);background:var(--card);color:var(--text);padding:0 12px;font:inherit;font-size:14px;width:100%;max-width:340px}
+.bnc-list{grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:8px}.bns{margin-top:10px;border-left:3px solid var(--blue);padding-left:10px}.bns .bns-h{padding:2px 0 8px}.bns>.bnc{margin-bottom:6px}.bnc summary{padding:9px 12px}.bnc-bar{margin:7px 0 5px;height:5px}
+.dlu-bar{display:grid!important;gap:10px!important}.dlu-g{display:grid;grid-template-columns:104px 1fr;gap:8px;align-items:center}.dlu-l{font-size:12px;font-weight:700;color:var(--muted)}.dlu-bar .dlg{justify-content:flex-start;margin:0;flex-wrap:wrap}.dlu-sr{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}.dlu-bar .dlu-q{flex:1 1 200px;height:44px;max-width:320px}.dlu-hint{margin:0}
+@media(max-width:520px){.dlu-g{grid-template-columns:1fr;gap:4px}}
+
+/* ---- новости: фишки (фиолетовые), от ТМ («Калькулятор»), шлюз после входа ---- */
+.ncard.feat{--fx:#af52de;background:color-mix(in srgb,var(--fx) 11%,var(--card));border:1.5px solid var(--fx);box-shadow:0 0 0 4px color-mix(in srgb,var(--fx) 13%,transparent);position:relative}
+.ncard.feat h3{color:color-mix(in srgb,var(--fx) 78%,var(--text))}
+.ncard .tag.feat{background:var(--fx,#af52de);color:#fff;margin-left:8px;letter-spacing:.01em}
+.ncard.feat .btn,.ncard.feat .ngate-ok{background:var(--fx);background-image:none;border:0;color:#fff}
+.ncard.feat p{line-height:1.5}
+.ncard.tm{--card:#fff;--text:#000;--muted:#8a8a8e;--line:rgba(60,60,67,.18);--track:rgba(118,118,128,.12);background:#fff;color:#000;border:0;border-radius:12px;box-shadow:none;font-family:inherit;letter-spacing:-.01em;padding:14px 16px;gap:4px}
+.ncard.tm h3{font-size:17px;font-weight:600;letter-spacing:-.01em}.ncard.tm p{font-size:15px;line-height:1.4}.ncard.tm .meta{font-size:12px;color:#8a8a8e}
+.ncard.tm .tag.tmn{background:rgba(0,122,255,.12);color:#007aff;margin-left:8px;font-weight:600}
+.ncard.tm .btn,.ncard.tm .ngate-ok{background:#007aff;background-image:none;color:#fff;border:0;border-radius:12px;box-shadow:none}
+html[data-theme=dark] .ncard.tm{--card:#1c1c1e;--text:#fff;--muted:#8d8d93;--line:rgba(84,84,88,.65);--track:rgba(118,118,128,.24);background:#1c1c1e;color:#fff}
+html[data-theme=dark] .ncard.tm .meta{color:#8d8d93}html[data-theme=dark] .ncard.tm .tag.tmn{background:rgba(10,132,255,.22);color:#4da3ff}
+@media (prefers-color-scheme:dark){html:not([data-theme=light]) .ncard.tm{--card:#1c1c1e;--text:#fff;--muted:#8d8d93;--line:rgba(84,84,88,.65);--track:rgba(118,118,128,.24);background:#1c1c1e;color:#fff}html:not([data-theme=light]) .ncard.tm .meta{color:#8d8d93}html:not([data-theme=light]) .ncard.tm .tag.tmn{background:rgba(10,132,255,.22);color:#4da3ff}}
+.nrd{margin-top:8px;border-top:.5px solid var(--line);padding-top:6px;font-size:13px}.nrd summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--muted)}.nrd summary b{color:var(--text);margin-left:4px}
+.nrd ul{list-style:none;margin:0;padding:0;display:grid;gap:2px;max-height:260px;overflow:auto}.nrd li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:.5px solid var(--line)}.nrd li small{display:block;color:var(--muted);font-size:11px}.nrd time{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+#newsGate{position:fixed;inset:0;z-index:99999;overflow:auto;background:var(--bg);-webkit-overflow-scrolling:touch}
+html.ngate-on{overflow:hidden}
+.ngate-in{max-width:720px;margin:0 auto;padding:22px 16px 40px;display:grid;gap:14px}
+.ngate-h h1{margin:2px 0 4px}.ngate-bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--text) 10%,transparent);margin-top:10px;overflow:hidden}.ngate-bar u{display:block;height:100%;width:0;background:var(--accent,var(--blue));transition:width .3s}
+.ngate-act{margin-top:10px}.ngate-ok{min-height:44px;width:100%}.ncard.isread{opacity:.6}.ncard.isread .ngate-ok{background:var(--track)!important;color:var(--text)!important}
+.ngate-f{position:sticky;bottom:0;display:flex;flex-direction:column;gap:6px;padding:12px 0;background:linear-gradient(transparent,var(--bg) 30%)}.ngate-f .btn{min-height:48px}.ngate-f .btn[disabled]{opacity:.45}
+
+.at-ph{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:44px;display:flex;align-items:center;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--blue) 50%,transparent);text-underline-offset:3px}.at-ph b{font-weight:650}
+.at-cb2{display:block;font-size:11px;font-weight:700;margin-top:2px}.at-cb2.wait{color:var(--orange)}.at-cb2.ok{color:var(--green)}
+.atq{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.atq-in{width:100%;max-width:520px;max-height:92vh;overflow:auto;background:var(--card);border-radius:20px 20px 0 0;padding:16px 16px 22px;display:grid;gap:12px}
+@media(min-width:640px){.atq{align-items:center}.atq-in{border-radius:20px}}
+.atq-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.atq-h h3{margin:2px 0 0;font-size:18px}
+.atq-k{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.atq-k div{background:var(--track);border-radius:12px;padding:8px 10px;min-width:0}.atq-k span{display:block;font-size:11px;color:var(--muted)}.atq-k b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.atq-p{display:flex;flex-wrap:wrap;gap:6px}
+.atq-c{border-radius:14px;padding:12px;background:var(--track);display:grid;gap:8px}.atq-c.wait{background:color-mix(in srgb,var(--orange) 13%,var(--card));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--orange) 45%,transparent)}.atq-c.ok{background:color-mix(in srgb,var(--green) 13%,var(--card));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--green) 45%,transparent)}
+.atq-ch{display:flex;flex-direction:column;gap:2px}.atq-ch small{color:var(--muted)}.atq-c p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45}
+.atq-c textarea{width:100%;border-radius:12px;border:.5px solid var(--line);background:var(--card);color:var(--text);padding:10px 12px;font:inherit;font-size:15px;resize:vertical}.atq-c .btn{min-height:44px}
+
+/* ===== Фокус: главное на экране выделено (проход дизайнера, 24.11) ===== */
+:root{--fx-ac:var(--accent,var(--blue))}
+:is(.m-fact b,.dr-t b,.vm-k b,.rp-big,.fc-h .big,.dg-lv,.bnc-z b,.dlr-sc b,.hero-row b,.atq-k b,.pcell){font-weight:800;font-variant-numeric:tabular-nums}
+.dr-t b,.vm-k b{font-size:clamp(24px,4.4vw,30px);line-height:1.1}
+.m-fact b{font-size:24px}.hero-row b{font-size:22px}
+@media (max-width:420px){.hero-row b{font-size:16px}.dr-t b{font-size:22px}}
+/* плитки показателей — акцентная кромка слева: взгляд цепляется за число */
+.dr-t,.vm-k{position:relative;overflow:hidden;box-shadow:inset 0 0 0 .5px var(--line)}
+.dr-t::before,.vm-k::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--fx-ac)}
+/* итоговые строки и «я» в таблицах */
+:is(.tbl,.mtable,.rp-gridw,.dr-wide) table tr.tot :is(td,th){background-color:color-mix(in srgb,var(--fx-ac) 12%,var(--tbl-bg,var(--card)))!important;font-size:1.04em}
+:is(.tbl,.mtable,.rp-gridw,.dr-wide) table tr.tot :is(td,th):first-child{box-shadow:inset 3px 0 0 var(--fx-ac)}
+:is(.tbl,.mtable,.rp-gridw,.dr-wide) table tr.me :is(td,th){background-color:color-mix(in srgb,var(--fx-ac) 10%,var(--tbl-bg,var(--card)))!important;font-weight:700}
+:is(.tbl,.mtable,.rp-gridw,.dr-wide) table tr.me :is(td,th):first-child{box-shadow:inset 3px 0 0 var(--fx-ac)}
+/* заголовок карточки сильнее подписи над ним */
+.card>h2,.card>.eyebrow+h2{font-weight:800;letter-spacing:-.025em}
+/* выбранные кнопки и фильтры читаются сразу */
+.chipb[aria-pressed="true"],.chip.on{box-shadow:0 0 0 2px color-mix(in srgb,var(--fx-ac) 35%,transparent),0 4px 12px color-mix(in srgb,var(--fx-ac) 28%,transparent);font-weight:700}
+.btn:not(.ghost):not([disabled]){font-weight:700;box-shadow:0 6px 16px color-mix(in srgb,var(--fx-ac) 30%,transparent)}
+/* статусные «таблетки»: слабый результат заметнее */
+.fcp{font-weight:800}
+.fcp.fcl{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--c) 70%,transparent),0 4px 14px color-mix(in srgb,var(--c) 25%,transparent)}
+/* геройская плашка: главное число — единственный крупный объект экрана */
+.hero .hero-big{font-weight:800;text-shadow:0 2px 18px rgba(0,0,0,.16)}
+.hero .hero-row>div{box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+/* видимый фокус клавиатуры */
+:is(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid color-mix(in srgb,var(--fx-ac) 80%,transparent);outline-offset:2px;border-radius:10px}
+/* предупреждения: слева полоса + иконка в тексте */
+.rp-note,.note-s.warn{border-left:3px solid var(--orange);padding-left:10px}
+html[data-ios="px"] :is(.dr-t,.vm-k)::before{border-radius:0;width:2px}
+html[data-ios="px"] .btn:not(.ghost){box-shadow:none}
+html[data-ios="bk"] .btn:not(.ghost),html[data-ios="16"] .btn:not(.ghost){box-shadow:none}
+@media (prefers-reduced-motion:reduce){.chipb,.btn{transition:none!important}}
+.dr-top{margin:0 0 12px}.dr-copy{margin-top:10px}.dr-copy .chipb{min-height:44px}
 .dr-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
 .dr-t{background:var(--track);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
 .dr-t span{font-size:12.5px;color:var(--muted);font-weight:600}.dr-t b{font-size:22px;letter-spacing:-.02em}.dr-t small{font-size:12px;color:var(--muted)}.dr-t .fcp{align-self:flex-start;margin-top:4px}
@@ -926,6 +1012,11 @@ html.xp .card::before{display:none!important}
 h1 .lead{font-size:12px;margin-left:8px}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .lead,:root:not([data-theme=light]) .rtop-l{color:#3a2400}}:root[data-theme=dark] .lead,:root[data-theme=dark] .rtop-l{color:#3a2400}
 
+.nr-sec{margin-top:10px;border-top:.5px solid var(--line);padding-top:8px}.nr-sec>summary{cursor:pointer;font-weight:700;font-size:15px;min-height:44px;display:flex;align-items:center}.nr-sec .nr-h{display:none}
+.nr-how summary{cursor:pointer;font-size:12.5px;color:var(--muted);min-height:32px;display:flex;align-items:center}
+.nr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:4px 14px}
+.nr-grid .nr-gh{margin:6px 0}.nr-grid .nr-gh b{font-size:14px}.nr-grid .nr-row{padding:8px 10px;margin-bottom:6px;border-radius:12px}.nr-grid .nr-row .nr-who{margin-bottom:4px}.nr-grid .nr-m b{font-size:14px}.nr-grid .nr-bar{margin-top:6px;height:4px}
+@media(max-width:520px){.nr-grid{grid-template-columns:1fr}.nr-grid .nr-m{grid-template-columns:repeat(2,1fr)}}
 .nr-h{margin:16px 0 6px;font-size:15px}.nr-blk{margin-top:12px}.nr-blk h3{font-size:14px;margin:0 0 6px;color:var(--muted);font-weight:650}
 .nr-t td:first-child{min-width:170px;white-space:normal}.nr-n{font-size:12px;color:var(--muted);white-space:normal}.nr-b{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;background:var(--g-bg2,rgba(127,127,127,.15));border:1px solid var(--g-bd,transparent)}
 .nr-me{color:var(--accent,#0a84ff);font-weight:650}.nr-pl{color:var(--muted)}.nr-t tr.nr-own td{font-weight:650}
@@ -1546,6 +1637,10 @@ html[data-ios="bk"] :is(.tbl,.mtable,.rp-gridw,.dr-wide) table tr.tot :is(td,th)
 html[data-ios="bk"] :is(.tbl,.mtable,.rp-gridw,.dr-wide) table tbody tr:nth-child(even) :is(td,th.l):not([style*="background"]){background-color:var(--tbl-bg)}
 html[data-ios="px"] :is(.tbl,.mtable,.rp-gridw,.dr-wide) table tr.tot :is(td,th){border-top:1px solid var(--line);background-color:transparent;font-weight:700}
 html[data-ios="px"] :is(.tbl,.mtable,.rp-gridw,.dr-wide) table tbody tr:nth-child(even) :is(td,th.l):not([style*="background"]){background-color:transparent}
+/* салоны рядом: цвет бренда — МФ зелёный, МТС красный, БЛН жёлтый, Т2 чёрный */
+.nr-row[class*="nr-br-"]{border-left:5px solid var(--brc)}.nr-row[class*="nr-br-"] .nr-b{background:var(--brc)!important;color:var(--brt)!important}
+.nr-br-mf{--brc:#34c759;--brt:#fff}.nr-br-mts{--brc:#ff3b30;--brt:#fff}.nr-br-bln{--brc:#ffcc00;--brt:#1c1c1e}.nr-br-t2{--brc:#111;--brt:#fff}
+html[data-theme=dark] .nr-br-t2{--brc:#000;--brt:#fff}html[data-theme=dark] .nr-row.nr-br-t2{border-left-color:#8e8e93}
 </style>
 </head>
 <body>
@@ -3068,7 +3163,7 @@ $('#loginForm').addEventListener('submit', async e=>{
   }catch(err){ $('#loginErr').textContent='Сервер не ответил. Проверьте интернет и попробуйте ещё раз.'; }
   b.disabled = false;
 });
-$('#btnLogout').onclick = ()=>{ store.del('token'); if (store.get('demoMode')==='1'){ store.del('demoMode'); DEMO = !API_URL; } rpClear(); DATA=null; $('#content').hidden=true; $('#mgrView').hidden=true; $('#loading').hidden=false; showLogin(); };
+$('#btnLogout').onclick = ()=>{ GATE_DONE=false; load.once=0; store.del('token'); if (store.get('demoMode')==='1'){ store.del('demoMode'); DEMO = !API_URL; } rpClear(); DATA=null; $('#content').hidden=true; $('#mgrView').hidden=true; $('#loading').hidden=false; showLogin(); };
 $('#btnRefresh').onclick = ()=>{ if (WRAP.dataset.tab==='reports') loadReports(true); if (WRAP.dataset.tab==='dl') loadDL(true); if (WRAP.dataset.tab==='teambonus') loadTeamBonus(true); if (WRAP.dataset.tab==='dayres') loadDayPlan(true); if (WRAP.dataset.tab==='analytics') ANCACHE={}; if (WRAP.dataset.tab==='auth') loadAuth(true); load(true,true); };
 
 /* ---------- вкладки ---------- */
@@ -3078,7 +3173,9 @@ const TABS = {
 };
 let TABSET = '', PREV_TAB = null;
 const gHas = (d,k) => !!(d && d.guest && (d.guest.sections||[]).indexOf(k)>=0);               // у гостя открыт раздел
-const viewD = (d,k) => (gHas(d,k) && d.tmData) ? d.tmData : d;                                // «вид ТМ» для открытых разделов
+let GV = false;   // открыт гостевой (выданный) вид раздела — отдельный пункт меню «Предоставили доступ»
+const gOn = (d,k) => GV && gHas(d,k);
+const viewD = (d,k) => (gOn(d,k) && d.tmData) ? d.tmData : d;                                // «вид ТМ» для открытых разделов
 function tabsFor(role,d){
   const t = TABS[role].slice();
   if (role==='manager' && d){
@@ -3089,9 +3186,17 @@ function tabsFor(role,d){
     if (d.summary) t.splice(4,0,['summary','Общий свод']);
     if (d.canLinks){ t[bi()]=['tmbonus','Бонус ТМ']; t.splice(5,0,['reports','Отчёты']); t.splice(6,0,['dl','Сотрудники ДЛ']);  t.splice(8,0,['auth','Входы'],['access','Доступы']); t.push(['vmr','ВМР']); t.push(['pulse','Weekly Pulse']); t.push(['links','Ссылки']); if (DEMO) for (let i=t.length-1;i>=0;i--) if (t[i][0]==='tmbonus'||t[i][0]==='links') t.splice(i,1); }
   }
-  if (role==='manager' && d && d.guest && !d.canLinks){ const gi = t.findIndex(x=>x[0]==='forecast'); t.splice(gi>=0?gi+1:t.length,0,...[['reports','Отчёты']].filter(x=>gHas(d,x[0]))); }
+  const GL = [];                                   // выданные на время разделы — отдельным блоком «Предоставили доступ»
+  if (role==='manager' && d && d.guest && !d.canLinks){
+    if (gHas(d,'reports')) GL.push(['reports','Отчёты']);
+    if (gHas(d,'dayres')||gHas(d,'dayplan')) GL.push(['g_dayres','Итоги дня · доступ']);
+    if (gHas(d,'analytics')) GL.push(['g_analytics','Аналитика · доступ']);
+    if (gHas(d,'cards')) GL.push(['g_cards','Карточки · доступ']);
+    if (gHas(d,'vmr')) GL.push(['g_vmr','ВМР · доступ']);
+  }
   if (role==='manager' && d){ const i=t.findIndex(x=>x[0]==='forecast'); if (i>=0) t.splice(i+1,0,['attach','Attachment'],['analytics','Аналитика']); if (!d.canLinks && i>=0) t.splice(i+3,0,['vmr','ВМР']);
-    const gr = id => { const k = TAB_GROUPS.findIndex(g=>g[1].indexOf(id)>=0); return k<0 ? 99 : k; };
+    const gr = id => { if (GL.some(x=>x[0]===id)) return 50; const k = TAB_GROUPS.findIndex(g=>g[1].indexOf(id)>=0); return k<0 ? 99 : k; };
+    GL.forEach(x=>{ if (!t.some(y=>y[0]===x[0])) t.push(x); });
     return t.map((x,j)=>[x,j]).sort((a,b)=>gr(a[0][0])-gr(b[0][0]) || a[1]-b[1]).map(x=>x[0]); }
   return t;
 }
@@ -3110,9 +3215,10 @@ function applyView(){
 }
 function updLine(d){ const el=$('#updLine'); if (!el) return; d=d||DATA; if (!d||!d.updated){ el.hidden=true; return; } const dt=new Date(d.updated), same=dt.toDateString()===new Date().toDateString(); el.hidden=false; el.textContent=(d.guest?'Доступ к отчётам до '+grFmt(d.guest.until)+' · ':'')+'Данные обновлены '+(same?'сегодня в ':dt.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'})+' в ')+dt.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' · таблицы подтягиваются раз в 30 минут'; }
 function setTab(t){
-  WRAP.dataset.tab = t; updLine(); try{ mnavSync(t); }catch(e){}
+  const virt = t; GV = t.indexOf('g_')===0; if (GV) t = t.slice(2);
+  WRAP.dataset.tab = t; updLine(); try{ mnavSync(virt); }catch(e){}
 
-  $('#tabseg').querySelectorAll('button').forEach(x=>x.classList.toggle('on', x.dataset.tab===t));
+  $('#tabseg').querySelectorAll('button').forEach(x=>x.classList.toggle('on', x.dataset.tab===virt));
   { const on=$('#tabseg').querySelector('button.on'), sg=$('#tabseg'); if (on && sg.scrollWidth>sg.clientWidth) sg.scrollLeft = on.offsetLeft - (sg.clientWidth-on.offsetWidth)/2; }
   document.querySelectorAll('.pane').forEach(p=>p.hidden = p.dataset.pane!==t);
   if (t==='bonus') ensureCalc();
@@ -3166,7 +3272,7 @@ async function load(silent, fresh){
     if (d.error) throw new Error(d.error);
     LAST = Date.now();
     paint(d); store.set('dc', JSON.stringify({tk:token.slice(-12), d}));
-    if (!load.once){ load.once=1; setTimeout(checkNewsDot, 2500); setTimeout(notifPoll, 3500); setTimeout(()=>{ lib('chart').catch(()=>{}); lib('h2c').catch(()=>{}); lib('pdf').catch(()=>{}); }, 6000); }
+    if (!load.once){ load.once=1; newsGate(); setTimeout(checkNewsDot, 2500); setTimeout(notifPoll, 3500); setTimeout(()=>{ lib('chart').catch(()=>{}); lib('h2c').catch(()=>{}); lib('pdf').catch(()=>{}); }, 6000); }
   }catch(e){
     if(!silent) $('#loading').textContent='Не удалось загрузить данные. Нажмите «Обновить».';
   }finally{ clearTimeout(slowT); btn.classList.remove('spin'); }
@@ -3259,7 +3365,7 @@ function pointHTML(d){
   const r = d.pointRes;
   if (!r || !r.found) return `<div class="card fade"><h2>Результаты торговой точки</h2><div class="empty">${r&&r.salon?`Для точки «${esc(rpShort(r.salon))}» не найден план в листе «План».`:'Основная торговая точка пока не определена — проверьте график.'}</div></div>`;
   const pc = v => (v==null||isNaN(v)) ? '<span class="fcp">—</span>' : fcChip(v, null);
-  const cell = (v,u) => v==='' || v==null ? '<span class="z">—</span>' : typeof v==='number' ? (u==='pct' ? fmt(v,1).replace('.',',')+'%' : fmt(Math.round(v))) : esc(v);
+  const cell = (v,u) => v==='' || v==null ? '<span class="z">—</span>' : typeof v==='number' ? (u==='pct' ? fmt(v,1).replace('.',',')+'%' : u==='ratio' ? fmt(v,2).replace('.',',') : fmt(Math.round(v))) : esc(v);
   const blocks = (r.blocks||[]).map(b=>`<section class="card fade"><h2>${esc(b.title)}</h2><div class="tbl mtable"><table class="pt-t"><thead><tr><th>Показатель</th><th>План</th><th>Факт</th><th>Остаток</th><th>На день</th><th>Вып.%</th><th>Прог.%</th></tr></thead><tbody>${
     b.rows.map(x=>`<tr><th>${esc(x.label)}</th><td>${cell(x.plan,x.unit)}</td><td><b>${cell(x.fact,x.unit)}</b></td><td>${cell(x.rest,x.unit==='pct'&&x.label.indexOf('доля')>=0?'':x.unit)}</td><td>${cell(x.perDay,x.unit==='pct'&&x.label.indexOf('доля')>=0?'':x.unit)}</td><td class="pc">${pc(x.pct)}</td><td class="pc">${pc(x.prog)}</td></tr>`).join('')}</tbody></table></div></section>`).join('');
   return `<div class="card hero fade"><div><div class="eyebrow">Результаты торговой точки</div><div class="hero-big" style="font-size:clamp(26px,6vw,40px);margin-top:8px">${esc(String(r.label||r.salon).replace(/^КЗН\s+/,''))}</div></div>
@@ -3433,8 +3539,9 @@ function nearBlock(g,N){
     const pf = (t.plan>0&&t.fact!=null) ? Math.min(100,t.fact/t.plan*100) : null;
     const fcCls = (t.fc!=null&&t.plan>0) ? 'pcell '+clsPct(t.fc/t.plan*100) : '';
     const cvCls = (c.fact!=null&&c.plan>0) ? 'pcell '+clsPct(c.fact/c.plan*100) : '';
-    return `<div class="nr-row${own?' nr-own':''}"><div class="nr-who"><span class="nr-b">${esc(x.brand.toUpperCase())}</span>${own?'<small class="nr-me">ваш салон</small>':''}<div class="nr-n">${esc(x.name)}</div></div>
-      <div class="nr-m"><div><small>План трафика</small><b>${t.plan!=null?fmt(t.plan):'—'}</b></div><div><small>Факт трафика</small><b>${t.fact!=null?fmt(t.fact):'—'}</b></div><div><small>Прогноз на месяц</small><b><span class="${fcCls}">${t.fc!=null?fmt(t.fc):'—'}</span></b></div><div><small>Конверсия</small><b><span class="${cvCls}">${cv(c.fact)}</span></b><em>${c.plan!=null?'план '+cv(c.plan):''}</em></div></div>
+    const bk = ({'МФ':'mf','МТС':'mts','БЛН':'bln','Т2':'t2'})[String(x.brand||'').toUpperCase().replace(/T/g,'Т')]||'';
+    return `<div class="nr-row${own?' nr-own':''}${bk?' nr-br-'+bk:''}"><div class="nr-who"><span class="nr-b">${esc(x.brand.toUpperCase())}</span>${own?'<small class="nr-me">ваш салон</small>':''}<div class="nr-n">${esc(x.name)}</div></div>
+      <div class="nr-m"><div><small>План трафика</small><b>${t.plan!=null?fmt(t.plan):'—'}</b></div><div><small>Факт трафика</small><b>${t.fact!=null?fmt(t.fact):'—'}</b></div><div><small>Прогноз на месяц</small><b><span class="${fcCls}">${t.fc!=null?fmt(t.fc):'—'}</span></b></div><div><small>Конверсия</small><b><span class="${cvCls}">${cv(c.fact)}</span></b><em>${c.plan!=null?'план '+cv(c.plan):'&nbsp;'}</em></div></div>
       ${pf==null?'':`<div class="nr-bar" title="Факт трафика к плану"><i style="width:${pf.toFixed(0)}%"></i></div>`}</div>`};
   return `<div class="nr-blk"><div class="nr-gh"><b>${esc(g.salon)}</b><span>и салоны на этом же адресе</span></div>${g.own?row(g.own,true):''}${g.near.map(x=>row(x,false)).join('')}</div>`;
 }
@@ -3447,9 +3554,9 @@ function salonCompare(d){
        ${d.salons.map(s=>`<tr><td>${esc(s.name)}</td>${keys.map(k=>{const x=s.dirs.find(z=>z.key===k);
          if(!x||!(x.plan>0))return '<td class="z">—</td>';const p=x.fact/x.plan*100;return `<td class="pcell ${clsPct(p)}">${fmt(p)}%</td>`}).join('')}</tr>`).join('')}
        </tbody></table></div><div class="note-s" style="margin-top:10px">Процент выполнения плана месяца по каждому направлению.</div>` : '';
-  const nr = ng.length ? `<h3 class="nr-h">Трафик и конверсия соседних салонов</h3><div class="note-s nr-how">Соседние — тот же адрес, другой бренд (МТС, МФ, Т2). Трафик — люди в салоне, конверсия — доля покупателей. Цвет прогноза и конверсии: зелёный — в плане, жёлтый — близко, красный — отстаёт. Полоска — факт трафика к плану.</div>${ng.map(g=>nearBlock(g,N)).join('')}
+  const own0 = own; const nr = ng.length ? `<div class="nr-grid">${ng.map(g=>nearBlock(g,N)).join('')}</div>
        <div class="note-s">Источник: «KPI ОСС»${N.asOf?' на '+esc(N.asOf):''}. Прогноз трафика = факт ÷ прошедшие дни × дни месяца${N.passed?` (${N.passed} из ${N.dim})`:''}.</div>` : '';
-  return `<div class="card fade"><h2>Салоны рядом</h2>${own?`<h3 class="nr-h" style="margin-top:4px">Выполнение плана по салонам</h3>`+own:''}${nr}</div>`;
+  return nr ? `<div class="card fade"><h2>Салоны рядом</h2>${nr}</div>` : '';
 }
 
 /* --- по дням --- */
@@ -3628,12 +3735,49 @@ async function loadNews(){
   NEWS = r; renderNews();
   store.set(seenKey(), r.items.filter(x=>x.status==='опубликовано').map(x=>x.id).join(',')); $('#newsDot').hidden = true;
 }
+/* вид новости: «фишка» (обновления сайта) — фиолетовая с обводкой; от ТМ — в стиле «Калькулятор» со шрифтом текущей темы */
+const newsKind = x => (x.role==='Обновление' || x.author==='SUPER PROдажник') ? 'feat' : (String(x.role||'').trim()==='ТМ' ? 'tm' : '');
+function newsCardHtml(x, tm, o){
+  o = o||{}; const k = newsKind(x);
+  const badge = k==='feat' ? '<span class="tag feat">✨ Новая фишка</span>' : k==='tm' ? '<span class="tag tmn">от ТМ</span>' : '';
+  const rd = (tm && !o.gate && x.status==='опубликовано') ? `<details class="nrd"><summary>👁 Прочитали: <b>${(x.readers||[]).length}</b></summary>${(x.readers||[]).length?`<ul>${x.readers.map(q=>`<li><span>${esc(q.n)}<small>${esc(q.r||'')}</small></span><time>${esc(q.t)}</time></li>`).join('')}</ul>`:'<div class="sub">Пока никто не прочитал.</div>'}</details>` : '';
+  const gate = o.gate ? `<div class="ngate-act"><button type="button" class="btn ngate-ok" data-read="${esc(x.id)}">Прочитано</button></div>` : '';
+  return `<article class="ncard fade${k?' '+k:''}${o.gate?' gated':''}" data-id="${esc(x.id)}">
+    <div class="meta">${esc(x.date)} · ${esc(x.author)}${badge}${x.status==='на модерации'?'<span class="tag mod">на модерации</span>':''}${x.status==='отклонено'?'<span class="tag rej">отклонено</span>':''}</div>
+    <h3>${esc(x.title)}</h3><p>${esc(x.text)}</p>${nfHtml(x)}${gate}${rd}
+    ${tm&&!o.gate?`<div class="nact">${x.status==='на модерации'?'<button class="ok" data-d="approve">Опубликовать</button><button class="no" data-d="reject">Отклонить</button>':''}<button data-d="delete">Удалить</button></div>`:''}</article>`;
+}
+/* Шлюз после входа: пока все свежие новости не прочитаны — дальше не пускаем */
+let GATE_DONE = false;
+async function newsGate(){
+  if (GATE_DONE) return;
+  let r; try{ r = await api({action:'news_list', token:store.get('token')}); }catch(e){ return; }
+  if (!r || r.error) return;
+  GATE_DONE = true; NEWS = r;
+  const need = r.items.filter(x=>x.status==='опубликовано' && x.must && !x.read);
+  if (!need.length) return;
+  const old = $('#newsGate'); if (old) old.remove();
+  const g = document.createElement('div'); g.id = 'newsGate'; g.setAttribute('role','dialog'); g.setAttribute('aria-modal','true'); g.setAttribute('aria-label','Новости');
+  g.innerHTML = `<div class="ngate-in"><div class="ngate-h"><div class="eyebrow">Перед началом работы</div><h1>Новости</h1><p class="sub" id="ngSub"></p><div class="ngate-bar"><u id="ngBar"></u></div></div>
+    <div class="news">${need.map(x=>newsCardHtml(x, false, {gate:true})).join('')}</div>
+    <div class="ngate-f"><button type="button" class="btn" id="ngGo" disabled>Продолжить</button><span class="sub" id="ngMsg"></span></div></div>`;
+  document.body.appendChild(g); document.documentElement.classList.add('ngate-on');
+  nfShow(g);
+  let done = 0; const upd = ()=>{ $('#ngSub').textContent = done<need.length ? `Прочитано ${done} из ${need.length}. Отметьте каждую новость, чтобы продолжить.` : 'Всё прочитано — можно продолжать.'; $('#ngBar').style.width = (done/need.length*100)+'%'; $('#ngGo').disabled = done<need.length; };
+  upd();
+  g.querySelectorAll('[data-read]').forEach(b=>b.onclick = async ()=>{
+    b.disabled = true; const id = b.dataset.read;
+    let x; try{ x = await api({action:'news_read', token:store.get('token'), ids:[id]}); }catch(e){ x = null; }
+    if (!x || !x.ok){ b.disabled = false; $('#ngMsg').textContent = 'Не удалось отметить. Проверьте соединение и повторите.'; return; }
+    $('#ngMsg').textContent = ''; const c = b.closest('.ncard'); c.classList.add('isread'); b.textContent = '✓ Прочитано';
+    const it = r.items.find(q=>q.id===id); if (it) it.read = true; done++; upd();
+    const nx = g.querySelector('.ncard:not(.isread)'); if (nx) nx.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  $('#ngGo').onclick = ()=>{ g.remove(); document.documentElement.classList.remove('ngate-on'); const d=$('#newsDot'); if (d) d.hidden = true; store.set(seenKey(), r.items.filter(x=>x.status==='опубликовано').map(x=>x.id).join(',')); };
+}
 function renderNews(){
   const el = $('#newsView'), r = NEWS, tm = r.canModerate;
-  const card = x=>`<article class="ncard fade" data-id="${esc(x.id)}">
-    <div class="meta">${esc(x.date)} · ${esc(x.author)}${x.status==='на модерации'?'<span class="tag mod">на модерации</span>':''}${x.status==='отклонено'?'<span class="tag rej">отклонено</span>':''}</div>
-    <h3>${esc(x.title)}</h3><p>${esc(x.text)}</p>${nfHtml(x)}
-    ${tm?`<div class="nact">${x.status==='на модерации'?'<button class="ok" data-d="approve">Опубликовать</button><button class="no" data-d="reject">Отклонить</button>':''}<button data-d="delete">Удалить</button></div>`:''}</article>`;
+  const card = x=>newsCardHtml(x, tm);
   const pend = r.items.filter(x=>x.status==='на модерации'), pub = r.items.filter(x=>x.status==='опубликовано'), mine = r.items.filter(x=>x.mine && x.status!=='опубликовано');
   el.innerHTML = `<div class="fade"><div class="eyebrow">Новости</div><h1>Что нового</h1></div>
     ${NEWS_FORM?`<form class="card nform fade" id="nForm"><h2 style="margin:0">${tm?'Новая новость':'Предложить новость'}</h2>
@@ -3730,7 +3874,9 @@ function demoApi(b){
   if (b.action==='notif_list'){ const t = Date.now(), tm = DEMO_TM(), items = [{id:'d1',t:new Date(t-36e5).toISOString(),kind:'release',title:'🚀 Скорее беги в приложение!',text:'Там новая штука появилась 👀',tab:'news'}];
     if (ROLE==='manager') items.unshift({id:'d2',t:new Date(t-6e5).toISOString(),kind:'vmr',title:'👥 Анкета на твоего сотрудника',text:'На твоего сотрудника Зайцева Полина (Мира 30а) пришла анкета с результатом ⚠️ 74%',tab:'vmr'}); else items.unshift({id:'d3',t:new Date(t-6e5).toISOString(),kind:'vmr',title:'📋 Пришла анкета ВМР',text:'На тебя пришла анкета с результатом ⚠️ 78%',tab:'vmr'});
     return Promise.resolve({items:items}); }
-  if (b.action==='attach') return Promise.resolve(demoAttach());
+  if (b.action==='attach'){ const d = demoAttach(); d.comments = Object.assign({}, DEMO_ATC); d.canConfirm = DEMO_TM(); return Promise.resolve(d); }
+  if (b.action==='att_comment'){ if (DEMO_ATC[b.check]) return Promise.resolve({error:'exists'}); const cm = {by:(store.get('demoName')||'Демо'), role:DEMO_TM()?'ТМ':'РТТ', text:b.text, at:'24.11.2026 12:00', ok:false, by2:'', at2:''}; DEMO_ATC[b.check] = cm; return Promise.resolve({ok:true, comment:cm}); }
+  if (b.action==='att_confirm'){ const cm = DEMO_ATC[b.check]; if (!cm) return Promise.resolve({error:'not_found'}); if (cm.ok) return Promise.resolve({error:'locked'}); Object.assign(cm,{ok:true,by2:(store.get('demoName')||'ТМ Демо'),at2:'24.11.2026 12:05'}); return Promise.resolve({ok:true, comment:cm}); }
   if (b.action==='pulse_data'){ const sn = ((typeof DATA!=='undefined' && DATA && DATA.salons)||[]).map(s=>s.name), P = ['01.09.26 - 15.09.26','16.09.26 - 30.09.26','01.10.26 - 15.10.26','16.10.26 - 31.10.26','01.11.26 - 15.11.26'];
     const inv = [['','Салоны/Неделя','Регион','ТМ'].concat(P)].concat(sn.map((n,i)=>[String(i+1),n,'Казань','Миллер  '].concat(P.map((_,j)=>((i+j)%4===0?'0':'1')))));
     const cols = ['|','|','|','|Бренд','|','|','|','|Наименование ТТ','Трафик|План, чел','Трафик|Факт, чел','Конв|План, %','Конв|Факт, %','Кредиты|План, руб','Кредиты|Выпол-е,%','Ср. цена|Телефона, руб']; while (cols.length<94) cols.push('|'); cols.push('Прогн, %|','Прогн, %|','Прогн, %|','Прогн, %|','Прогн, %|','Прогн, %|','Прогн, %|');
@@ -3764,8 +3910,10 @@ function demoApi(b){
   }
   if (b.action==='news_list'){
     const tm = DEMO_TM();
-    return Promise.resolve({canModerate:tm, items: DEMO_NEWS.filter(x=>x.status==='опубликовано'||tm||x.mine)});
+    const rd = (store.get('demoRead')||'').split(',').filter(Boolean);
+    return Promise.resolve({canModerate:tm, items: DEMO_NEWS.filter(x=>x.status==='опубликовано'||tm||x.mine).map(x=>Object.assign({}, x, {read:rd.includes(x.id), must:x.status==='опубликовано', readers: tm&&x.status==='опубликовано' ? (x.readers||[{n:'Иванов Пётр',r:'Продавец',t:'12.11.2026 09:14'},{n:'Смирнова Анна',r:'Продавец',t:'12.11.2026 09:02'}]).concat(rd.includes(x.id)?[{n:(store.get('demoName')||'ТМ Демо'),r:'ТМ',t:'сейчас'}]:[]) : undefined}))});
   }
+  if (b.action==='news_read'){ const rd = (store.get('demoRead')||'').split(',').filter(Boolean); (b.ids||[]).forEach(i=>{ if (!rd.includes(i)) rd.push(i); }); store.set('demoRead', rd.join(',')); return Promise.resolve({ok:true,saved:(b.ids||[]).length}); }
   if (b.action==='news_file') return Promise.resolve(DEMO_FILES[b.id] ? DEMO_FILES[b.id] : {error:'not_found'});
   if (b.action==='news_add'){
     const tm = DEMO_TM();
@@ -3787,9 +3935,11 @@ function demoApi(b){
   return Promise.resolve(store.get('demoRole')==='manager' ? demoManager() : demoSeller());
 }
 const DEMO_FILES = {};
+const DEMO_ATC = {};
 const DEMO_NEWS = [
-  {id:'n1',date:'11.11.2026 18:30',author:'Лысенкова Анна',title:'Акция «Чёрная пятница» стартует 20 ноября',text:'Готовим витрины заранее: ценники и POS-материалы придут до 18 ноября. Планёрка по акции — в четверг.',status:'опубликовано'},
-  {id:'n2',date:'10.11.2026 12:05',author:'Лысенкова Анна',title:'Новый чек-лист ДОВ',text:'Обновлённый чек-лист доступен в рабочем чате. Проходим до конца недели.',status:'опубликовано'},
+  {id:'rel1',date:'24.11.2026 09:00',author:'SUPER PROдажник',role:'Обновление',title:'Итоги дня одной таблицей',text:'Что нового:\n• Итоги дня: Сводка, Итог дня, План на день, Факт продаж.\n• Сводку можно скопировать текстом.\n• Attachment: фильтр по торговой точке.',status:'опубликовано',mine:false,files:[]},
+  {id:'n1',date:'11.11.2026 18:30',author:'Лысенкова Анна',role:'ТМ',title:'Акция «Чёрная пятница» стартует 20 ноября',text:'Готовим витрины заранее: ценники и POS-материалы придут до 18 ноября. Планёрка по акции — в четверг.',status:'опубликовано'},
+  {id:'n2',date:'10.11.2026 12:05',author:'Лысенкова Анна',role:'ТМ',title:'Новый чек-лист ДОВ',text:'Обновлённый чек-лист доступен в рабочем чате. Проходим до конца недели.',status:'опубликовано'},
   {id:'n3',date:'12.11.2026 08:10',author:'Гайнцев Ярослав',title:'Идея: бонус за лучший аттачмент недели',text:'Предлагаю отмечать лучшего по аттачменту каждую неделю — подстегнёт продажи аксессуаров.',status:'на модерации'}];
 function demoRecon(){
   const days=[]; for(let i=1;i<=9;i++) days.push(String(i).padStart(2,'0')+'.11');
@@ -3956,11 +4106,21 @@ function dlBonusPane(r, team){
     const bars = `<div class="wkb">${W.map((w,i)=>{ const d = i>0 && wt[i-1]>0 ? (wt[i]/wt[i-1]-1)*100 : null; return `<div class="wkc"><i class="wkd ${d==null?'':d>=0?'up':'dn'}">${d==null?'':(d>=0?'+':'')+Math.round(d)+'%'}</i><div class="wkcol"><u style="height:${(wt[i]/wm*100).toFixed(0)}%"></u></div><b>${fmt(wt[i])}</b><span>${esc(w.label)}</span></div>`; }).join('')}</div>`;
     wk = `<div class="card fade"><h2>Динамика по неделям, ₽</h2>${bars}<p class="note-s" style="margin:6px 0 0">Бонус всех сотрудников по неделям (с понедельника по воскресенье; первая и последняя могут быть неполными). Процент — к прошлой неделе.</p></div>`;
   }
-  return sm + main + wk;
+  let wg = '';
+  if (W.length && G.length){
+    const gt = G.map(g=>W.map((_,i)=>rows.reduce((a,x)=>a+(((x.wkg||{})[g]||[])[i]||0),0)));
+    if (gt.some(a=>a.some(v=>v>0))){
+      const head = `<tr><th class="l">Группа</th>${W.map(w=>`<th>${esc(w.label)}</th>`).join('')}<th>Итого</th></tr>`;
+      const body = G.map((g,gi)=>{ const a = gt[gi], tot = a.reduce((x,y)=>x+y,0); return `<tr><th class="l"><span class="gd"><i style="background:${gcol[gi%gcol.length]}"></i>${esc(g)}</span></th>${a.map((v,i)=>{ const pv = i>0?a[i-1]:0, d = i>0 && pv>0 ? Math.round((v/pv-1)*100) : null; return `<td>${v?fmt(v):'·'}${d==null||!v?'':`<small class="${d>=0?'up':'dn'}">${d>=0?'+':''}${d}%</small>`}</td>`; }).join('')}<td><b>${fmt(tot)}</b></td></tr>`; }).join('');
+      const tw = W.map((_,i)=>gt.reduce((x,a)=>x+a[i],0));
+      wg = `<div class="card fade"><h2>Динамика по группам, ₽</h2><div class="tbl mtable dr-wide"><table class="dr-t2 hm-t"><thead>${head}</thead><tbody>${body}<tr class="tot"><th class="l">Всего</th>${tw.map(v=>`<td>${fmt(v)}</td>`).join('')}<td>${fmt(tw.reduce((x,y)=>x+y,0))}</td></tr></tbody></table></div><p class="note-s" style="margin:8px 0 0">Бонус по группам товаров и неделям; процент — к прошлой неделе. Показывает, за счёт какой группы растёт или падает неделя.</p></div>`;
+    }
+  }
+  return sm + main + wk + wg;
 }
 function demoDlBonus(){
   const g = (DEMO_RPT.dl && DEMO_RPT.dl.grid) || [], G = ['Сим-карты','Телефоны и планшеты','Аксессуары','Страхование и защита','Услуги'], W = [{label:'1 ноя'},{label:'2–8 ноя'},{label:'9–15 ноя'},{label:'16–22 ноя'},{label:'23–24 ноя'}];
-  const rows = g.slice(2).filter(x=>String(x[7]||'').trim()).map((x,i)=>{ const planH = Number(String(x[2]).replace(',','.'))||150, workH = Number(String(x[3]).replace(',','.'))||Math.round(planH*.7), gr = {}; let t = 0; G.forEach((n,j)=>{ const v = Math.round((400+((i*37+j*53)%900))*workH/60); gr[n] = v; t += v; }); const sh=[.04,.26,.28,.30,.12], wk=sh.map((k,n)=>Math.round(t*k*(1+((i+n)%3-1)*.08))); return {name:String(x[7]), role:i%7===0?'Старший продавец':'Продавец', tt:String(x[1]), planH, workH, factGraph:workH, groups:gr, total:t, fc:t/workH*planH, wk}; }).sort((a,b)=>b.fc-a.fc);
+  const rows = g.slice(2).filter(x=>String(x[7]||'').trim()).map((x,i)=>{ const planH = Number(String(x[2]).replace(',','.'))||150, workH = Number(String(x[3]).replace(',','.'))||Math.round(planH*.7), gr = {}; let t = 0; G.forEach((n,j)=>{ const v = Math.round((400+((i*37+j*53)%900))*workH/60); gr[n] = v; t += v; }); const sh=[.04,.26,.28,.30,.12], wk=sh.map((k,n)=>Math.round(t*k*(1+((i+n)%3-1)*.08))); return {name:String(x[7]), role:i%7===0?'Старший продавец':'Продавец', tt:String(x[1]), planH, workH, factGraph:workH, groups:gr, total:t, fc:t/workH*planH, wk, wkg:Object.fromEntries(G.map((n,j)=>[n, sh.map((k,m)=>Math.round(gr[n]*k*(1+((i+m+j)%3-1)*.12)))]))}; }).sort((a,b)=>b.fc-a.fc);
   rows.forEach((x,i)=>{ const city=[100,110,120,140][i%4], rate=[165,180,195][i%3]; x.grade='CBA'[i%3]; x.city=city; x.rate=rate; x.salary=city*x.workH; x.salaryFc=city*x.planH; x.perH=x.total/x.workH; x.prot=x.perH<rate; x.protNow=x.prot?rate*x.workH-x.total:0; x.protFc=x.prot?rate*x.planH-x.fc:0; x.totalProt=x.total+x.protNow; x.fcProt=x.fc+x.protFc; x.zp=x.salaryFc+x.fcProt; x.zpNow=x.salary+x.totalProt; });
   return {groups:G, rows, weeks:W, month:'Ноябрь 2026', at:new Date().toISOString()};
 }
@@ -4144,22 +4304,35 @@ function dlCardHtml(e){
 }
 function dlInner(){
   const S = DLSRC, emps = dlParse(S.g);
-  const seg = (k, items) => `<div class="seg dlu">${items.map(x=>`<button type="button" data-dlu="${k}:${x[0]}" aria-pressed="${String(DLUI[k]===true?'1':DLUI[k]===false?'0':DLUI[k])===x[0]}">${x[1]}</button>`).join('')}</div>`;
+  const seg = (k, items, lab) => `<div class="dlu-g"><span class="dlu-l">${lab||''}</span><div class="chips dlg" role="group" aria-label="${lab||''}">${items.map(x=>`<button type="button" class="chipb" data-dlu="${k}:${x[0]}" aria-pressed="${String(DLUI[k]===true?'1':DLUI[k]===false?'0':DLUI[k])===x[0]}">${x[1]}</button>`).join('')}</div></div>`;
   if (!emps) return rpDLTable(S.g, S.calc);
   const q = DLUI.q.trim().toLowerCase(), list = emps.filter(e=>!q || (e.name+' '+e.tt).toLowerCase().includes(q));
-  const NA = 1e9, simFc = e => e.dirs[0].fc==null ? -1e9 : e.dirs[0].fc;
-  const cmp = DLUI.s==='name' ? (a,b)=>a.name.localeCompare(b.name,'ru') : DLUI.s==='sim' ? (a,b)=>simFc(b)-simFc(a) : (a,b)=>(a.place==null?NA:a.place)-(b.place==null?NA:b.place);
+  if (DLUI.s==='sim') DLUI.s = 'd0';
+  const NA = 1e9, di = /^d(\d)$/.test(DLUI.s) ? Number(DLUI.s[1]) : -1;
+  const metric = e => di>=0 ? (e.dirs[di].fc==null ? null : e.dirs[di].fc) : (e.place==null ? null : e.place);   // рейтинг: меньше место — лучше; направление: больше прогноз — лучше
+  const cmp = DLUI.s==='name' ? (a,b)=>a.name.localeCompare(b.name,'ru') : (a,b)=>{ const x=metric(a), y=metric(b); if (x==null && y==null) return 0; if (x==null) return 1; if (y==null) return -1; return di>=0 ? y-x : x-y; };
   list.sort(cmp);
   const sc = emps.map(e=>e.score).filter(x=>x!=null), avg = sc.length ? sc.reduce((a,b)=>a+b,0)/sc.length : null;
   const wH = emps.reduce((a,e)=>a+((e.f1c!=null?e.f1c:e.fg)||0),0), pH = emps.reduce((a,e)=>a+(e.planH||0),0);
-  const salons = [...new Set(list.map(e=>e.tt||'Без салона'))];
+  const salons = (() => { const names = [...new Set(list.map(e=>e.tt||'Без салона'))]; if (DLUI.s==='name') return names.sort((a,b)=>a.localeCompare(b,'ru'));
+    const avgOf = n => { const v = list.filter(e=>(e.tt||'Без салона')===n).map(metric).filter(x=>x!=null); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null; };
+    return names.sort((a,b)=>{ const x=avgOf(a), y=avgOf(b); if (x==null) return 1; if (y==null) return -1; return di>=0 ? y-x : x-y; }); })();
   const hero = `<div class="hero-row num dl-hero"><div><b>${emps.length}</b><span>сотрудников</span></div><div><b>${avg!=null?fmt(avg,1):'—'}</b><span>средний рейтинг</span></div><div><b>${fmt(Math.round(wH))} ч</b><span>из ${fmt(Math.round(pH))} ч по плану</span></div></div>`;
-  const ctl = `<div class="dlu-bar">${seg('v',[['cards','Карточки'],['table','Таблица']])}${DLUI.v==='cards'?seg('s',[['place','По рейтингу'],['sim','По SIM'],['name','По имени']])+seg('grp',[['1','По салонам'],['0','Списком']])+`<input id="dlq" class="dlu-q" type="search" placeholder="Найти сотрудника" value="${esc(DLUI.q)}" autocomplete="off">`:''}</div>`;
+  const SORTS = [['place','Рейтинг'],...DL_NAMES.map((n,i)=>['d'+i,n]),['name','Имя']];
+  const ctl = `<div class="dlu-bar">${seg('v',[['cards','Список'],['table','Как в таблице']],'Вид')}${DLUI.v==='cards'
+    ? seg('s',SORTS,'Сортировка')+seg('grp',[['1','По салонам'],['0','Без групп']],'Группировка')+`<div class="dlu-g"><span class="dlu-l">Поиск</span><div class="dlu-sr"><input id="dlq" class="dlu-q" type="search" placeholder="Фамилия или салон" value="${esc(DLUI.q)}" autocomplete="off"><span class="sub">${q?`Найдено ${list.length} из ${emps.length}`:`${emps.length} сотр.`}</span></div></div>`
+    : `<p class="note-s dlu-hint">Лист показан как в таблице. Сортировка, группировка и поиск работают в виде «Список».</p>`}</div>`;
   if (DLUI.v==='table') return `<section class="card fade rp-dl"><div class="eyebrow">Сотрудники ДЛ</div><h2>План, отставание и прогноз по сотруднику</h2>${hero}${ctl}</section>`+rpDLTable(S.g, S.calc);
   const leg = `<p class="note-s" style="margin:8px 0 0">Полоса — факт к плану месяца, цвет и процент — прогноз выполнения (<span class="dlu-d" style="background:${STC.hi}"></span>в плане · <span class="dlu-d" style="background:${STC.mid}"></span>близко · <span class="dlu-d" style="background:${STC.lo}"></span>отстаёт). «В день» — сколько нужно продавать в день, чтобы выполнить план. Рейтинг: чем меньше место, тем лучше.</p>`;
-  const body = !list.length ? '<div class="card empty">Никого не найдено.</div>' : DLUI.grp && salons.length>1
-    ? salons.map(sn=>{ const rs=list.filter(e=>(e.tt||'Без салона')===sn), ss=rs.map(e=>e.score).filter(x=>x!=null), a=ss.length?ss.reduce((x,y)=>x+y,0)/ss.length:null; return `<section class="dls"><div class="dls-h"><b>${esc(sn)}</b><span>${rs.length} сотр.${a!=null?' · средний рейтинг '+fmt(a,1):''}</span></div><div class="dlc-grid">${rs.map(dlCardHtml).join('')}</div></section>`; }).join('')
-    : `<div class="dlc-grid">${list.map(dlCardHtml).join('')}</div>`;
+  const fm0 = x => { const n=dlNum(x); return n==null ? esc(x||'—') : fmt(Math.round(n)); };
+  const dcell = d => { const pl=dlNum(d.plan), fa=dlNum(d.fact), dd=dlNum(d.day); if (pl==null && fa==null && d.fc==null) return '<td class="z">—</td>'; return `<td class="dlr-c">${d.fc==null?'<span class="fcp">—</span>':fcChip(d.fc)}<small><b>${fm0(d.fact)}</b> из ${fm0(d.plan)}${dd!=null&&dd>0?` · ${fm0(d.day)}/д`:''}</small></td>`; };
+  const rowH = e => { const wh = e.f1c!=null ? e.f1c : e.fg, rk = e.place!=null ? Math.round(e.place) : null, wp = e.planH>0&&wh!=null ? Math.min(100,wh/e.planH*100) : 0;
+    return `<tr><td class="dlr-rk"><span class="dlc-rk${rk&&rk<=3?' r'+rk:''}">${rk!=null?rk:'·'}</span></td><th class="l"><b>${esc(short_(e.name))}</b>${e.tt&&!(DLUI.grp&&salons.length>1)?`<small>${esc(e.tt)}</small>`:''}</th><td class="dlr-h"><b>${wh!=null?fmt(Math.round(wh)):'—'}</b><small>из ${e.planH!=null?fmt(Math.round(e.planH)):'—'} ч</small><u style="--w:${wp.toFixed(0)}%"></u></td>${e.dirs.map(dcell).join('')}<td class="dlr-x">${e.att?esc(e.att):'—'}</td><td class="dlr-x">${e.cn?esc(e.cn)+' шт'+(e.cs?'<small>'+fm0(e.cs)+' ₽</small>':''):'—'}</td><td class="dlr-x">${esc(e.vmr||'—')}</td><td class="dlr-sc"><b>${e.score!=null?fmt(e.score,1):'—'}</b></td></tr>`; };
+  const thead = `<thead><tr><th>#</th><th class="l">Сотрудник</th><th>Часы</th>${DL_NAMES.map((n,i)=>`<th><span class="gd"><i style="background:${DL_DC[i]}"></i>${n}</span></th>`).join('')}<th>Аттач.</th><th>Кредиты</th><th>ВМР</th><th>Рейтинг</th></tr></thead>`;
+  const cols = 3+DL_NAMES.length+4;
+  const grouped = DLUI.grp && salons.length>1;
+  const tb = grouped ? salons.map(sn=>{ const rs=list.filter(e=>(e.tt||'Без салона')===sn), ss=rs.map(e=>e.score).filter(x=>x!=null), a=ss.length?ss.reduce((x,y)=>x+y,0)/ss.length:null; return `<tr class="dlr-g"><th colspan="${cols}"><b>${esc(sn)}</b><span>${rs.length} сотр.${a!=null?' · средний рейтинг '+fmt(a,1):''}</span></th></tr>`+rs.map(rowH).join(''); }).join('') : list.map(rowH).join('');
+  const body = !list.length ? '<div class="card empty">Никого не найдено.</div>' : `<div class="card fade dlr-card"><div class="tbl mtable dr-wide"><table class="dr-t2 dlr-t">${thead}<tbody>${tb}</tbody></table></div></div>`;
   return `<section class="card fade rp-dl"><div class="eyebrow">Сотрудники ДЛ</div><h2>План, отставание и прогноз по сотруднику</h2>${hero}${ctl}${leg}</section>${body}<div class="note-s" style="margin:10px 4px">${calc_note(S.calc)}</div>`;
 }
 const calc_note = calc => calc ? 'План на месяц = план салона × доля часов сотрудника в салоне; план на день = (план − факт) ÷ оставшиеся смены; прогноз = факт ÷ отработано смен × смен по графику ÷ план; место — по сумме мест прогноза за вычетом аттачмента и кредитов.' : 'Значения как на листе «До сотрудника ДЛ».';
@@ -4185,6 +4358,7 @@ function rpAxis(labels, n, W, xAt, H){
 function rpTip(i, labels, vals, o){
   const f = o.f || (v=>fmt(v,1)); let t = String(labels[i]||'')+'\n'+(o.name||'Факт')+': '+(vals[i]==null?'—':f(vals[i]));
   const pl = o.line && o.line[i]; if (pl!=null){ t += '\nПлан: '+f(pl); if (pl>0 && vals[i]!=null) t += ' · '+fmt(vals[i]/pl*100)+'%'; }
+  if (o.extra){ const ex = o.extra(i); if (ex && ex.length) t += '\n'+ex.join('\n'); }
   return t;
 }
 function rpBars(vals, labels, o){
@@ -4242,6 +4416,44 @@ function rpParseDetails(g){
   }
   return out;
 }
+/* текст для копирования из «Отчётов» и «Карточек»: ТТ — прогноз — продажи за последний день — динамика прогноза; лидеры и аутсайдеры отдельно */
+const RPTX = {}; let RPTX_N = 0;
+function rpCopyText(title, dateLbl, rows, fmtV, goal){
+  const pc = v => v==null ? '—' : Math.round(v)+'%';
+  const dy = d => d==null ? '➖ нет данных' : d>0.05 ? '📈 +'+fmt(d,1).replace('.',',')+' п.п.' : d<-0.05 ? '📉 −'+fmt(Math.abs(d),1).replace('.',',')+' п.п.' : '➖ без изменений';
+  const line = (r,ic) => `${ic} ${r.n} — ${pc(r.fc)} — ${r.last==null ? 'нет продаж' : fmtV(r.last)} — ${dy(r.dyn)}`;
+  const lead = rows.filter(r=>r.fc!=null && r.fc>=100).sort((a,b)=>b.fc-a.fc), out = rows.filter(r=>r.fc!=null && r.fc<100).sort((a,b)=>a.fc-b.fc), none = rows.filter(r=>r.fc==null);
+  const medal = ['🥇','🥈','🥉'], withF = rows.length-none.length;
+  const L = [`📊 ${title}${dateLbl?' · день '+dateLbl:''}`, '📍 Точка — прогноз — продажи за день — динамика прогноза'];
+  if (goal && goal.pct!=null) L.push('', `🎯 Цель дня: закрыто ${Math.round(goal.pct)}% ${goal.pct>=100?'✅':goal.pct>=90?'🟠':'🔴'}${goal.fact!=null&&goal.plan>0?` (факт ${fmtV(goal.fact)} из ${fmtV(goal.plan)})`:''}`);
+  if (lead.length) L.push('', '🏆 Лидеры прогноза — план закрываем', ...lead.map((r,i)=>line(r, medal[i]||'🟢')));
+  if (out.length) L.push('', '⚠️ Аутсайдеры прогноза — нужен рывок', ...out.map(r=>line(r, r.fc<90 ? '🔴' : '🟠')));
+  if (none.length) L.push('', '⚪ Без прогноза', ...none.map(r=>line(r,'⚪')));
+  if (withF) L.push('', `✅ В плане: ${lead.length} из ${withF}`);
+  return L.join('\n');
+}
+/* текст «Карточек»: общий факт и факт за последний день; группы — «продажи были» и «не было продаж» (сколько дней с последней продажи) */
+function rpCardsText(cd, labels, lj, f, tot){
+  if (lj<0) return `📦 ${cd.title}\nПродаж за месяц пока нет.`;
+  const dayLbl = labels[lj], n = cd.salons.length, col = j => cd.v.map(r=>r[j]);
+  const rows = cd.salons.map((nm,j)=>{ const a = col(j), last = a[lj];
+    let gap = 0, since = ''; for (let i=lj;i>=0;i--){ if (a[i]!=null && a[i]!==0){ since = labels[i]; break; } gap++; }
+    return {n:rpShort(nm), total:tot[j], last, sold: last!=null && last!==0, gap, since}; });
+  const all = rows.reduce((t,r)=>t+(r.total||0),0), dayAll = rows.reduce((t,r)=>t+(r.sold?r.last:0),0);
+  const days = k => k+' '+(k%10===1&&k%100!==11?'день':(k%10>=2&&k%10<=4&&(k%100<10||k%100>=20))?'дня':'дней');
+  const yes = rows.filter(r=>r.sold).sort((a,b)=>b.last-a.last), no = rows.filter(r=>!r.sold).sort((a,b)=>b.gap-a.gap);
+  const L = [`📦 ${cd.title}`, `📅 Последний день: ${dayLbl}`, `🧮 Всего за месяц: ${f(all)} · 🕐 за ${dayLbl}: ${f(dayAll)}`];
+  if (yes.length) L.push('', `🟢 Продажи были (${dayLbl}) — ${yes.length} из ${n}`, ...yes.map(r=>`✅ ${r.n} — всего ${f(r.total)} · за день ${f(r.last)}`));
+  if (no.length) L.push('', `🔴 Не было продаж (${dayLbl}) — ${no.length} из ${n}`, ...no.map(r=>`⏳ ${r.n} — всего ${f(r.total)} · ${r.since ? 'без продаж '+days(r.gap)+' (последняя '+r.since+')' : 'продаж в месяце не было'}`));
+  return L.join('\n');
+}
+/* динамика прогноза: прогноз при темпе «по сегодня» против темпа «по вчера», п.п. закрытия плана */
+function rpFcDyn(days, li, fc){
+  if (fc==null || li<1) return null;
+  let now=0, prev=0; for (let i=0;i<=li;i++){ const v=days[i]; if (v!=null){ now+=v; if (i<li) prev+=v; } }
+  if (!(now>0) || !(prev>0)) return null;
+  return fc - fc*((prev/li)/(now/(li+1)));
+}
 function rpDetails(g){
   const B = rpParseDetails(g);
   if (!B.length) return '<div class="card empty">В листе не найдено блоков «направление → салоны → дни».</div>';
@@ -4259,10 +4471,13 @@ function rpDetails(g){
     const mx = Math.max(1,...sal.flatMap(s=>s.days.map(v=>v||0)));
     const grid = `<div class="tbl rp-gridw"><table class="rp-grid"><thead><tr><th>д</th><th title="План на день">пл</th>${sal.map((s,i)=>`<th title="${esc(s.name)}">${i+1}</th>`).join('')}${b.ci>=0?'<th title="Закрытие плана дня">%</th>':''}</tr></thead><tbody>${b.days.map((d,i)=>`<tr><th>${esc(labels[i].slice(0,2))}</th><td class="pl">${rpK(planDay[i])}</td>${sal.map(s=>{const v=s.days[i]; return v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${rpK(v)}</td>`;}).join('')}${b.ci>=0?(()=>{const p=rpNum(d[b.ci]);return p==null?'<td class="z"></td>':`<td class="cl" style="color:${rpCol(p)}">${fmt(p)}</td>`})():''}</tr>`).join('')}</tbody></table>
       <ol class="rp-leg">${sal.map((s,i)=>`<li><b>${i+1}</b>${esc(rpShort(s.name))}</li>`).join('')}</ol></div>`;
-    return `<section class="card rp-dir fade"><div class="rp-dh"><div><div class="eyebrow">${esc(cap||'Детали продаж')}</div><h2>${esc(b.dir)}</h2></div>
+    const li = (()=>{ for (let i=b.days.length-1;i>=0;i--) if (sal.some(x=>x.days[i]!=null)) return i; return -1; })();
+    const ctxId = 'rt'+(++RPTX_N);
+    RPTX[ctxId] = () => rpCopyText(b.dir, li>=0 ? labels[li] : '', sal.map(x=>({n:rpShort(x.name), fc:x.fc, last:li>=0?x.days[li]:null, dyn:li>=0?rpFcDyn(x.days, li, x.fc):null})), v=>f(v), (()=>{ if (li<0) return null; const pl = planDay[li], fa = perDay[li], pr = b.ci>=0 ? rpNum(b.days[li][b.ci]) : null; return {pct: pr!=null ? pr : (pl>0 && fa!=null ? fa/pl*100 : null), fact: fa, plan: pl}; })());
+    return `<section class="card rp-dir fade" data-ctx="${ctxId}"><div class="rp-dh"><div><div class="eyebrow">${esc(cap||'Детали продаж')}</div><h2>${esc(b.dir)}</h2></div>
       <div class="rp-big num">${f(sumT)}<small>всего за месяц</small></div></div>
       <div class="rp-chart"><div class="rp-cl"><span><i class="k" style="background:${col}"></i>Факт по дням (все салоны)</span>${planSum?'<span><i class="k pl"></i>План на день</span>':''}</div>
-        ${rpBars(perDay, labels, {color:col, line: planSum?planDay:null, f})}</div>
+        ${rpBars(perDay, labels, {color:col, line: planSum?planDay:null, f, extra:i=>sal.filter(x=>x.days[i]!=null).map(x=>rpShort(x.name)+': '+f(x.days[i]))})}</div>
       <div class="rp-sal">${sal.map(s=>{ const gp = s.gap; const w = Math.max(2, Math.abs(s.total)/mxT*100);
         return `<div class="rp-s"><div class="rp-sn">${esc(rpShort(s.name))}</div>
           <div class="rp-sb" data-tip="${tipA(rpShort(s.name)+'\nВсего: '+f(s.total)+(s.gap!=null?'\nОтставание: '+fmt(s.gap):'')+(s.fcTxt?'\nПрогноз: '+s.fcTxt:''))}"><i style="width:0;background:${col}" data-w="${w.toFixed(1)}"></i></div>
@@ -4282,7 +4497,7 @@ function rpSide(b, bi){
   const perDay = rows.map(r=>r.v.some(v=>v!=null)?r.v.reduce((a,v)=>a+(v||0),0):null);
   const lab = rows.map(r=>String(r.d).slice(0,2));
   return `<section class="card rp-dir fade"><div class="rp-dh"><div><div class="eyebrow">${esc(b.dir)}</div><h2>${esc(S.title)}</h2></div></div>
-    <div class="rp-chart">${rpBars(perDay, lab, {color:col})}</div>
+    <div class="rp-chart">${rpBars(perDay, lab, {color:col, extra:i=>sal.map((x,j)=>rows[i].v[j]!=null?rpShort(x.name)+': '+fmt(rows[i].v[j]):null).filter(Boolean)})}</div>
     <div class="rp-sal">${sal.map((s,i)=>`<div class="rp-s"><div class="rp-sn">${esc(rpShort(s.name))}</div><div class="rp-sb"><i style="width:0;background:${col}" data-w="${Math.max(2,Math.abs(tot[i]||0)/mt*100).toFixed(1)}"></i></div><div class="rp-sv num">${tot[i]==null?'—':fmt(tot[i])}</div></div>`).join('')}</div>
     <button class="rp-tg" data-tg type="button">Подробно по дням <span>▾</span></button>
     <div hidden><div class="tbl rp-gridw"><table class="rp-grid"><thead><tr><th>д</th>${sal.map((s,i)=>`<th title="${esc(s.name)}">${i+1}</th>`).join('')}</tr></thead><tbody>${rows.map((r,ri)=>`<tr><th>${esc(lab[ri])}</th>${r.v.map(v=>v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${rpK(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>
@@ -4314,20 +4529,23 @@ function rpDaysCard(cd,i){
     return `<span class="rp-ns ${n?'bad':'good'}" title="Дней подряд без продажи защиты экрана — с последней продажи">${n?n+' дн. с последней продажи защиты':'продажа была вчера'}</span>`; };
   const chips = j => (cd.sums||[]).map(x=>{ const v=x.vals[j]; if (v==null) return ''; const l=x.label.toLowerCase();
     return /прогноз/.test(l) ? fcChip(v) : /отстав/.test(l) ? `<span class="rp-gap ${v>0?'bad':'good'}" title="Отставание">${v>0?'−':'+'}${fmt(Math.abs(v))}</span>` : `<span class="rp-chip"><em>${esc(x.label)}</em> ${fmt(v,1)}${/%/.test(x.label)?'':''}</span>`; }).join('');
-  return `<section class="card rp-dir fade"><div class="rp-dh"><div><div class="eyebrow">${esc(cd.dir||'Детали продаж')}</div><h2>${esc(cd.title)}</h2></div>
+  const fcRow = (cd.sums||[]).find(x=>/прогноз/i.test(x.label)), lj = (()=>{ for (let i=cd.v.length-1;i>=0;i--) if (cd.v[i].some(v=>v!=null)) return i; return -1; })();
+  const ctxId = 'rt'+(++RPTX_N);
+  RPTX[ctxId] = () => rpCardsText(cd, labels, lj, f, tot);
+  return `<section class="card rp-dir fade" data-ctx="${ctxId}"><div class="rp-dh"><div><div class="eyebrow">${esc(cd.dir||'Детали продаж')}</div><h2>${esc(cd.title)}</h2></div>
     <div class="rp-big num">${grand==null?'—':(pct?fmt(grand)+'%':fmt(grand))}<small>${pct?'в среднем':'всего за месяц'}</small></div></div>
-    <div class="rp-chart">${rpBars(perDay, labels, {color:col, line:plan, f})}</div>
+    <div class="rp-chart">${rpBars(perDay, labels, {color:col, line:plan, f, extra:i=>cd.salons.map((n,j)=>cd.v[i][j]!=null?rpShort(n)+': '+f(cd.v[i][j]):null).filter(Boolean)})}</div>
     <div class="rp-sal">${cd.salons.map((n,j)=>`<div class="rp-s"><div class="rp-sn">${esc(rpShort(n))}${noSale(j)}</div><div class="rp-sb" data-tip="${tipA(rpShort(n)+'\nВсего: '+f(tot[j]))}"><i style="width:0;background:${col}" data-w="${Math.max(2,Math.abs(tot[j]||0)/mxT*100).toFixed(1)}"></i></div><div class="rp-sv num">${f(tot[j])}</div>${chips(j)?`<div class="rp-sx">${chips(j)}</div>`:''}</div>`).join('')}</div>
     <button class="rp-tg" data-tg type="button">Подробно по дням <span>▾</span></button>
     <div hidden><div class="tbl rp-gridw"><table class="rp-grid"><thead><tr><th>д</th>${plan?'<th title="План на день">пл</th>':''}${cd.salons.map((n,j)=>`<th title="${esc(n)}">${j+1}</th>`).join('')}</tr></thead><tbody>${cd.v.map((row,ri)=>`<tr><th>${esc(labels[ri].slice(0,2))}</th>${plan?`<td class="pl">${rpK(plan[ri])}</td>`:''}${row.map(v=>v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${pct?fmt(v):rpK(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>
     <ol class="rp-leg">${cd.salons.map((n,j)=>`<li><b>${j+1}</b>${esc(rpShort(n))}</li>`).join('')}</ol></div></div></section>`;
 }
 async function cardsLoad(el, force){
-  const ck='rp:cards'; let cached=null; try{ cached=JSON.parse(store.get(ck)||'null'); }catch(e){}
+  const own = !(GV && gHas(DATA,'cards')), ck = own ? 'rp:cards' : 'rp:cards:g'; let cached=null; try{ cached=JSON.parse(store.get(ck)||'null'); }catch(e){}
   const draw = r => { el.innerHTML = rpCardsHTML(r); el.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{ const t=b.nextElementSibling; t.hidden=!t.hidden; b.classList.toggle('on',!t.hidden); }); animate(); };
   if (cached && !force) draw(cached); else if (!cached) el.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем карточки…</div>';
   try{
-    const r = await api({action:'cards_get', token:store.get('token'), fresh:!!force});
+    const r = await api({action:'cards_get', token:store.get('token'), fresh:!!force, own:own});
     if (r.error){ if (r.error==='auth') return showLogin('Сессия истекла. Войдите снова.'); if(!cached) el.innerHTML='<div class="card empty">Не удалось загрузить ('+esc(r.error)+').</div>'; return; }
     const same = cached && !force && JSON.stringify(cached)===JSON.stringify(r);
     store.set(ck, JSON.stringify(r)); if (!same) draw(r);
@@ -4447,10 +4665,14 @@ function rpMatrix(sg, opt){
   const allPct = numCols.every(c=>body.every(r=>!r[c]||rpPct(r[c])));
   const mkTitle = title || (allPct ? '<h2 class="rp-h">Доли, %</h2>' : (H1[lc]?`<h2 class="rp-h">${esc(H1[lc])}</h2>`:''));
   const seen = {};
-  const rowsO = body.map(r=>{ let nm = String(r[lc]||'').trim()||'—'; seen[nm]=(seen[nm]||0)+1; if (seen[nm]>1) nm += ' · '+seen[nm]; return {r, nm, tot:isTotRow(r)}; });
+  const isShop = nm => /КЗН|\s(БЛН|МТС|Т2|МФ)\b/.test(nm);
+  const hasShops = body.some(r=>isShop(String(r[lc]||'')));
+  /* строка ТМ (не точка, когда в таблице есть точки) и «Итого» всегда в конце */
+  const rowsO = body.map(r=>{ let nm = String(r[lc]||'').trim()||'—'; seen[nm]=(seen[nm]||0)+1; if (seen[nm]>1) nm += ' · '+seen[nm]; return {r, nm, tot:isTotRow(r)||(hasShops&&nm!=='—'&&!isShop(nm)&&rpNum(nm)===null)}; });
+  rowsO.sort((x,y)=>(x.tot?1:0)-(y.tot?1:0));
   const mark = nm => opt && opt.hl && opt.hl(nm);
   if (useTable){
-    const mx = {}; numCols.forEach(c=>{ mx[c]=Math.max(1e-9,...body.filter(r=>!isTotRow(r)).map(r=>Math.abs(rpNum(r[c])||0))); });
+    const mx = {}; numCols.forEach(c=>{ mx[c]=Math.max(1e-9,...rowsO.filter(o=>!o.tot).map(o=>Math.abs(rpNum(o.r[c])||0))); });
     return `<section class="card rp-tb fade">${mkTitle}<table class="tbl rp-t"><thead><tr><th>${esc(H1[lc]||'')}</th>${numCols.map(c=>`<th>${esc(lab(c)||H1[c])}</th>`).join('')}</tr></thead><tbody>${rowsO.map(o=>`<tr class="${o.tot?'tot':''}"><th>${esc(rpShort(o.nm))}</th>${numCols.map(c=>{ const v=rpNum(o.r[c]), p=rpPct(o.r[c]); if(v===null) return '<td class="z"></td>';
         const w = o.tot||c===totC ? 0 : Math.min(100,Math.abs(v)/mx[c]*100); return `<td class="num" style="--w:${p?Math.min(100,Math.abs(v)):w}%">${esc(o.r[c])}</td>`; }).join('')}</tr>`).join('')}</tbody></table></section>`;
   }
@@ -4485,7 +4707,7 @@ function rpMatrix(sg, opt){
   };
   const totals = items.filter(o=>o.tot), rest = items.filter(o=>!o.tot);
   const xlT = `<table class="xl-only" hidden><thead><tr><th>${esc(H1[lc]||'Строка')}</th>${numCols.map(c=>`<th>${esc((grp[c]?grp[c]+' · ':'')+(lab(c)||H1[c]))}</th>`).join('')}</tr></thead><tbody>${items.map(o=>`<tr><th>${esc(o.nm)}</th>${numCols.map(c=>`<td>${esc(o.r[c]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-  return `<section class="rp-mx fade">${mkTitle}<div class="rp-cards ${H2?'wide':''}">${totals.concat(rest).map(card).join('')}</div>${xlT}</section>`;
+  return `<section class="rp-mx fade">${mkTitle}<div class="rp-cards ${H2?'wide':''}">${rest.concat(totals).map(card).join('')}</div>${xlT}</section>`;
 }
 
 /* =================== ИТОГИ ДНЯ: салоны × направления (план на день, факт, % закрытия) =================== */
@@ -4577,14 +4799,45 @@ function dayResPane(d){
       <div class="tbl mtable dr-wide"><table class="dr-t2"><thead>${head1}${head2}</thead><tbody>${rows}${totRow}</tbody></table></div>
       <div class="note-s" style="margin-top:10px">План на день с учётом отставания = (план месяца − факт за прошлые дни) ÷ оставшиеся дни месяца, включая выбранный. «%» — закрытие плана дня.</div></div>`;
 }
-function bindDayRes(){ bindDayPlan(); $('#m-dayres').querySelectorAll('[data-dr]').forEach(b=>b.onclick=()=>{ DAYSEL=b.dataset.dr; dayComboDraw(DATA); }); }
+/* «Сводка дня» — одна таблица: план · факт · % · план на завтра по каждому направлению; копируется текстом и картинкой */
+let DAYTOP = 'sum';
+function daySumPane(d){
+  const sal = d.salons||[], dirs = DIR_ORDER.filter(k=>sal.some(s=>s.dirs.some(x=>x.key===k)));
+  if (!dirs.length || !DAYSEL) return '';
+  const dt = DAYSEL, m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(dt); if (!m) return '';
+  const dim = new Date(+m[3], +m[2], 0).getDate(), nn = Number(m[1])+1, nx = nn<=dim ? String(nn).padStart(2,'0')+'.'+m[2]+'.'+m[3] : null;
+  const lab = k => (sal.flatMap(s=>s.dirs).find(x=>x.key===k)||{}).label||k;
+  const cell = (s,k) => { const x=s.dirs.find(z=>z.key===k); if(!x) return null; const z=x.days.find(w=>w.d===dt), fact=(z&&z.v)||0, plan=dayPlanOf(x,dt).day, nxt = nx ? dayPlanOf(x,nx).day : null; return {plan,fact,nxt,pct:plan>0?fact/plan*100:null}; };
+  const rowsD = sal.map(s=>({n:rpShort(s.name), c:dirs.map(k=>cell(s,k))}));
+  const tot = dirs.map((k,i)=>{ let p=0,f=0,n=0,hn=false; rowsD.forEach(r=>{ const c=r.c[i]; if(c){ p+=c.plan; f+=c.fact; if(c.nxt!=null){ n+=c.nxt; hn=true; } } }); return {plan:p,fact:f,nxt:hn?n:null,pct:p>0?f/p*100:null}; });
+  const f0 = v => v==null ? '—' : fmt(v,0), pc = v => v==null ? '—' : Math.round(v)+'%';
+  const h1 = `<tr><th rowspan="2" class="l">Салон</th>${dirs.map(k=>`<th colspan="4" class="g"><span class="gd"><i style="background:${COLORS[k]||'var(--blue)'}"></i>${esc(lab(k))}</span></th>`).join('')}</tr>`;
+  const h2 = `<tr>${dirs.map(()=>'<th>План</th><th>Факт</th><th>%</th><th>Завтра</th>').join('')}</tr>`;
+  const body = rowsD.map(r=>`<tr><th class="l">${esc(r.n)}</th>${r.c.map(c=>c?`<td class="pl">${f0(c.plan)}</td><td>${c.fact?f0(c.fact):'—'}</td>${c.pct==null?'<td class="z">—</td>':`<td class="pc">${fcChip(c.pct)}</td>`}<td class="pl">${f0(c.nxt)}</td>`:'<td class="z">—</td><td class="z">—</td><td class="z">—</td><td class="z">—</td>').join('')}</tr>`).join('');
+  const totR = `<tr class="tot"><th class="l">Итого</th>${tot.map(t=>`<td class="pl">${f0(t.plan)}</td><td>${f0(t.fact)}</td><td class="pc">${t.pct==null?'—':fcChip(t.pct)}</td><td class="pl">${f0(t.nxt)}</td>`).join('')}</tr>`;
+  window.__daySumTxt = () => { const L=['Итоги дня '+dt.slice(0,5)+(nx?' · план на '+nx.slice(0,5):'')]; rowsD.concat([{n:'ИТОГО',c:tot.map(t=>t)}]).forEach((r,ri,A)=>{ const isT = ri===A.length-1; L.push(r.n+': '+dirs.map((k,i)=>{ const c=r.c[i]; return c? lab(k)+' '+f0(c.plan)+'/'+f0(c.fact||0)+' ('+pc(c.pct)+') →'+f0(c.nxt) : ''; }).filter(Boolean).join(' · ')); }); return L.join('\n'); };
+  return `<div class="card fade" id="daySumCard"><div class="eyebrow">Сводка · ${esc(dt.slice(0,5))}</div><h2>Итоги дня одной таблицей</h2>
+    <div class="tbl mtable dr-wide"><table class="dr-t2"><thead>${h1}${h2}</thead><tbody>${body}${totR}</tbody></table></div>
+    <div class="note-s" style="margin-top:10px">План / Факт / % — выбранный день; «Завтра» — нужный объём на следующий день${nx?' ('+esc(nx.slice(0,5))+')':''}.</div>
+    <div class="dr-copy"><button class="chipb" id="daySumCopy">Копировать текстом</button></div></div>`;
+}
+function bindDayRes(){ bindDayPlan(); $('#m-dayres').querySelectorAll('[data-dr]').forEach(b=>b.onclick=()=>{ DAYSEL=b.dataset.dr; dayComboDraw(DATA); }); $('#m-dayres').querySelectorAll('[data-dtop]').forEach(b=>b.onclick=()=>{ DAYTOP=b.dataset.dtop; dayComboDraw(DATA); }); const cb=$('#daySumCopy'); if (cb) cb.onclick=async()=>{ try{ await navigator.clipboard.writeText(window.__daySumTxt()); xToast('Скопировано'); }catch(e){ xToast('Не удалось скопировать'); } }; }
 /* «Итоги дня» = итоги + план на день + факт продаж на сегодня (раньше три отдельных экрана) */
 function dayComboDraw(d){
   const el = $('#m-dayres'); if (!el) return;
-  const withPlan = !!(d.canLinks || gHas(d,'dayplan')), withFact = !!(d.canLinks || gHas(d,'reports'));
-  el.innerHTML = dayResPane(viewD(d,'dayres')) + (withPlan ? '<div id="m-dayplan" class="stack" style="margin-top:14px">'+dayPlanPane(viewD(d,'dayplan'))+'</div>' : '') + (withFact ? '<div id="dayFact" style="margin-top:14px"></div>' : '');
+  const withPlan = !!(d.canLinks || gOn(d,'dayplan')), withFact = !!(d.canLinks || gOn(d,'reports'));
+  const tabs = [['sum','Сводка'],['res','Итог дня'],...(withPlan?[['plan','План на день']]:[]),...(withFact?[['fact','Факт продаж']]:[])];
+  if (!tabs.some(t=>t[0]===DAYTOP)) DAYTOP = 'sum';
+  const res = dayResPane(viewD(d,'dayres'));
+  const seg = `<div class="chips dr-top" role="tablist" aria-label="Раздел">${tabs.map(t=>`<button class="chipb" role="tab" data-dtop="${t[0]}" aria-pressed="${t[0]===DAYTOP}">${t[1]}</button>`).join('')}</div>`;
+  let body = '';
+  if (DAYTOP==='sum') body = daySumPane(viewD(d,'dayres'));
+  else if (DAYTOP==='res') body = res;
+  else if (DAYTOP==='plan') body = '<div id="m-dayplan" class="stack">'+dayPlanPane(viewD(d,'dayplan'))+'</div>';
+  else body = '<div id="dayFact"></div>';
+  el.innerHTML = seg + (DAYTOP==='sum' ? res.slice(0, res.indexOf('<div class="card')) : '') + body;
   bindDayRes();
-  if (withFact) rpLoad('fact', false, '#dayFact');
+  if (DAYTOP==='fact') rpLoad('fact', false, '#dayFact');
 }
 
 /* =================== ПОДСКАЗКИ при наведении / касании =================== */
@@ -4612,6 +4865,7 @@ document.addEventListener('pointerup', e=>{ if (e.pointerType==='touch') setTime
 /* =================== КНОПКИ НА КАЖДОМ ДАШБОРДЕ: копировать картинкой и скачать Excel (Excel — ТМ / УТТ / РТТ) =================== */
 LIBS.xlsx = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
 const ICO_IMG = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>';
+const ICO_TXT = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h14M5 18h9"/></svg>';
 const ICO_XL  = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>';
 const XSEL = '.card, .rp-mc, section.rp-mx, section.rp-ser';
 const XHAS = 'svg.rp-svg,.bars,.rp-sal,.rp-sbars,.rp-stack,.fbar,table,.rp-cards,.dr-tiles';
@@ -4625,6 +4879,7 @@ function decorate(){
     el.classList.add('hx');
     const xt = document.createElement('div'); xt.className='xt'; xt.setAttribute('data-nocap','');
     xt.innerHTML = `<button type="button" data-x="img" title="Копировать как картинку" aria-label="Копировать как картинку">${ICO_IMG}</button>` +
+      (el.dataset.ctx ? `<button type="button" data-x="txt" title="Копировать текстом: ТТ — прогноз — день — динамика" aria-label="Копировать текстом">${ICO_TXT}</button>` : '') +
       (canXl() && hasT ? `<button type="button" data-x="xl" title="Скачать в Excel" aria-label="Скачать в Excel">${ICO_XL}</button>` : '');
     el.insertBefore(xt, el.firstChild);
   });
@@ -4634,7 +4889,7 @@ let _dq=0; new MutationObserver(()=>{ clearTimeout(_dq); _dq=setTimeout(decorate
 document.addEventListener('click', e=>{
   const b = e.target.closest && e.target.closest('.xt button'); if (!b) return;
   e.stopPropagation(); const card = b.closest('.hx');
-  if (b.dataset.x==='img') copyCard(card,b); else xlCard(card,b);
+  if (b.dataset.x==='img') copyCard(card,b); else if (b.dataset.x==='txt') copyCardText(card,b); else xlCard(card,b);
 }, true);
 
 function xToast(t){ let el=$('#xtoast'); if(!el){ el=document.createElement('div'); el.id='xtoast'; document.body.appendChild(el); } el.textContent=t; el.classList.add('on'); clearTimeout(xToast.t); xToast.t=setTimeout(()=>el.classList.remove('on'),2400); }
@@ -4730,6 +4985,12 @@ async function to169(blob){
   }catch(e){ return blob; }
 }
 const makeBlob = card => cardToBlob(card).catch(()=>cardToBlobH2C(card));
+function cardText(card){ const f = card && card.dataset && RPTX[card.dataset.ctx]; try{ return f ? f() : ''; }catch(e){ return ''; } }
+async function copyCardText(card, btn){
+  const t = cardText(card); if (!t){ xToast('Нет данных для текста'); return; }
+  try{ await navigator.clipboard.writeText(t); xToast('Текст скопирован — вставляйте в чат'); }
+  catch(e){ const ta = document.createElement('textarea'); ta.value = t; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); xToast('Текст скопирован'); }catch(_){ xToast('Не удалось скопировать текст'); } ta.remove(); }
+}
 async function copyCard(card, btn){
   btn.classList.add('busy');
   try{
@@ -4746,7 +5007,9 @@ async function copyCard(card, btn){
     }
     const canClip = !!(navigator.clipboard && window.ClipboardItem);
     if (canClip){
-      try{ await navigator.clipboard.write([new ClipboardItem({'image/png': makeBlob(card)})]); xToast('Скопировано — вставляйте в чат'); return; }
+      try{ const tx = cardText(card), it = {'image/png': makeBlob(card)}; if (tx) it['text/plain'] = new Blob([tx], {type:'text/plain'});
+        try{ await navigator.clipboard.write([new ClipboardItem(it)]); }catch(e2){ if (!tx || (e2 && e2.name==='NotAllowedError')) throw e2; await navigator.clipboard.write([new ClipboardItem({'image/png': makeBlob(card)})]); }
+        xToast(tx ? 'Скопировано: картинка и текст' : 'Скопировано — вставляйте в чат'); return; }
       catch(e){ if (e && e.name==='NotAllowedError') throw e; }
     }
     const blob = await makeBlob(card); saveBlob(blob, fileBase(card)+'.png'); xToast(canClip ? 'Скопировать не удалось — файл сохранён' : 'Браузер не копирует картинки — файл сохранён');
@@ -4943,7 +5206,7 @@ function anSim(m){
     const kpiT=(name,v,cls)=>{ const t=v.reduce((a,b)=>a+b,0)||0, hb=sumI(v,hbI), pr=sumI(v,prI), p=x=>t?x/t*100:0;
       const row=(l,x,c)=>`<div><div class="an-kv"><span>${l}</span><strong>${fmtU(x,'шт')}<small>${fmt(p(x),1)}%</small></strong></div><div class="an-kk"><i style="width:${Math.min(100,p(x))}%;background:${c}"></i></div></div>`;
       return `<div class="an-kpi ${cls||''}"><b>${esc(name)}</b>${row('High Bundle++',hb,'#bf5af2')}${row('Premium',pr,'#ff9f0a')}<div class="note-s" style="margin:0">из ${fmtU(t,'шт')} SIM</div></div>`; };
-    const kpiAll=[kpiT('Все салоны',m.tot.v,'tot')].concat(m.salons.slice().sort((a,b)=>(sumI(b.v,hbI)+sumI(b.v,prI))-(sumI(a.v,hbI)+sumI(a.v,prI))).map(s=>kpiT(rpShort(s.n),s.v))).join('');
+    const kpiAll=m.salons.slice().sort((a,b)=>(sumI(b.v,hbI)+sumI(b.v,prI))-(sumI(a.v,hbI)+sumI(a.v,prI))).map(s=>kpiT(rpShort(s.n),s.v)).concat(kpiT('Все салоны',m.tot.v,'tot')).join('');
     const kpiMiss=(!hbI.length?'High Bundle++':'')+(!hbI.length&&!prI.length?' и ':'')+(!prI.length?'Premium':'');
     const kpiBlock=`<div class="an-kpih"><h3 class="an-h3" style="margin:0">KPI: High Bundle++ и Premium по салонам</h3></div><div class="an-kpis">${kpiAll}</div>${kpiMiss?`<div class="note-s" style="margin-top:6px">В отчёте нет группы тарифов: ${kpiMiss}.</div>`:''}`;
   const leg = order.map(i=>`<span><i style="background:${col(i)}"></i>${esc(m.gl[i].n==='#N/A'?'Без группы':m.gl[i].n)}</span>`).join('');
@@ -4954,7 +5217,7 @@ function anSim(m){
 let ANCACHE = {};
 async function anFetch(key){ try{ const r = await api({action:'tm_report', token:store.get('token'), name:key}); return r && !r.error ? r : null; }catch(e){ return null; } }
 function loadAnalytics(){
-  const el = $('#m-analytics'); if (!el || !DATA) return; const d = viewD(DATA,'analytics'), tm = !!(d.canLinks || gHas(DATA,'analytics'));
+  const el = $('#m-analytics'); if (!el || !DATA) return; const d = viewD(DATA,'analytics'), tm = !!(d.canLinks || gOn(DATA,'analytics'));
   el.innerHTML = `<div class="stack"><div id="anPace">${anPace(d)}</div>${tm?'<div id="anContrib"><div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем сотрудников…</div></div><div id="anSim"><div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем SIM…</div></div>':''}</div>`;
   anBind();
   if (!tm) return;
@@ -5480,7 +5743,11 @@ function vmrRevInner(base, k){
   }
   const list = (S.all ? cur.slice().sort((a,b)=>(b.dt||0)-(a.dt||0)) : low.slice().sort((a,b)=>a.s-b.s)), shown = list.slice(0,30);
   const lst = `<h3 class="an-h3">${S.all?'Все проверки':'Проверки на разбор'} · ${list.length}</h3>${shown.length?`<div class="vm-rev">${shown.map(r=>rvItem(r, k==='tm'||mgr)).join('')}</div>`:'<div class="empty">Проверок ниже '+REV_LOW+'% нет — отлично!</div>'}${list.length>shown.length?`<div class="note-s">Показаны ${shown.length} из ${list.length}. Сузьте период фильтрами выше.</div>`:''}<div class="note-s" style="margin-top:8px">«На разбор» — проверки с оценкой ниже ${REV_LOW}%, от худших. Красные теги — невыполненные пункты чек-листа. Недели — по календарной неделе года из выгрузки.</div>`;
-  return ctl+kpis+chart+piv+cdyn+lst;
+  const secs = [['list','На разбор · '+list.length],['dyn','Динамика']].concat(cdyn?[['cmb','Комбо и рассрочка']]:[]);
+  if (!secs.some(x=>x[0]===S.sec)) S.sec = 'list';
+  const segB = `<div class="chips rv-sec" role="tablist" aria-label="Раздел">${secs.map(x=>`<button class="chipb" role="tab" data-rv="sec" data-v="${x[0]}" aria-pressed="${S.sec===x[0]}">${x[1]}</button>`).join('')}</div>`;
+  const bodyS = S.sec==='dyn' ? chart+piv : S.sec==='cmb' ? cdyn : lst;
+  return `<details class="rv-flt"><summary>Фильтры</summary>${ctl}</details>`+kpis+segB+`<div class="rv-body">${bodyS}</div>`;
 }
 function vmrRevCard(base, k){
   const t = k==='tm' ? ['Разбор','Проверки на разбор'] : ROLE==='manager' ? ['ВМР · мои торговые точки','Проверки ВМР по моим ТТ'] : ['ВМР · мои проверки','Мои проверки ВМР'];
@@ -5492,7 +5759,7 @@ function rvBind(root, k, getBase){
   box.querySelectorAll('[data-rv]').forEach(b=>b.onclick = () => { const f = b.dataset.rv, v = b.dataset.v; REV[k][f] = (f==='m'||f==='w') ? (v==='all'?'all':Number(v)) : f==='all' ? v==='1' : v; if (f==='m') REV[k].w = 'all'; rr(); });
 }
 async function loadMyVmr(force){
-  if (DATA && (DATA.canLinks || gHas(DATA,'vmr'))) return loadTmVmr();
+  if (DATA && (DATA.canLinks || gOn(DATA,'vmr'))) return loadTmVmr();
   const host = $(ROLE==='manager' ? '#m-vmr' : '#vmrc'); if (!host) return;
   if (!MYVMR || force){ host.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем проверки ВМР…</div>'; try{ const r = await api({action:'vmr_mine', token:store.get('token')}); MYVMR = r && r.grid ? {rows:vmrParse(r.grid)||[]} : {err:r&&r.error||'x', missing:r&&r.missing}; }catch(e){ MYVMR = {err:'net'}; } }
   if (!MYVMR.rows) { host.innerHTML = `<div class="card empty">${MYVMR.missing?'Выгрузка ВМР не найдена.':'Не удалось загрузить проверки ВМР.'}</div>`; return; }
@@ -5502,6 +5769,7 @@ async function loadMyVmr(force){
 
 /* =================== Attachment: допродажи в чеках со смартфоном =================== */
 let ATTR = null, ATT_UI = {f:'all',per:'',salon:''};
+const atTime = c => c.h>=0 ? String(c.h).padStart(2,'0')+':'+String(c.mi>=0?c.mi:0).padStart(2,'0') : '';
 const attIso = d => { const m = /^(\d{2})\.(\d{2})\.(\d{4})/.exec(d||''); return m ? m[3]+'-'+m[2]+'-'+m[1] : ''; };
 const attShift = (iso,n) => { const d = new Date(iso+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()-n); return d.toISOString().slice(0,10); };
 const ATT_COL = {film:'#0a84ff',case:'#bf5af2',chg:'#ff9f0a',audio:'#30d158',acc:'#64d2ff',serv:'#ff6482',ins:'#ffd60a'};
@@ -5531,7 +5799,7 @@ function demoAttach(){
     const ph = PH[Math.floor(rnd()*PH.length)], skill = [1.15,.7,.95,.6,1.05][si]*(e.length%3===0?1.1:.95), items = [];
     Object.keys(P0).forEach(k=>{ if (rnd() < P0[k]*skill*(h>=19?.75:1)*(ph[1]>=30000?1.15:ph[1]<10000?.8:1)){ const a = IT[k][Math.floor(rnd()*IT[k].length)]; items.push({c:k,n:a[0],k:a[1],q:1}); } });
     const dd = String(day).padStart(2,'0')+'.11.2026';
-    out.push({c:'00РР-'+(162000+i*37), d:dd, h, s:SAL[si], m:['Тюрин Кирилл','Тюрин Кирилл','Нигматулин Марсель','Ашрапова Виктория','Ашрапова Виктория'][si], e, p:['Банковская карта','Наличные','Кредит'][Math.floor(rnd()*3)], ph:{n:ph[0],k:ph[1],q:1}, it:items});
+    out.push({c:'00РР-'+(162000+i*37), d:dd, h, mi:Math.floor(rnd()*60), s:SAL[si], m:['Тюрин Кирилл','Тюрин Кирилл','Нигматулин Марсель','Ашрапова Виктория','Ашрапова Виктория'][si], e, p:['Банковская карта','Наличные','Кредит'][Math.floor(rnd()*3)], ph:{n:ph[0],k:ph[1],q:1}, it:items});
   }
   out.sort((a,b)=>b.d.slice(0,2)-a.d.slice(0,2) || b.h-a.h);
   let rows = out, scope = 'all';
@@ -5607,14 +5875,49 @@ function attPane(r){
   const list = r.checks||[], f = ATT_UI.f, shown = list.filter(c=>f==='all'||(f==='none'?!c.it.length:c.it.length));
   const chips = [['all','Все'],['none','Без допов'],['has','С допами']].map(x=>`<button type="button" class="chip${f===x[0]?' on':''}" data-atf="${x[0]}">${x[1]}</button>`).join('');
   const ck = c => { const have = {}; c.it.forEach(i=>have[i.c]=1); const miss = CAT.filter(x=>!have[x.k]);
-    return `<details class="at-ck${c.it.length?'':' bad'}"><summary><span class="at-ct">${esc(c.d.slice(0,5))} ${c.h>=0?String(c.h).padStart(2,'0')+':00':''}</span><span class="at-cm"><b>${esc(c.ph.n)}</b><small>${rub(c.ph.k)} · ${esc(rpShort(c.s))}${mine?'':' · '+esc(c.e)} · ${esc(c.p||'')}</small></span><span class="at-cc">${c.it.length?c.it.reduce((a,i)=>a+i.q,0)+' шт':'без допов'}</span></summary>
+    return `<details class="at-ck${c.it.length?'':' bad'}"><summary><span class="at-ct">${esc(c.d.slice(0,5))} ${atTime(c)}</span><span class="at-cm"><button type="button" class="at-ph" data-atc="${esc(c.c)}" title="Быстрый просмотр и комментарий"><b>${esc(c.ph.n)}</b></button><small>${rub(c.ph.k)} · ${esc(rpShort(c.s))}${mine?'':' · '+esc(c.e)} · ${esc(c.p||'')}</small></span><span class="at-cc">${c.it.length?c.it.reduce((a,i)=>a+i.q,0)+' шт':'без допов'}${(()=>{ const q=(ATTR.comments||{})[c.c]; return q ? `<small class="at-cb2 ${q.ok?'ok':'wait'}">${q.ok?'✓ подтверждён':'💬 на проверке'}</small>` : ''; })()}</span></summary>
       <div class="at-cb">${c.it.map(i=>`<span class="at-pill" style="--c:${ATT_COL[i.c]}">${esc(cn(i.c))}: ${esc(i.n)} · ${rub(i.k)}</span>`).join('')||''}${miss.length?`<div class="at-miss">Не продано: ${miss.map(x=>esc(x.t)).join(', ')}</div>`:''}<div class="at-no">Чек ${esc(c.c)}</div></div></details>`; };
-  const listCard = `<div class="card fade"><h2>Чеки со смартфоном</h2><div class="chips" role="group">${chips}</div><div class="at-cl">${shown.slice(0,60).map(ck).join('')||'<div class="empty">Нет чеков по фильтру.</div>'}</div>${shown.length>60?`<div class="note-s">Показаны первые 60 из ${shown.length}.</div>`:''}</div>`;
+  const listCard = `<div class="card fade"><h2>Чеки со смартфоном</h2><div class="chips" role="group" aria-label="Фильтр чеков">${chips}</div>${(()=>{ const sl=[...new Set((ATTR.checks||[]).map(c=>c.s))].sort(); return mine||sl.length<2?'':`<div class="chips" role="group" aria-label="Торговая точка"><button type="button" class="chip${ATT_UI.salon?'':' on'}" data-atsal="">Все точки</button>${sl.map(x=>`<button type="button" class="chip${ATT_UI.salon===x?' on':''}" data-atsal="${esc(x)}">${esc(rpShort(x))}</button>`).join('')}</div>`; })()}<div class="at-cl">${shown.slice(0,60).map(ck).join('')||'<div class="empty">Нет чеков по фильтру.</div>'}</div>${shown.length>60?`<div class="note-s">Показаны первые 60 из ${shown.length}.</div>`:''}</div>`;
   return `<div class="stack">${hero}${mainCard}${penCard}${treeCard}${salonCard}${sellCard}${bandCard}${listCard}</div>`;
 }
+/* быстрый просмотр чека со смартфоном: данные + комментарий (один раз, подтверждает ТМ) */
+function attQuick(id, redraw){
+  const c = (ATTR.checks||[]).find(x=>x.c===id); if (!c) return;
+  const old = $('#atq'); if (old) old.remove();
+  const q = () => (ATTR.comments||{})[id], tmv = !!ATTR.canConfirm;
+  const g = document.createElement('div'); g.id = 'atq'; g.className = 'atq'; g.setAttribute('role','dialog'); g.setAttribute('aria-modal','true'); g.setAttribute('aria-label','Чек со смартфоном');
+  const close = () => { g.remove(); document.removeEventListener('keydown', onKey); }, onKey = e => { if (e.key==='Escape') close(); };
+  const draw = () => {
+    const cm = q(), none = !c.it.length;
+    const items = c.it.length ? c.it.map(i=>`<span class="at-pill" style="--c:${ATT_COL[i.c]}">${esc(i.n)} · ${rub(i.k)}</span>`).join('') : '<span class="at-pill" style="--c:#ff375f">Допов нет</span>';
+    let com;
+    if (cm) com = `<div class="atq-c ${cm.ok?'ok':'wait'}"><div class="atq-ch"><b>${cm.ok?'✓ Подтверждён ТМ':'⏳ На проверке у ТМ'}</b><small>${esc(cm.by)} · ${esc(cm.role||'')} · ${esc(cm.at)}</small></div><p>${esc(cm.text)}</p>${cm.ok?`<small class="sub">Подтвердил ${esc(cm.by2||'ТМ')}${cm.at2?' · '+esc(cm.at2):''}. Изменить нельзя.</small>`:(tmv?`<button type="button" class="btn" id="atqOk">Подтвердить комментарий</button>`:'<small class="sub">Отправлено один раз — изменить нельзя. Ждёт подтверждения ТМ.</small>')}</div>`;
+    else if (none) com = `<div class="atq-c"><label for="atqT"><b>Почему не продали допы?</b></label><textarea id="atqT" maxlength="500" rows="4" placeholder="Коротко: причина, что предложили клиенту…"></textarea><div class="sub">Отправить можно один раз. ТМ подтвердит комментарий — после этого он не меняется.</div><button type="button" class="btn" id="atqSend">Отправить на подтверждение</button><span class="sub" id="atqMsg"></span></div>`;
+    else com = '<div class="atq-c"><div class="sub">Комментарии добавляются только к чекам без допов.</div></div>';
+    g.innerHTML = `<div class="atq-in"><div class="atq-h"><div><div class="eyebrow">${esc(c.d.slice(0,5))} ${atTime(c)} · ${esc(rpShort(c.s))}</div><h3>${esc(c.ph.n)}</h3></div><button type="button" class="icon-btn" id="atqX" aria-label="Закрыть">✕</button></div>
+      <div class="atq-k"><div><span>Цена</span><b>${rub(c.ph.k)}</b></div><div><span>Сотрудник</span><b>${esc(short_(c.e))}</b></div><div><span>Оплата</span><b>${esc(c.p||'—')}</b></div></div>
+      <div class="atq-p">${items}</div>${com}<div class="at-no">Чек ${esc(c.c)}</div></div>`;
+    $('#atqX').onclick = close;
+    const snd = $('#atqSend'); if (snd) snd.onclick = async () => {
+      const t = ($('#atqT').value||'').trim(), m = $('#atqMsg'); if (t.length<3){ m.textContent = 'Напишите хотя бы пару слов.'; return; }
+      snd.disabled = true; m.textContent = '…';
+      let x; try{ x = await api({action:'att_comment', token:store.get('token'), check:id, text:t}); }catch(e){ x = null; }
+      if (x && x.ok){ (ATTR.comments = ATTR.comments||{})[id] = x.comment; draw(); redraw(); }
+      else { snd.disabled = false; m.textContent = x && x.error==='exists' ? 'Комментарий уже отправлен.' : x && x.error==='has_items' ? 'К чеку с допами комментарий не нужен.' : 'Не удалось отправить. Повторите.'; }
+    };
+    const ok = $('#atqOk'); if (ok) ok.onclick = async () => {
+      ok.disabled = true; let x; try{ x = await api({action:'att_confirm', token:store.get('token'), check:id}); }catch(e){ x = null; }
+      if (x && x.ok){ ATTR.comments[id] = x.comment; draw(); redraw(); } else { ok.disabled = false; }
+    };
+  };
+  g.onclick = e => { if (e.target===g) close(); };
+  document.addEventListener('keydown', onKey); document.body.appendChild(g); draw();
+}
 function attBind(host){ const rr = () => { host.innerHTML = attView(); attBind(host); };
+  host.querySelectorAll('[data-atc]').forEach(b=>b.onclick = e=>{ e.preventDefault(); e.stopPropagation(); attQuick(b.dataset.atc, rr); });
   host.querySelectorAll('[data-atf]').forEach(b=>b.onclick=()=>{ ATT_UI.f = b.dataset.atf; rr(); });
   const pr = host.querySelector('#atPer'), s = host.querySelector('#atSalon');
+  host.querySelectorAll('[data-atsal]').forEach(b=>b.onclick=()=>{ ATT_UI.salon = b.dataset.atsal; rr(); });
   if (pr) pr.onchange = () => { ATT_UI.per = pr.value; rr(); }; if (s) s.onchange = () => { ATT_UI.salon = s.value; rr(); }; }
 
 /* =================== Weekly Pulse (ТМ): презентация .pptx =================== */
@@ -6100,7 +6403,7 @@ const MN_ICO = {
 };
 MN_ICO.access = MN_ICO.auth || MN_ICO.links || MN_ICO.bonus; MN_ICO.tmbonus = MN_ICO.bonus; MN_ICO.pulse = '<rect x="3" y="4" width="18" height="12" rx="2.500"/><path d="M12 16v4M8 20h8M7 11l2.500-3 2.500 4 2-2.500 2 1.500"/>';
 const MN_SHORT = {access:'Доступы', results:'Месяц', dayres:'Итоги дня', days:'По дням', forecast:'Прогноз', main:'Результаты', point:'Точка', diag:'Диагноз', attach:'Attachment', analytics:'Аналитика', tmbonus:'Бонус ТМ'};
-const mnIco = id => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${MN_ICO[id]||MN_ICO.main}</svg>`;
+const mnIco = id => (id=String(id).replace(/^g_/,'')) && `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${MN_ICO[id]||MN_ICO.main}</svg>`;
 let MN_ALL = [], MN_PRIM = [], MN_OPEN = false;
 function mnavBuild(T, role){
   const nav = $('#mnav'); if (!nav) return;
@@ -6228,13 +6531,13 @@ function leadTags(name){ const k = ldKey(name); if (!k) return ''; return Object
 function ratingList(d){
   const list = RT==='all' ? d.rating : ((d.ratings||{})[RT]||[]), medal = p => p<=3 ? `<span class="medal g${p}">${p}</span>` : p;
   if (!list.length) return '<div class="empty">По этому направлению рейтинга пока нет.</div>';
-  const li = r => `<li class="${r.me?'me':''}"><span class="pl num">${medal(r.place)}</span><span class="nm">${esc(r.name)}${r.me?' · вы':''}${leadTags(r.name)}</span><span class="sc num">${fmt(r.score)}%</span></li>`;
+  const li = r => `<li class="${r.me?'me':''}"><span class="pl num">${medal(r.place)}</span><span class="nm">${esc(r.name)}${r.me?' · вы':''}${leadTags(r.name)}</span></li>`;
   const top = list.filter(r=>r.place<=5), rest = list.filter(r=>r.place>5), lab = RT==='all' ? 'Лидеры продаж' : 'Лидеры · '+RT_TABS.find(x=>x[0]===RT)[1];
   return `<div class="rtop"><span class="rtop-l">🏆 ${lab}</span><ul class="rlist">${top.map(li).join('')}</ul></div>${rest.length?`<ul class="rlist">${rest.map(li).join('')}</ul>`:''}`;
 }
 function ratingHTML(d){
   return `<h2>Рейтинг команды</h2><div class="chips rt-tabs" role="group" aria-label="Рейтинг">${RT_TABS.map(x=>`<button class="chipb" data-rt="${x[0]}" aria-pressed="${RT===x[0]}">${x[1]}</button>`).join('')}</div><div id="ratingList">${ratingList(d)}</div>
-    <div class="sub" style="font-size:13px">${RT==='all'?'Справа — средний % выполнения плана месяца.':'Справа — % выполнения плана по направлению.'} Топ-5 — «лидеры продаж»; первое место в направлении получает титул. Руководители салонов в рейтинг не входят.</div>`;
+    <div class="sub" style="font-size:13px">Топ-5 — «лидеры продаж»; первое место в направлении получает титул. Руководители салонов в рейтинг не входят.</div>`;
 }
 document.addEventListener('click', e=>{ const b = e.target.closest('[data-rt]'); if (!b || !DATA) return; RT = b.dataset.rt; const c = $('#ratingCard'); if (c) c.querySelectorAll('[data-rt]').forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.rt===RT))); const l = $('#ratingList'); if (l) l.innerHTML = ratingList(DATA); });
 
@@ -6265,7 +6568,7 @@ document.addEventListener('pointerdown', e => {
 
 /* группы меню: подписи над первой кнопкой каждой группы (ПК — вертикальная панель, телефон — разделители) */
 const TAB_GROUPS = [['Итоги и темп',['results','dayres','days','forecast','dayplan','summary','pulse']],['Диагностика',['diag','attach','analytics','cards','recon']],['Команда и бонус',['dl','teambonus','reports','bonus','tmbonus']],['Качество',['vmr']],['Контроль',['auth','access','links']]];
-const tabGroup = id => { for (const g of TAB_GROUPS) if (g[1].indexOf(id)>=0) return g[0]; return ''; };
+const tabGroup = id => { if (DATA && DATA.guest && !DATA.canLinks && (id.indexOf('g_')===0 || id==='reports')) return 'Предоставили доступ'; for (const g of TAB_GROUPS) if (g[1].indexOf(id)>=0) return g[0]; return ''; };
 function menuGroups(){
   const seg = document.getElementById('tabseg'); if (!seg) return; const mgr = !!(DATA && DATA.role==='manager'); let prev = null;
   seg.querySelectorAll('button').forEach(b=>{ const g = mgr ? tabGroup(b.dataset.tab) : ''; if (g && g!==prev) b.setAttribute('data-gl', g); else b.removeAttribute('data-gl'); if (g) prev = g; });
@@ -6345,7 +6648,7 @@ function diagPane(d, A){
   const lossU = all.filter(q=>q.unit==='шт' && q.gap>q.plan*0.01).sort((a,b)=>b.gap-a.gap).slice(0,4);
   const lossCard = `<div class="card fade"><h2>Где теряем деньги</h2>
     ${loss.length ? `<div class="dg-loss">${loss.map(q=>`<div class="dg-lr"><div class="dg-ln"><b>${esc(q.label)}</b><span>${esc(rpShort(q.salon))}</span></div>
-      <div class="dg-lb"><i style="width:${q.gap/mx*100}%;background:${COLORS[q.key]||'var(--blue)'}"></i></div><div class="dg-lv num">−${rub(q.gap)}<small>${dgX(q.ratio)}</small></div></div>`).join('')}</div>` : '<div class="note-s">По прогнозу все денежные направления закрывают план — потерь нет. 🎉</div>'}
+      <div class="dg-lb"><i style="width:${q.gap/mx*100}%;background:${COLORS[q.key]||'var(--blue)'}"></i></div><div class="dg-lv num">−${rub(q.gap)}<small>${dgX(q.ratio)}</small></div></div>`).join('')}</div>` : `<div class="note-s">Дефицита нет: по прогнозу все денежные направления закрывают план. Ниже — позиции с минимальным запасом.</div><div class="dg-loss">${all.filter(q=>q.unit!=='шт'&&q.fcPct!=null).sort((a,b)=>a.fcPct-b.fcPct).slice(0,6).map(q=>`<div class="dg-lr"><div class="dg-ln"><b>${esc(q.label)}</b><span>${esc(rpShort(q.salon))}</span></div><div class="dg-lb"><i style="width:${Math.min(100,q.fcPct)}%;background:${stCol(q.fcPct)}"></i></div><div class="dg-lv num">${fmt(q.fcPct)}%<small>запас ${rub(Math.max(0,q.forecast-q.plan))}</small></div></div>`).join('')}</div>`}
     ${lossU.length ? `<div class="dg-sub">В штуках</div><div class="dg-loss">${lossU.map(q=>`<div class="dg-lr"><div class="dg-ln"><b>${esc(q.label)}</b><span>${esc(rpShort(q.salon))}</span></div>
       <div class="dg-lb"><i style="width:${Math.min(100,q.gap/Math.max(1,lossU[0].gap)*100)}%;background:${COLORS[q.key]||'var(--blue)'}"></i></div><div class="dg-lv num">−${fmt(q.gap)} шт<small>${dgX(q.ratio)}</small></div></div>`).join('')}</div>` : ''}
     <div class="note-s" style="margin-top:10px">Дефицит = план месяца − прогноз на конец месяца. Сортировка — по сумме потерь.</div></div>`;

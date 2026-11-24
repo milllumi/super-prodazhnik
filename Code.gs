@@ -24,7 +24,9 @@ const CONFIG = {
   SHEET_ACCESS:  'Доступ',
   SHEET_SALONS:  'Детали продаж салоны',
   SHEET_LINKS:   'Ссылки',
-  SHEET_NEWS:    'Новости',                   // создаётся автоматически: ID, Дата, Автор, Роль, Заголовок, Текст, Статус, Модератор
+  SHEET_NEWS:    'Новости',
+  SHEET_ATT_COM: 'Комментарии аттачмент',   // создаётся автоматически: чек, автор, комментарий, статус, кто подтвердил
+  SHEET_NEWS_READ: 'Прочтения новостей',   // создаётся автоматически: ID новости, ключ, ФИО, роль, когда прочитал                   // создаётся автоматически: ID, Дата, Автор, Роль, Заголовок, Текст, Статус, Модератор
   LINK_KPI_KEY:  'kpi осс текущий месяц',     // название строки на вкладке «Ссылки» (регистр не важен)
   KPI_SHEET:     'Сотрудники по салонам',     // лист в KPI ОСС: A — менеджер, B — магазин
   SELLER_ROLES:  ['новичок', 'птт', 'сп'],
@@ -92,6 +94,7 @@ function doPost(e) {
     else if (req.action === 'pulse_data') out = pulseData_(req);
     else if (req.action === 'news_list') out = newsList_(req);
     else if (req.action === 'news_add') out = newsAdd_(req);
+    else if (req.action === 'news_read') out = newsRead_(req);
     else if (req.action === 'news_file') out = newsFileGet_(req);
     else if (req.action === 'news_moderate') out = newsModerate_(req);
     else if (req.action === 'links_set') out = linksSet_(req);
@@ -102,6 +105,8 @@ function doPost(e) {
     else if (req.action === 'import_checks') out = importChecks_(req);
     else if (req.action === 'vmr_mine') out = vmrMine_(req);
     else if (req.action === 'attach') out = attachReport_(req);
+    else if (req.action === 'att_comment') out = attComment_(req);
+    else if (req.action === 'att_confirm') out = attConfirm_(req);
     else if (req.action === 'notif_list') out = notifList_(req);
     else out = { error: 'bad_request' };
   } catch (err) { out = { error: 'server', message: String(err) }; }
@@ -280,21 +285,59 @@ function newsSheet_(ss) {
   return sh;
 }
 function safeCell_(t) { t = String(t); return /^[=+\-@]/.test(t) ? "'" + t : t; }
+const NEWS_MUST_DAYS_ = 14;                                    // «обязательные» — опубликованные за последние 14 дней
+function newsReadSheet_(ss) {
+  let sh = ss.getSheetByName(CONFIG.SHEET_NEWS_READ);
+  if (!sh) { sh = ss.insertSheet(CONFIG.SHEET_NEWS_READ); sh.getRange(1, 1, 1, 5).setValues([['ID новости', 'Ключ', 'ФИО', 'Роль', 'Прочитано']]); sh.setFrozenRows(1); }
+  return sh;
+}
+function newsDate_(t) {
+  const m = /^(\d{2})\.(\d{2})\.(\d{4})(?:\s+(\d{2}):(\d{2}))?/.exec(String(t || ''));
+  return m ? new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), Number(m[4] || 0), Number(m[5] || 0)) : null;
+}
 function newsList_(req) {
   const ss = ss_();
   const u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
   const tm = u.roleTitle === 'ТМ';
   const v = newsSheet_(ss).getDataRange().getDisplayValues(), items = [];
+  const rv = newsReadSheet_(ss).getDataRange().getDisplayValues(), mineRead = {}, readers = {};
+  for (let i = 1; i < rv.length; i++) {
+    const id = String(rv[i][0]); if (!id) continue;
+    if (String(rv[i][1]) === u.key) mineRead[id] = rv[i][4];
+    if (tm) (readers[id] = readers[id] || []).push({ n: short_(rv[i][2]), r: rv[i][3], t: rv[i][4] });
+  }
+  const limit = Date.now() - NEWS_MUST_DAYS_ * 86400000;
   for (let i = 1; i < v.length; i++) {
     const r = v[i]; if (!r[0]) continue;
     const st = norm_(r[6]), mine = norm_(r[2]) === u.key;
     if (st !== ST_PUB && !tm && !mine) continue;               // чужие предложения видит только ТМ
     let files = []; try { files = r[8] ? JSON.parse(r[8]) : []; } catch (e) {}
-    items.push({ id: r[0], date: r[1], author: short_(r[2]), role: r[3], title: r[4], text: r[5], status: st, mine: mine, files: files });
+    const dt = newsDate_(r[1]), it = { id: r[0], date: r[1], author: short_(r[2]), role: r[3], title: r[4], text: r[5], status: st, mine: mine, files: files,
+      read: !!mineRead[r[0]], must: st === ST_PUB && !!dt && dt.getTime() >= limit };
+    if (tm && st === ST_PUB) it.readers = (readers[r[0]] || []).sort(function (a, b) { return a.t < b.t ? 1 : -1; });
+    items.push(it);
   }
   items.reverse();
   return { canModerate: tm, items: items.slice(0, 120) };
+}
+function newsRead_(req) {
+  const ss = ss_();
+  const u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  const ids = (Array.isArray(req.ids) ? req.ids : []).map(String).slice(0, 50);
+  if (!ids.length) return { ok: true };
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const pub = {}; const nv = newsSheet_(ss).getDataRange().getDisplayValues();
+    for (let i = 1; i < nv.length; i++) if (norm_(nv[i][6]) === ST_PUB) pub[String(nv[i][0])] = 1;
+    const sh = newsReadSheet_(ss), rv = sh.getDataRange().getDisplayValues(), have = {};
+    for (let i = 1; i < rv.length; i++) if (String(rv[i][1]) === u.key) have[String(rv[i][0])] = 1;
+    const when = Utilities.formatDate(new Date(), 'Europe/Moscow', 'dd.MM.yyyy HH:mm'), add = [];
+    ids.forEach(function (id) { if (pub[id] && !have[id]) { add.push([id, u.key, u.name, u.roleTitle, when]); have[id] = 1; } });
+    if (add.length) { const rg = sh.getRange(sh.getLastRow() + 1, 1, add.length, 5); rg.setNumberFormat('@'); rg.setValues(add); }
+    return { ok: true, saved: add.length };
+  } finally { lock.releaseLock(); }
 }
 function newsAdd_(req) {
   const ss = ss_();
@@ -319,6 +362,7 @@ function newsAdd_(req) {
     if (!sh.getRange(1, 9).getValue()) sh.getRange(1, 9).setValue('Вложения');
     const rg = sh.getRange(row, 1, 1, 9); rg.setNumberFormat('@');
     rg.setValues([[id, when, u.name, u.roleTitle, safeCell_(title), safeCell_(text), tm ? ST_PUB : ST_MOD, tm ? u.name : '', meta.length ? JSON.stringify(meta) : '']]);
+    if (tm) { const rs = newsReadSheet_(ss), rr = rs.getRange(rs.getLastRow() + 1, 1, 1, 5); rr.setNumberFormat('@'); rr.setValues([[id, u.key, u.name, u.roleTitle, when]]); }
     if (tm) notifyMany_(ss, [{ to: '*', kind: 'news', title: '🚀 Скорее беги в приложение!', text: 'Там новая штука появилась 👀', tab: 'news' }]);
     return { ok: true, status: tm ? ST_PUB : ST_MOD };
   } finally { lock.releaseLock(); }
@@ -769,7 +813,7 @@ const RES_SPEC_ = [
     { id: 'ins',    label: 'Страховки',    plan: 'N',  fact: ['eco', 'BI'] },
     { id: 'insShare', label: 'Страховки доля', share: ['ins', 'phones'], planConst: 9 },
     { id: 'ya',     label: 'ЯА',           plan: 'AE', fact: ['op', 'HF'] },
-    { id: 'attach', label: 'Аттачмент',    fact: ['eco', 'BP'], planConst: 2, pctUnit: true },
+    { id: 'attach', label: 'Аттачмент, шт/смартфон', fact: ['eco', 'BP'], planConst: 2, ratio: true },
     { id: 'credRev', label: 'Кредитная выручка', plan: 'O', fact: ['eco', 'BR'] },
     { id: 'credApp', label: 'Кредитная заявка',  planFact: ['eco', 'BY'], fact: ['eco', 'BZ'] },
     { id: 'sellout', label: 'Sell out и трудный сток', plan: 'Q', fact: ['eco', 'CD'] } ] },
@@ -833,7 +877,7 @@ function salonResults_(ss, salon) {
         }
         val[sp.id] = { plan: p, fact: f };
         if (p == null && f == null) return;                                   // нет ни плана, ни факта — строку не показываем
-        const unit = (sp.pctUnit || sp.share) ? 'pct' : '';
+        const unit = sp.ratio ? 'ratio' : (sp.pctUnit || sp.share) ? 'pct' : '';
         const row = { label: sp.label, unit: unit, plan: p, fact: f, rest: null, perDay: null, pct: null, prog: null };
         if (p != null && f != null) {
           row.rest = sp.share ? (val[sp.share[1]].fact * 0.06 - val[sp.share[0]].fact) : p - f;   // «Страховки доля»: остаток = телефоны×6% − страховки (как в шаблоне)
@@ -1282,7 +1326,7 @@ function cardsGet_(req) {
   if (!u) return { error: 'auth' };
   if (!u.manager) return { error: 'forbidden' };
   const acc = readAccess_(ss), shopsBy = kpiShops_(ss, acc);
-  const tmU = u.roleTitle !== 'ТМ' && grantHas_(ss, u, 'cards') ? acc.filter(function (a) { return a.roleTitle === 'ТМ'; })[0] : null;   // гостевой доступ: карточки по всей сети ТМ
+  const tmU = u.roleTitle !== 'ТМ' && !req.own && grantHas_(ss, u, 'cards') ? acc.filter(function (a) { return a.roleTitle === 'ТМ'; })[0] : null;   // гостевой доступ: карточки по всей сети ТМ
   const names = shopsBy[tmU ? tmU.key : u.key] || shopsBy[u.key] || [];
   const all = cardsAll_(ss);
   if (all.missing) return { missing: true, name: CONFIG.SHEET_SALONS };
@@ -1411,9 +1455,13 @@ function hourOf_(v) {                                  // час чека: из 
   if (v instanceof Date) return v.getHours();
   const m = String(v || '').match(/\s(\d{1,2}):/); return m ? Number(m[1]) : -1;
 }
+function minOf_(v) {                                   // минуты пробития чека
+  if (v instanceof Date) return v.getMinutes();
+  const m = String(v || '').match(/\s\d{1,2}:(\d{2})/); return m ? Number(m[1]) : -1;
+}
 // Чтение сырья (кэш): строки чеков + список исключений
 function salesRows_(ss) {
-  return cached_('sales:rows', TTL_, function () {
+  return cached_('sales:rows2', TTL_, function () {
     const sh = sheetByName_(ss, RAW_.SHEET); if (!sh) return { rows: [], excl: {}, missing: true };
     const tz = ss.getSpreadsheetTimeZone() || 'Europe/Moscow';
     const lr = sh.getLastRow(); if (lr < 2) return { rows: [], excl: {} };
@@ -1423,7 +1471,7 @@ function salesRows_(ss) {
       if (!d || !b) return;
       rows.push({ g: String(x[0] || '').trim(), n: b, tm: String(x[3] || '').trim(), s: String(x[4] || '').trim(), e: String(x[5] || '').trim(),
         d: d, q: Number(x[9]) || 0, k: Number(x[10]) || 0,
-        c: String(x[6] || '').trim(), h: hourOf_(x[7]), p: String(x[8] || '').trim() });
+        c: String(x[6] || '').trim(), h: hourOf_(x[7]), mi: minOf_(x[7]), p: String(x[8] || '').trim() });
     });
     const excl = {}, es = sheetByName_(ss, RAW_.EXCL);
     if (es) es.getRange(1, 1, Math.max(1, es.getLastRow()), 2).getValues().forEach(function (x, i) {
@@ -1658,13 +1706,14 @@ function incomeModel_(ss) {
       const b = rowBonus_(r, saleFlags_(r, data.excl), T), e = byE[norm_(r.e)] = byE[norm_(r.e)] || { days: {}, grp: {} };
       const gn = /^\(не исп\)/i.test(r.g) ? 'Прочее' : (r.g || 'Прочее');
       e.days[Number(p[0])] = (e.days[Number(p[0])] || 0) + b; e.grp[gn] = (e.grp[gn] || 0) + b; groups[gn] = 1;
+      (e.gd = e.gd || {})[gn] = e.gd[gn] || {}; e.gd[gn][Number(p[0])] = (e.gd[gn][Number(p[0])] || 0) + b;
     });
     const gl = Object.keys(groups).sort(function (a, b) { return a < b ? -1 : a > b ? 1 : 0; }), byName = {};
     Object.keys(byE).forEach(function (k) {
       const e = byE[k], days = [];
       for (let d = 1; d <= m.maxDay; d++) days.push({ d: pad2_(d) + '.' + pad2_(m.month) + '.' + m.year, v: e.days[d] === undefined ? null : e.days[d] });
       let tot = 0; gl.forEach(function (g) { tot += e.grp[g] || 0; });
-      byName[k] = { days: days, groups: gl.map(function (g) { return { name: g, v: e.grp[g] || 0 }; }), gtotal: tot };
+      byName[k] = { days: days, groups: gl.map(function (g) { return { name: g, v: e.grp[g] || 0 }; }), gtotal: tot, gd: e.gd || {} };
     });
     return { byName: byName, month: m.month ? M[m.month - 1] + ' ' + m.year : '' };
   });
@@ -1989,6 +2038,8 @@ function dlBonusGet_(req) {
       const fc = worked > 0 && r.planH > 0 ? b.gtotal / worked * r.planH : null;
       const wk = weeks.map(function () { return 0; });
       b.days.forEach(function (x) { if (x.v) wk[wkOf[x.d]] += x.v; });
+      const wkg = {};
+      Object.keys(b.gd || {}).forEach(function (gn) { const a = weeks.map(function () { return 0; }); b.days.forEach(function (x) { const dv = b.gd[gn][Number(x.d.slice(0, 2))]; if (dv) a[wkOf[x.d]] += dv; }); wkg[gn] = a; });
       // оклад = факт часов × ставка города; защита бонуса: бонус на час < ставки грейда (по салону) → бонус доводится до ставки × часы
       const sal = salonRate_(book, r.tt), gr = book.grade[r.k] || 'C', rate = sal && gr ? sal.rates[gr] : null, city = sal ? sal.city : null;
       const wH = worked || 0, pH = r.planH || 0, perH = wH > 0 ? b.gtotal / wH : null;
@@ -1996,11 +2047,11 @@ function dlBonusGet_(req) {
       const protNow = prot ? rate * wH - b.gtotal : 0, protFc = prot && pH > 0 ? rate * pH - fc : 0;
       const salary = city === null ? null : city * wH, salaryFc = city === null ? null : city * pH;
       const fcProt = fc === null ? null : fc + protFc;
-      out.push({ name: r.name, role: r.role, tt: salonShort_(r.tt), ttFull: r.tt, planH: pH, workH: wH, factGraph: r.factH || 0, groups: g, total: b.gtotal, fc: fc, wk: wk,
+      out.push({ name: r.name, role: r.role, tt: salonShort_(r.tt), ttFull: r.tt, planH: pH, workH: wH, factGraph: r.factH || 0, groups: g, total: b.gtotal, fc: fc, wk: wk, wkg: wkg,
         grade: gr, city: city, rate: rate === undefined ? null : rate, salary: salary, salaryFc: salaryFc, perH: perH, prot: prot, protNow: protNow, protFc: protFc,
         totalProt: b.gtotal + protNow, fcProt: fcProt, zp: fcProt === null || salaryFc === null ? null : salaryFc + fcProt, zpNow: salary === null ? null : salary + b.gtotal + protNow });
     });
-    out.forEach(function (o) { while (o.wk.length < weeks.length) o.wk.push(0); });
+    out.forEach(function (o) { while (o.wk.length < weeks.length) o.wk.push(0); Object.keys(o.wkg).forEach(function (gn) { while (o.wkg[gn].length < weeks.length) o.wkg[gn].push(0); }); });
     weeks.sort(function (a, b) { return a.key - b.key; });
     const groups = Object.keys(gset).sort(function (a, b) { return gset[b] - gset[a]; });
     out.sort(function (a, b) { return (b.fc === null ? -1 : b.fc) - (a.fc === null ? -1 : a.fc) || b.total - a.total; });
@@ -2112,7 +2163,7 @@ function attachModel_(rows, mgrOf) {
   const ck = {};
   rows.forEach(function (r) {
     if (!r.c) return;
-    const key = r.c + '|' + r.s, o = ck[key] = ck[key] || { m: mgrOf ? mgrOf(r.s) : '', c: r.c, s: r.s, e: r.e, d: r.d, h: r.h, p: r.p, ph: null, it: [] };
+    const key = r.c + '|' + r.s, o = ck[key] = ck[key] || { m: mgrOf ? mgrOf(r.s) : '', c: r.c, s: r.s, e: r.e, d: r.d, h: r.h, mi: r.mi, p: r.p, ph: null, it: [] };
     if (attIsPhone_(r)) { if (!o.ph) o.ph = { n: r.n, k: r.k, q: r.q, mx: r.k }; else { if (r.k > o.ph.mx) { o.ph.n = r.n; o.ph.mx = r.k; } o.ph.k += r.k; o.ph.q += r.q; } return; }
     if (ATT_.GROUPS[r.g] && r.q > 0 && (r.k / r.q) >= ATT_.ITEM_MIN) o.it.push({ c: attCat_(r), n: r.n, k: r.k, q: r.q });
   });
@@ -2136,7 +2187,7 @@ function attachModel_(rows, mgrOf) {
     const f = function (x) { const p = x.d.split('.'); return Number(p[2]) * 10000 + Number(p[1]) * 100 + Number(p[0]); };
     return f(b) - f(a) || b.h - a.h;
   }).slice(0, ATT_.MAXCHECKS).map(function (ch) {
-    return { c: ch.c, d: ch.d, h: ch.h, s: ch.s, e: ch.e, p: ch.p, m: ch.m, ph: { n: ch.ph.n, k: ch.ph.k, q: ch.ph.q }, it: ch.it };
+    return { c: ch.c, d: ch.d, h: ch.h, mi: ch.mi, s: ch.s, e: ch.e, p: ch.p, m: ch.m, ph: { n: ch.ph.n, k: ch.ph.k, q: ch.ph.q }, it: ch.it };
   });
   return { cfg: { phoneMin: ATT_.PHONE_MIN, itemMin: ATT_.ITEM_MIN }, cats: ATT_CATS_, tot: tot, salon: flat(bySalon), seller: flat(bySeller), day: flat(byDay), hour: flat(byHour), pay: flat(byPay), band: flat(byBand), checks: list };
 }
@@ -2160,7 +2211,60 @@ function attachReport_(req) {
       return (memo[salon] = nm);
     };
   }
-  const out = attachModel_(rows, mgrOf); out.scope = scope; return out;
+  const out = attachModel_(rows, mgrOf); out.scope = scope;
+  const all = attComAll_(ss), have = {}; (out.checks || []).forEach(function (c) { have[c.c] = 1; });
+  out.comments = {}; Object.keys(all).forEach(function (k) { if (have[k]) out.comments[k] = all[k]; });
+  out.canConfirm = u.roleTitle === 'ТМ';
+  return out;
+}
+/* ---------- комментарии к чекам со смартфоном без допов: один раз, подтверждает ТМ, после подтверждения не меняются ---------- */
+const ATT_COM_HEAD = ['Чек', 'Ключ', 'Автор', 'Роль', 'Салон', 'Комментарий', 'Отправлен', 'Статус', 'Подтвердил', 'Подтверждён'];
+function attComSheet_(ss) {
+  let sh = ss.getSheetByName(CONFIG.SHEET_ATT_COM);
+  if (!sh) { sh = ss.insertSheet(CONFIG.SHEET_ATT_COM); sh.getRange(1, 1, 1, 10).setValues([ATT_COM_HEAD]); sh.setFrozenRows(1); }
+  return sh;
+}
+function attComAll_(ss) {
+  const v = attComSheet_(ss).getDataRange().getDisplayValues(), out = {};
+  for (let i = 1; i < v.length; i++) if (v[i][0]) out[String(v[i][0])] = { by: short_(v[i][2]), role: v[i][3], text: v[i][5], at: v[i][6], ok: norm_(v[i][7]) === 'подтверждён', by2: short_(v[i][8]), at2: v[i][9] };
+  return out;
+}
+function attComment_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  const id = String(req.check || '').trim(), text = String(req.text || '').trim();
+  if (!id || text.length < 3 || text.length > 500) return { error: 'bad_value' };
+  const rep = attachReport_(req); if (!rep || rep.error || !rep.checks) return { error: 'forbidden' };
+  const ch = rep.checks.filter(function (c) { return c.c === id; })[0];
+  if (!ch) return { error: 'forbidden' };                                   // чек вне доступа пользователя
+  if (ch.it && ch.it.length) return { error: 'has_items' };                 // комментарии — только к чекам без допов
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const sh = attComSheet_(ss), v = sh.getDataRange().getDisplayValues();
+    for (let i = 1; i < v.length; i++) if (String(v[i][0]) === id) return { error: 'exists' };   // отправить можно один раз
+    const when = Utilities.formatDate(new Date(), 'Europe/Moscow', 'dd.MM.yyyy HH:mm'), rg = sh.getRange(sh.getLastRow() + 1, 1, 1, 10);
+    rg.setNumberFormat('@'); rg.setValues([[id, u.key, u.name, u.roleTitle, ch.s, safeCell_(text), when, 'на проверке', '', '']]);
+    try { const tms = readAccess_(ss).filter(function (a) { return a.roleTitle === 'ТМ'; }).map(function (a) { return { to: a.key, kind: 'attc', title: '💬 Комментарий к чеку без допов', text: short_(u.name) + ': ' + (ch.ph ? ch.ph.n : '') + '. Нужно подтвердить.', tab: 'attach' }; }); if (tms.length) notifyMany_(ss, tms); } catch (e) {}
+    return { ok: true, comment: { by: short_(u.name), role: u.roleTitle, text: text, at: when, ok: false, by2: '', at2: '' } };
+  } finally { lock.releaseLock(); }
+}
+function attConfirm_(req) {
+  const ss = ss_(), u = sessionUser_(ss, req.token);
+  if (!u) return { error: 'auth' };
+  if (u.roleTitle !== 'ТМ') return { error: 'forbidden' };
+  const id = String(req.check || '').trim();
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const sh = attComSheet_(ss), v = sh.getDataRange().getDisplayValues();
+    for (let i = 1; i < v.length; i++) if (String(v[i][0]) === id) {
+      if (norm_(v[i][7]) === 'подтверждён') return { error: 'locked' };
+      const when = Utilities.formatDate(new Date(), 'Europe/Moscow', 'dd.MM.yyyy HH:mm');
+      sh.getRange(i + 1, 8, 1, 3).setValues([['подтверждён', u.name, when]]);
+      try { notifyMany_(ss, [{ to: String(v[i][1]), kind: 'attc', title: '✅ Комментарий подтверждён', text: 'ТМ подтвердил комментарий к чеку.', tab: 'attach' }]); } catch (e) {}
+      return { ok: true, comment: { by: short_(v[i][2]), role: v[i][3], text: v[i][5], at: v[i][6], ok: true, by2: short_(u.name), at2: when } };
+    }
+    return { error: 'not_found' };
+  } finally { lock.releaseLock(); }
 }
 
 /* ---------- ВМР для РТТ/УТТ (по их ТТ) и ПТТ/СП (только их проверки) ---------- */
@@ -2191,6 +2295,8 @@ function vmrMine_(req) {
 const NOTIF_SHEET = 'Уведомления';
 // ВАЖНО: при каждом обновлении сайта добавляйте сюда запись (новая версия `v`) — она сама станет новостью и уведомлением для всех.
 const RELEASES = [
+  { v: '2026-12-12', title: 'Итоги дня одной таблицей, Attachment и компактные блоки',
+    text: 'Что нового:\n• «Итоги дня»: переключатель разделов (Сводка · Итог дня · План на день · Факт продаж). В «Сводке» — одна таблица план / факт / % / план на завтра по направлениям, её можно скопировать текстом или картинкой.\n• Attachment: в списке «Чеки со смартфоном» добавлен фильтр по торговой точке.\n• Аттачмент в результатах точки показывается в шт на смартфон (раньше ошибочно в %).\n• «Салоны рядом» — только трафик и конверсия, цифры в строках выровнены. «Сотрудники ДЛ» — единый список-таблица с меню в стиле сайта. Разбор ВМР: фильтры свёрнуты, разделы На разбор / Динамика / Комбо.\n• «Бонус команды»: компактные карточки по салонам и новая таблица «Динамика по группам» по неделям.\n• Прогноз: если потерь нет, «Где теряем деньги» показывает позиции с минимальным запасом.\n• Столбцы по дням: при наведении видно значение по каждому салону.\n• Новости: после входа сначала показываются непрочитанные новости, пока все не отмечены «Прочитано» — дальше не пускает. ТМ видит, кто и когда прочитал каждую новость. «Фишки» оформлены фиолетовым с обводкой, новости от ТМ — в стиле «Калькулятор» со шрифтом темы.\n• Attachment: к чекам со смартфоном без допов можно оставить комментарий (нажмите на название телефона — быстрый просмотр). Отправить можно один раз; ТМ подтверждает, после подтверждения комментарий не меняется.\n• Оформление: больше выделения главного — крупные жирные числа, акцентные кромки у плиток, подсвеченные итоговые строки, заметный выбранный фильтр и видимый фокус клавиатуры.\n• «Отчёты» и «Карточки»: при копировании картинки в буфер кладётся и текст (есть и отдельная кнопка «Копировать текстом»): точка — прогноз — продажи за последний день — динамика прогноза, с группами «🏆 Лидеры прогноза» и «⚠️ Аутсайдеры прогноза». В «Отчётах» добавлена строка «🎯 Цель дня» — закрытие плана за последний день. Строка ТМ/«Итого» теперь всегда последняя в таблицах и карточках; в «Салонах рядом» бренды выделены цветом (МФ зелёный, МТС красный, БЛН жёлтый, Т2 чёрный). Текст «Карточек» — общий факт и факт за последний день, группы «🟢 Продажи были» и «🔴 Не было продаж» (с числом дней без продаж).\n• «Сотрудники ДЛ»: переосмыслены кнопки. Вид — «Список» / «Как в таблице»; сортировка по рейтингу, любому направлению (по прогнозу) или имени; группировка «По салонам» / «Без групп» (салоны идут в том же порядке, что и сортировка); у поиска счётчик «Найдено N из M». В виде «Как в таблице» лишние кнопки скрыты с пояснением.\n• «Карточки»: при наведении на любой столбец диаграммы показываются торговые точки и факт продаж по каждой.\n• Чеки: показываются часы и минуты пробития. В рейтинге сотрудников убраны проценты справа.\n• Гостевой доступ: разделы, выданные на время, вынесены в отдельный блок меню «Предоставили доступ», свои разделы остаются как были.' },
   { v: '2026-12-11', title: 'Бонус по салонам, «Сопоставления», доступы',
     text: 'Что нового:\n• Все таблицы приведены к единому стилю (общий класс и общий фон шапки, первого столбца, зебры и итога во всех оформлениях).\n• Исправления интерфейса на телефоне: кнопки не меньше 44px, текст не мельче 11px, шапка не перекрывается кнопками (на узких экранах скрыты название и бейдж «Демо»).\n• Новое оформление «Калькулятор» (как в «Бонус-калькуляторе»): фиолетовый акцент, лаймовые подсветки, шрифты Unbounded и Manrope, точечный фон. Включается в «Оформлении» → «Профиль интерфейса» → «Калькулятор» (светлая и тёмная тема).\n• Единая методика прогноза: темп по завершённым дням × дней в месяце (у сотрудников ДЛ — по сменам); сегодняшний неполный день не берётся.\n• Отчёты объединены: «План на день» и «Факт продаж» теперь внутри «Итогов дня»; «Диагностика» и тепловая карта — внутри «Прогноза»; у РТТ/УТТ вместо «Бонуса команды» — «Сотрудники ДЛ» (рейтинг и бонус только их сотрудников).\n• «Сопоставления»: алерт «Трафик есть — продаж нет».\n• Бонус: коэффициент сезонности по месяцу (янв–июнь 1,1; июль–дек 0,9); салону без категории ставка берётся по названию и городу (как у салонов того же города).\n• Проверка отчётов: сопоставление салонов строже (целые слова, Т2/ТД различаются), «Точка» корректно считает прогноз при графике прошлого месяца, ВМР в рейтинге ДЛ не берёт чужую колонку вне июля–декабря.\n• «Бонус»: если у сотрудника не найден грейд — ему присваивается грейд C (ставка защиты и расчёт по C).\n• «Бонус сотрудников» и «Бонус команды»: сотрудники сгруппированы по салонам, у каждого салона — подытог.\n• «Сотрудники ДЛ» (рейтинг и бонус) у РТТ/УТТ — только сотрудники их салонов, в том числе при выданном доступе; вся сеть — у ТМ.\n• «Сопоставления»: исправлена подгрузка «Сим 1с» — график «Сим 1с / Трафик / Конверсия» снова показывает данные.\n• «Сопоставления» у РТТ/УТТ: помимо своих салонов можно переключиться на смежные (тот же адрес, другой бренд) — трафик, сим 1с и конверсия.\n• «Сотрудники ДЛ» переработаны: вместо широкой таблицы — карточки сотрудников (рейтинг, часы, полосы выполнения плана по направлениям с прогнозом, качество), группировка по салонам, сортировка и поиск; таблица осталась во вкладке «Таблица». Бонус — карточки с раскрывающимся расчётом (оклад, защита, группы, недели).\n• ВМР у РТТ/УТТ — только проверки по их салонам, в том числе при выданном доступе.\n• Временный доступ: ТМ отмечает галочками разделы (Отчёты, Сотрудники ДЛ, План на день, Итоги дня, Карточки, Аналитика, ВМР); «Итоги дня», «План на день», «Карточки» и «Аналитика» открываются в виде ТМ — по всей сети; «Сотрудники ДЛ» — всегда только свои сотрудники.' },
   { v: '2026-12-10', title: 'Бонус сотрудников: оклад и защита бонуса',
