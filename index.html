@@ -1732,9 +1732,31 @@ html[data-ios="bk"] .mnav{box-shadow:0 10px 30px rgba(91,61,245,.28),4px 4px 0 r
 .wp-pre{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.th-pre-b{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 14px 6px 8px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--text);font-weight:650;font-size:14px;cursor:pointer}.th-pre-b i{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}.th-pre-b.on{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
 
 .rp-up{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+
+.wp-th{margin:14px 0 4px}.wp-th>b{display:block;font-size:13px;color:var(--muted);margin-bottom:2px}
+
+/* ПК: шапка на всю ширину, меню прикреплено к ней слева — одно целое */
+body.menu-dock{padding-left:236px}
+body.menu-dock #app .top,body.menu-dock #app .demo-banner{margin-left:-236px}
+body.menu-dock #app .top{padding-left:236px}
+body.menu-dock #app .demo-banner{padding-left:calc(16px + 236px)}
+html .tabbar.menu-float.menu-attached{width:236px;margin:0;border-radius:0 0 22px 0!important;border-left:0;border-top:0;box-shadow:8px 10px 30px rgba(31,38,135,.10)!important;max-height:calc(100vh - 8px);transition:top .12s linear}
+html .tabbar.menu-float.menu-attached .seg{max-height:calc(100vh - 150px)}
+body.menu-dock #app .top{box-shadow:0 1px 0 var(--line)}
+html[data-ios="bk"] body.menu-dock #app .top,html[data-ios="px"] body.menu-dock #app .top{box-shadow:none}
+
+/* «Стиль»: фон из «Бонус-калькулятора» — точки плывут по диагонали и разбегаются от курсора */
+html[data-ios="bk"]{--bk-dot:rgba(91,61,245,.30)}
+:root[data-theme="dark"][data-ios="bk"]{--bk-dot:rgba(160,140,255,.38)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-ios="bk"]{--bk-dot:rgba(160,140,255,.38)}}
+html[data-ios="bk"] body::before{display:none!important;animation:none!important}
+#bkDots{display:none;position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+html[data-ios="bk"] #bkDots{display:block}
+html[data-ios="bk"] #app,html[data-ios="bk"] #login{position:relative;z-index:1}
 </style>
 </head>
 <body>
+<canvas id="bkDots" aria-hidden="true"></canvas>
 <div id="wrap" class="role-seller" data-tab="main">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="lgBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a84ff"/><stop offset=".55" stop-color="#5e5ce6"/><stop offset="1" stop-color="#bf5af2"/></linearGradient>
@@ -5244,11 +5266,15 @@ function menuApply(){
   nav.classList.toggle('collapsed', desk && !!p.collapsed);
   $('#tabseg').classList.toggle('reord', true);
   if (!desk){ nav.style.left=nav.style.top=''; document.body.classList.remove('menu-dock'); return; }
-  const w = nav.classList.contains('collapsed') ? 54 : 212, h = nav.offsetHeight || 400;
-  let x = 14, y = 96;
+  const col = nav.classList.contains('collapsed'), dock = !col && innerWidth>1100, topEl = document.querySelector('#app .top');
+  document.body.classList.toggle('menu-dock', dock);
+  nav.classList.toggle('menu-attached', dock);
+  const tb = topEl && !$('#app').hidden ? Math.max(0, Math.round(topEl.getBoundingClientRect().bottom)) : 0;
+  if (dock){ nav.style.left = '0px'; nav.style.top = (tb||60)+'px'; return; }
+  const w = col ? 54 : 212, h = nav.offsetHeight || 400;
+  let x = 14, y = Math.max(96, tb + 12);
   x = Math.max(4, Math.min(innerWidth-w-4, x)); y = Math.max(4, Math.min(innerHeight-Math.min(h,innerHeight-8)-4, y));
   nav.style.left = x+'px'; nav.style.top = y+'px';
-  document.body.classList.toggle('menu-dock', !nav.classList.contains('collapsed') && x<=40 && innerWidth>1100);
 }
 function menuInit(){
   const nav = $('#tabnav'), seg = $('#tabseg'); if (!nav || menuInit.done) return; menuInit.done = true;
@@ -5256,6 +5282,7 @@ function menuInit(){
   $('#mfab').onclick = ()=>{ menuSave({collapsed:false}); menuApply(); };
   $('#mcol').onclick = ()=>{ menuSave({collapsed:true}); menuApply(); };
   addEventListener('resize', menuApply);
+  addEventListener('scroll', () => { if (document.body.classList.contains('menu-dock')) menuApply(); }, {passive:true});
   matchMedia('(min-width:901px) and (hover:hover) and (pointer:fine)').addEventListener?.('change', menuApply);
 }
 
@@ -5699,6 +5726,22 @@ const THEME_PRE = [
  {id:'pixel',    n:'Pixel',    a:'#1a73e8', b:'#0b57d0', lo:'#d93025', mid:'#f9ab00', hi:'#1e8e3e', amb:false, ios:'px', d:'Material You'},
  {id:'style',    n:'Стиль',    a:'#5B3DF5', b:'#8E78FF', lo:'#D6383D', mid:'#C96A00', hi:'#1E8E55', amb:false, ios:'bk', d:'Фиолетовый акцент, лайм и живой фон'}
 ];
+
+/* «Стиль»: живой фон из точек (как в «Бонус-калькуляторе») */
+const BKD = {on:false, raf:0, P:[], W:0, H:0, mx:-9999, my:-9999, col:'rgba(91,61,245,.3)', f:0, dpr:1};
+function bkDotsSize(){ const cv = $('#bkDots'); if (!cv) return; const d = BKD; d.dpr = Math.min(2, devicePixelRatio||1); d.W = innerWidth; d.H = innerHeight; cv.width = d.W*d.dpr; cv.height = d.H*d.dpr; cv.getContext('2d').setTransform(d.dpr,0,0,d.dpr,0,0);
+  const n = Math.min(170, Math.round(d.W*d.H/9000)); d.P = []; for (let i=0;i<n;i++) d.P.push({x:Math.random()*d.W, y:Math.random()*d.H, r:1+Math.random()*1.6, v:.25+Math.random()*.5, dx:0, dy:0}); }
+function bkDotsTick(){ const d = BKD, cv = $('#bkDots'); if (!d.on || !cv) return; const ctx = cv.getContext('2d'), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (d.f++%40===0) d.col = getComputedStyle(document.documentElement).getPropertyValue('--bk-dot').trim() || d.col;
+  ctx.clearRect(0,0,d.W,d.H); ctx.fillStyle = d.col; const R = 130;
+  for (const p of d.P){ if (!still){ p.x += p.v; p.y += p.v; if (p.x>d.W+10) p.x = -10; if (p.y>d.H+10) p.y = -10; }
+    const ddx = p.x+p.dx-d.mx, ddy = p.y+p.dy-d.my, dist = Math.hypot(ddx,ddy);
+    if (dist<R && dist>.1){ const k = (1-dist/R)*4; p.dx += ddx/dist*k; p.dy += ddy/dist*k; }
+    p.dx *= .93; p.dy *= .93; ctx.beginPath(); ctx.arc(p.x+p.dx, p.y+p.dy, p.r, 0, 6.2832); ctx.fill(); }
+  if (!still) d.raf = requestAnimationFrame(bkDotsTick); }
+function bkDotsSync(){ const on = document.documentElement.dataset.ios==='bk', d = BKD; if (on===d.on) return; d.on = on; cancelAnimationFrame(d.raf);
+  if (on){ if (!bkDotsSync.bound){ bkDotsSync.bound = true; addEventListener('pointermove', e=>{ BKD.mx = e.clientX; BKD.my = e.clientY; }, {passive:true}); addEventListener('pointerleave', ()=>{ BKD.mx = BKD.my = -9999; }); addEventListener('resize', ()=>{ if (BKD.on) bkDotsSize(); }); }
+    bkDotsSize(); bkDotsTick(); } }
 const THEME_PIXEL = {a:'#1a73e8', b:'#0b57d0', lo:'#d93025', mid:'#f9ab00', hi:'#1e8e3e', amb:false, bg:'', bgi:'', ios:'px'};
 const THEME_BK = {a:'#5B3DF5', b:'#8E78FF', lo:'#D6383D', mid:'#C96A00', hi:'#1E8E55', amb:false, bg:'', bgi:'', ios:'bk'};
 const THEME_IOS16 = {a:'#007aff', b:'#5856d6', lo:'#ff3b30', mid:'#ff9500', hi:'#34c759', amb:false, bg:'', bgi:'', ios:16};
@@ -5727,6 +5770,7 @@ body::before{background:${T.amb?`radial-gradient(520px 380px at 12% 8%,rgba(${r}
   const de = document.documentElement; de.removeAttribute('data-theme'); de.dataset.pre = T.pre||'classic';
   if (T.ios===16) de.dataset.ios = '16'; else if (T.ios==='px') de.dataset.ios = 'px'; else if (T.ios==='bk'){ de.dataset.ios = 'bk'; if (!document.getElementById('bkFonts')){ const lk = document.createElement('link'); lk.id = 'bkFonts'; lk.rel = 'stylesheet'; lk.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap'; document.head.appendChild(lk); } } else de.removeAttribute('data-ios');
   if (repaint && DATA && !$('#app').hidden){ try{ paint(DATA); if (WRAP.dataset.tab==='analytics'){ loadAnalytics(); } if (WRAP.dataset.tab==='vmr'){ loadMyVmr(); } if (WRAP.dataset.tab==='auth') loadAuth(); }catch(e){} }
+  try{ bkDotsSync(); menuApply(); }catch(e){}
 }
 function themePanel(){
   let p = document.getElementById('themePanel');
@@ -6102,15 +6146,9 @@ function wpLib(){ if (window.PptxGenJS) return Promise.resolve(); return _lp.ppt
 function loadPulse(){
   const el = $('#m-pulse'); if (!el) return;
   if (!DATA || !DATA.canLinks){ el.innerHTML = '<div class="card empty">Weekly Pulse доступен только ТМ.</div>'; return; }
-  el.innerHTML = `<div class="stack"><div class="card fade wp-c"><div class="eyebrow">Собрание с управленцами</div><h2>Презентация в новом дизайне</h2><div class="at-s">37 слайдов: бизнес-процессы, СИМ, экономический блок. Графики и таблицы строятся из данных сайта на момент нажатия, с анимациями и переходами Morph. Вручную заполняются: остатки сим, ген. уборка, заявки, комбо, не зарегистрированные.</div><div class="wp-act"><button type="button" class="btn" id="wpGo2">Скачать презентацию (37 слайдов)</button><span class="note-s" id="wpSt2"></span></div><div class="wp-sel"><details><summary>Отчёты в презентации (<span id="wpSelN"></span>)</summary><div id="wpSelL"></div><div class="wp-b"><button type="button" class="btn ghost" id="wpAll">Выбрать все</button><button type="button" class="btn ghost" id="wpNone">Снять все</button></div><div class="note-s">Основные 33 слайда остаются как есть. Если выбраны другие отчёты сайта, они добавляются в конец отдельным блоком. Новые отчёты сайта появляются здесь автоматически.</div></details></div></div><div class="card fade wp-c"><div class="eyebrow">Weekly Pulse</div><h2>Краткая презентация недели</h2>
-    <div class="at-s">Соберём слайды из данных сайта: итоги месяца, динамику за 7 дней к предыдущим 7, светофор салонов, потери, Attachment, ВМР и фокус на следующую неделю. Выберите, что включить.</div>
-    <div class="wp-list">${WP_SLIDES.map(x=>`<label class="wp-i"><input type="checkbox" data-wp="${x[0]}"${WP_UI.on.includes(x[0])?' checked':''}><span>${esc(x[1])}</span></label>`).join('')}</div>
-    <div class="wp-pre" role="group" aria-label="Тема презентации">${THEME_PRE.map(x=>`<button type="button" class="th-pre-b${wpPre().id===x.id?' on':''}" data-wpt="${x.id}" aria-pressed="${wpPre().id===x.id}"><i style="background:linear-gradient(135deg,${x.a},${x.b})"></i>${esc(x.n)}</button>`).join('')}</div>
-    <div class="wp-act"><button type="button" class="btn" id="wpGo">Скачать .pptx</button><span class="note-s" id="wpSt"></span></div>
-    <div class="note-s">Слайд «Титул» добавляется всегда. Данные — на момент последнего обновления таблицы. Файл формируется в браузере.</div></div></div>`;
-  el.querySelectorAll('[data-wp]').forEach(c=>c.onchange = () => { WP_UI.on = [...el.querySelectorAll('[data-wp]')].filter(x=>x.checked).map(x=>x.dataset.wp); });
+  el.innerHTML = `<div class="stack"><div class="card fade wp-c"><div class="eyebrow">Собрание с управленцами</div><h2>Презентация в новом дизайне</h2><div class="at-s">37 слайдов: бизнес-процессы, СИМ, экономический блок. Графики и таблицы строятся из данных сайта на момент нажатия, с анимациями и переходами Morph. Вручную заполняются: остатки сим, ген. уборка, заявки, комбо, не зарегистрированные.</div><div class="wp-th"><b>Тема презентации</b><div class="wp-pre" role="group" aria-label="Тема презентации">${THEME_PRE.map(x=>`<button type="button" class="th-pre-b${wpPre().id===x.id?' on':''}" data-wpt="${x.id}" aria-pressed="${wpPre().id===x.id}"><i style="background:linear-gradient(135deg,${x.a},${x.b})"></i>${esc(x.n)}</button>`).join('')}</div></div><div class="wp-act"><button type="button" class="btn" id="wpGo2">Скачать презентацию (37 слайдов)</button><span class="note-s" id="wpSt2"></span></div><div class="wp-sel"><details><summary>Отчёты в презентации (<span id="wpSelN"></span>)</summary><div id="wpSelL"></div><div class="wp-b"><button type="button" class="btn ghost" id="wpAll">Выбрать все</button><button type="button" class="btn ghost" id="wpNone">Снять все</button></div><div class="note-s">Основные 33 слайда остаются как есть. Если выбраны другие отчёты сайта, они добавляются в конец отдельным блоком. Новые отчёты сайта появляются здесь автоматически.</div></details></div></div></div>`;
   el.querySelectorAll('[data-wpt]').forEach(b=>b.onclick = () => { WP_UI.pre = b.dataset.wpt; el.querySelectorAll('[data-wpt]').forEach(x=>{ x.classList.toggle('on', x===b); x.setAttribute('aria-pressed', x===b); }); });
-  $('#wpGo').onclick = wpBuild; $('#wpGo2').onclick = wp2Build;
+  $('#wpGo2').onclick = wp2Build;
   const selDraw = () => { const L = siteReports().filter(x=>x.pres), off = wp2Off(), gs = []; L.forEach(x=>{ if (gs.indexOf(x.g)<0) gs.push(x.g); });
     $('#wpSelL').innerHTML = gs.map(g=>`<div class="wp-g">${esc(g)}</div>`+L.filter(x=>x.g===g).map(x=>`<label class="wp-i"><input type="checkbox" data-wsel="${esc(x.id)}"${off.indexOf(x.id)<0?' checked':''}><span>${esc(x.t)}${SR_COVERED.indexOf(x.id)>=0?'<em>уже в презентации</em>':'<em>добавится в конец</em>'}</span></label>`).join('')).join('');
     $('#wpSelN').textContent = L.filter(x=>off.indexOf(x.id)<0).length+' из '+L.length;
@@ -6129,75 +6167,6 @@ async function wpData(){
   try{ const vm = ANCACHE.vmr || await anFetch('vmr'); ANCACHE.vmr = vm; ANCACHE.vmrRows = ANCACHE.vmrRows || (vm && vm.grid ? vmrParse(vm.grid) : null); const rows = ANCACHE.vmrRows; if (rows && rows.length){ const ts = rows.filter(r=>r.dt).map(r=>+r.dt), mx = ts.length ? Math.max(...ts) : 0, wk = mx ? rows.filter(r=>r.dt && +r.dt>mx-7*864e5) : rows.slice(-20); vmr = {rows, wk, mx}; } }catch(e){}
   return {d, A, dirs, sal, att, vmr, end};
 }
-async function wpBuild(){
-  const st = $('#wpSt'), btn = $('#wpGo'); btn.disabled = true; st.textContent = 'Собираем данные…';
-  try{
-    const [W] = await Promise.all([wpData(), wpLib()]); st.textContent = 'Рисуем слайды…';
-    const pres = new PptxGenJS(); pres.layout = 'LAYOUT_WIDE'; pres.title = 'Weekly Pulse'; pres.author = 'SUPER PROдажник';
-    const PR = wpPre(), dk = false, C = {bg:'F4F6FB',card:'FFFFFF',tx:'1D1D1F',mu:'6B7280',ln:'E3E7F0'};
-    const AC = wpHex(PR.a), OK = '1FA84A', WN = 'D98200', BD = 'E5334F', FN = 'Calibri';
-    const col = p => p==null ? C.mu : p>=ST_OK ? OK : p>=ST_WARN ? WN : BD;
-    const tint = p => p==null ? C.card : dk ? (p>=ST_OK?'143A25':p>=ST_WARN?'3D2E10':'43182A') : (p>=ST_OK?'DDF5E5':p>=ST_WARN?'FFF0D2':'FFDDE4');
-    const d = W.d, A = W.A, P = d.month || '';
-    const end = W.end, wk = `${String(Math.max(1,end-6)).padStart(2,'0')}–${String(end).padStart(2,'0')}`;
-    const base = (title, sub) => { const s = pres.addSlide(); s.background = {color:C.bg}; s.addShape('rect',{x:0,y:0,w:0.18,h:7.5,fill:{color:AC},line:{color:AC}}); s.addText(title,{x:0.6,y:0.35,w:12,h:0.7,fontFace:FN,fontSize:28,bold:true,color:C.tx}); if (sub) s.addText(sub,{x:0.6,y:1.0,w:12,h:0.4,fontFace:FN,fontSize:13,color:C.mu}); s.addText('Weekly Pulse · '+P,{x:0.6,y:7.05,w:6,h:0.3,fontFace:FN,fontSize:10,color:C.mu}); return s; };
-    const T = (v,o) => ({text:String(v),options:Object.assign({fontFace:FN,fontSize:12,color:C.tx,valign:'middle'},o||{})});
-    const hdr = v => T(v,{bold:true,color:C.mu,fontSize:10.5,align:'center',fill:{color:C.card}});
-    // титул
-    { const s = pres.addSlide(); s.background = {color:C.bg}; s.addShape('rect',{x:0,y:0,w:0.5,h:7.5,fill:{color:AC},line:{color:AC}}); s.addShape('rect',{x:0.8,y:4.75,w:2.2,h:0.08,fill:{color:AC},line:{color:AC}});
-      s.addText('Weekly Pulse',{x:0.8,y:2.2,w:11.5,h:1.2,fontFace:FN,fontSize:54,bold:true,color:C.tx});
-      s.addText(`Неделя ${wk} · ${P}`,{x:0.8,y:3.4,w:11.5,h:0.6,fontFace:FN,fontSize:24,color:AC,bold:true});
-      s.addText(`${(d.name||'ТМ').replace(/^ТМ\s*/i,'')} · ${new Date().toLocaleDateString('ru-RU')} · ${A.list.length} салонов`,{x:0.8,y:4.1,w:11.5,h:0.5,fontFace:FN,fontSize:16,color:C.mu}); }
-    const on = id => WP_UI.on.includes(id), dirs = W.dirs, avgFc = avg(dirs.filter(z=>z.fcPct!=null).map(z=>z.fcPct));
-    if (on('month')){ const s = base('Итоги месяца', `День ${A.passed} из ${A.dim} · осталось ${A.left} дн. · средний прогноз ${fmt(avgFc)}%`);
-      const rows = [[hdr('Направление'),hdr('План'),hdr('Факт'),hdr('Выполнено'),hdr('Прогноз'),hdr('Нужно в день'),hdr('Темп ×')]];
-      dirs.forEach(z=>rows.push([T(z.label,{bold:true,fill:{color:C.card}}),T(fmtU(z.plan,z.unit),{align:'right',fill:{color:C.card}}),T(fmtU(z.fact,z.unit),{align:'right',fill:{color:C.card}}),T(fmt(z.plan>0?z.fact/z.plan*100:0)+'%',{align:'center',bold:true,color:col(z.plan>0?z.fact/z.plan*100:null),fill:{color:C.card}}),T(fmt(z.fcPct)+'%',{align:'center',bold:true,color:col(z.fcPct),fill:{color:tint(z.fcPct)}}),T(fmtU(z.need,z.unit),{align:'right',fill:{color:C.card}}),T(z.ratio>=99?'—':'×'+dec1(z.ratio),{align:'center',color:z.ratio<=1.05?OK:z.ratio<=1.3?WN:BD,bold:true,fill:{color:C.card}})]));
-      s.addTable(rows,{x:0.6,y:1.6,w:12.1,colW:[2.6,1.8,1.8,1.5,1.5,1.7,1.2],rowH:0.55,border:{type:'solid',pt:0.5,color:C.ln}}); }
-    if (on('week')){ const s = base('Неделя к неделе', `Последние 7 дней (${wk}) против предыдущих 7`);
-      const mon = dirs.filter(z=>z.unit!=='шт'), cnt = dirs.filter(z=>z.unit==='шт');
-      if (mon.length) s.addChart(pres.charts.BAR,[{name:'Пред. 7 дней, тыс. ₽',labels:mon.map(z=>z.label),values:mon.map(z=>Math.round(z.p7/1000))},{name:'Последние 7 дней, тыс. ₽',labels:mon.map(z=>z.label),values:mon.map(z=>Math.round(z.w7/1000))}],{x:0.6,y:1.5,w:7.4,h:4.8,barDir:'col',chartColors:[dk?'5B6483':'B8C0D4',AC],showLegend:true,legendPos:'b',legendColor:C.tx,legendFontSize:11,catAxisLabelColor:C.tx,valAxisLabelColor:C.mu,catAxisLabelFontSize:11,valAxisLabelFontSize:10,valGridLine:{color:C.ln,size:0.5},showValue:true,dataLabelColor:C.tx,dataLabelFontSize:9});
-      const rows = dirs.map(z=>[T(z.label,{bold:true,fill:{color:C.card}}),T(fmtU(z.w7,z.unit),{align:'right',fill:{color:C.card}}),T(fmtU(z.p7,z.unit),{align:'right',fill:{color:C.card}}),T(z.trend==null?'—':(z.trend>0?'+':'')+fmt(z.trend)+'%',{align:'center',bold:true,color:z.trend==null?C.mu:z.trend>=0?OK:BD,fill:{color:C.card}})]);
-      s.addTable([[hdr('Направление'),hdr('7 дн.'),hdr('Пред. 7'),hdr('Δ')]].concat(rows),{x:8.2,y:1.5,w:4.6,colW:[1.5,1.2,1.2,0.7],rowH:0.5,border:{type:'solid',pt:0.5,color:C.ln},fontSize:11});
-      if (cnt.length) s.addText('шт-направления (SIM): '+cnt.map(z=>`${z.label} ${fmt(z.w7)} шт`).join(' · '),{x:0.6,y:6.45,w:12,h:0.4,fontFace:FN,fontSize:11,color:C.mu}); }
-    const sal = W.sal.filter(z=>z.avg!=null);
-    if (on('salons') && sal.length){ const s = base('Светофор салонов', 'Прогноз выполнения плана на конец месяца'); const keys = DIR_ORDER.filter(k=>sal.some(z=>z.st.some(q=>q.key===k))), lab = k => (dirs.find(x=>x.key===k)||{}).label||k;
-      const rows = [[hdr('Салон')].concat(keys.map(k=>hdr(lab(k)))).concat([hdr('Среднее')])];
-      sal.slice().sort((a,b)=>a.avg-b.avg).slice(0,13).forEach(z=>rows.push([T(rpShort(z.name),{bold:true,fill:{color:C.card}})].concat(keys.map(k=>{ const q = z.st.find(w=>w.key===k); return T(q&&q.fcPct!=null?fmt(q.fcPct)+'%':'—',{align:'center',bold:true,color:col(q?q.fcPct:null),fill:{color:tint(q?q.fcPct:null)}}); })).concat([T(fmt(z.avg)+'%',{align:'center',bold:true,color:col(z.avg),fill:{color:tint(z.avg)}})])));
-      s.addTable(rows,{x:0.6,y:1.5,w:12.1,colW:[3.2].concat(keys.map(()=> (12.1-3.2-1.3)/keys.length)).concat([1.3]),rowH:0.4,fontSize:11,border:{type:'solid',pt:0.5,color:C.ln}}); }
-    if (on('leaders') && sal.length){ const s = base('Лидеры и аутсайдеры', 'По среднему прогнозу выполнения плана'); const srt = sal.slice().sort((a,b)=>b.avg-a.avg), kk = Math.min(5, Math.max(1, Math.floor(srt.length/2))), top = srt.slice(0,kk), low = srt.length>1 ? srt.slice(-kk).reverse() : [];
-      const box = (x,title,list,c) => { s.addShape('roundRect',{x,y:1.5,w:5.9,h:5.2,fill:{color:C.card},line:{color:C.ln},rectRadius:0.15}); s.addText(title,{x:x+0.3,y:1.65,w:5.3,h:0.5,fontFace:FN,fontSize:18,bold:true,color:c});
-        list.forEach((z,i)=>{ s.addText(`${i+1}. ${rpShort(z.name)}`,{x:x+0.3,y:2.35+i*0.85,w:4,h:0.5,fontFace:FN,fontSize:15,bold:true,color:C.tx}); s.addText(fmt(z.avg)+'%',{x:x+4.2,y:2.35+i*0.85,w:1.4,h:0.5,fontFace:FN,fontSize:20,bold:true,color:col(z.avg),align:'right'}); const w = [...z.st].filter(q=>q.fcPct!=null).sort((a,b)=>a.fcPct-b.fcPct)[0]; if (w) s.addText(`слабее всего: ${w.label} ${fmt(w.fcPct)}%`,{x:x+0.3,y:2.8+i*0.85,w:5.2,h:0.3,fontFace:FN,fontSize:10.5,color:C.mu}); }); };
-      box(0.6,'🏆 Лидеры',top,OK); if (low.length) box(6.8,'🧯 Нужно внимание',low,BD); }
-    if (on('loss')){ const s = base('Где теряем и что делать', 'Дефицит до плана по прогнозу и рекомендации'); const L = dirs.filter(z=>z.unit!=='шт' && z.gap>z.plan*0.01).sort((a,b)=>b.gap-a.gap).slice(0,5);
-      s.addText(L.length ? L.map(z=>({text:`${z.label}: не хватает ${rub(z.gap)} (прогноз ${fmt(z.fcPct)}%)`,options:{bullet:true,breakLine:true,fontSize:15,color:C.tx,fontFace:FN}})) : [{text:'Все денежные направления идут в план.',options:{fontSize:16,color:OK,fontFace:FN}}],{x:0.6,y:1.5,w:12,h:2.2,valign:'top',paraSpaceAfter:6});
-      const wd = dirs.slice().sort((a,b)=>(a.fcPct==null?999:a.fcPct)-(b.fcPct==null?999:b.fcPct)).slice(0,4);
-      s.addText('Что делать',{x:0.6,y:3.8,w:12,h:0.4,fontFace:FN,fontSize:18,bold:true,color:AC});
-      s.addText(wd.map(z=>({text:`${z.label}: ${DG_ADV[z.key]||'разобрать причины отставания'}`,options:{bullet:true,breakLine:true,fontSize:13,color:C.tx,fontFace:FN}})),{x:0.6,y:4.25,w:12,h:2.6,valign:'top',paraSpaceAfter:5}); }
-    if (on('attach') && W.att){ const s = base('Attachment: допы на телефон', `Допы из чеков со смартфоном (от ${fmt(W.att.week.cfg.phoneMin)} ₽) ÷ все проданные телефоны · неделя против месяца`); const wT = W.att.week.tot, mT = W.att.month.tot;
-      const rt = z => z.phn>0 ? z.pcs/z.phn : 0, rr = z => z.phn>0 ? z.dsum/z.phn : 0, nn = z => z.n>0 ? z.none/z.n*100 : 0;
-      [[`${dec1(rt(wT))} шт`,'на телефон, неделя',`месяц: ${dec1(rt(mT))} шт`],[rub(rr(wT)),'допов на телефон, неделя',`месяц: ${rub(rr(mT))}`],[fmt(wT.phn),'телефонов за неделю',`допов: ${fmt(wT.pcs)} шт`],[fmt(nn(wT))+'%','чеков без допов',`месяц: ${fmt(nn(mT))}%`]].forEach((k,i)=>{ const x = 0.6+i*3.05; s.addShape('roundRect',{x,y:1.6,w:2.85,h:1.6,fill:{color:C.card},line:{color:C.ln},rectRadius:0.12}); s.addText(k[0],{x,y:1.7,w:2.85,h:0.7,fontFace:FN,fontSize:28,bold:true,color:AC,align:'center'}); s.addText(k[1],{x,y:2.4,w:2.85,h:0.35,fontFace:FN,fontSize:11,color:C.tx,align:'center'}); s.addText(k[2],{x,y:2.75,w:2.85,h:0.3,fontFace:FN,fontSize:10,color:C.mu,align:'center'}); });
-      const M = W.att.month, cats = M.cats.map(c=>{ const z = M.tot.cats[c.k]; return {t:c.t,p:M.tot.n>0?z.ch/M.tot.n*100:0}; }).sort((a,b)=>a.p-b.p);
-      s.addChart(pres.charts.BAR,[{name:'Доля чеков со смартфоном, где есть группа, %',labels:cats.map(c=>c.t),values:cats.map(c=>Math.round(c.p))}],{x:0.6,y:3.4,w:6.2,h:3.5,barDir:'bar',chartColors:[AC],showValue:true,dataLabelColor:C.tx,dataLabelFontSize:10,catAxisLabelColor:C.tx,valAxisLabelColor:C.mu,catAxisLabelFontSize:10,valAxisLabelFontSize:9,valGridLine:{color:C.ln,size:0.5},showTitle:true,title:'Проникновение по группам, месяц (% чеков)',titleColor:C.tx,titleFontSize:12});
-      const sl = M.salon.filter(z=>z.phn>0).map(z=>({k:z.k,r:rt(z),n:nn(z),phn:z.phn})).sort((a,b)=>a.r-b.r).slice(0,6);
-      s.addTable([[hdr('Слабые салоны (месяц)'),hdr('шт/тел'),hdr('Без допов')]].concat(sl.map(z=>[T(rpShort(z.k),{fill:{color:C.card}}),T(dec1(z.r),{align:'center',bold:true,color:z.r>=rt(mT)*1.05?OK:z.r>=rt(mT)*.75?WN:BD,fill:{color:C.card}}),T(fmt(z.n)+'%',{align:'center',fill:{color:C.card}})])),{x:7.1,y:3.5,w:5.6,colW:[3.0,1.2,1.4],rowH:0.45,fontSize:11,border:{type:'solid',pt:0.5,color:C.ln}}); }
-    if (on('vmr') && W.vmr){ const s = base('ВМР и качество', 'Проверки за последние 7 дней по данным листа ВМР'); const V = W.vmr, wk = V.wk, a = wk.length ? avg(wk.map(r=>r.s)) : null, low = wk.filter(r=>r.s<80);
-      [[String(wk.length),'проверок за неделю'],[a==null?'—':fmt(a)+'%','средняя оценка'],[String(low.length),'ниже 80% (на разбор)']].forEach((k,i)=>{ const x = 0.6+i*4.1; s.addShape('roundRect',{x,y:1.6,w:3.9,h:1.5,fill:{color:C.card},line:{color:C.ln},rectRadius:0.12}); s.addText(k[0],{x,y:1.7,w:3.9,h:0.8,fontFace:FN,fontSize:34,bold:true,color:i===1?col(a):i===2?(low.length?BD:OK):AC,align:'center'}); s.addText(k[1],{x,y:2.5,w:3.9,h:0.4,fontFace:FN,fontSize:12,color:C.tx,align:'center'}); });
-      const rows = low.slice().sort((x,y)=>x.s-y.s).slice(0,8).map(r=>[T(vmrTT(r.tt),{fill:{color:C.card}}),T(r.fio||'—',{fill:{color:C.card}}),T(r.d||'',{align:'center',fill:{color:C.card}}),T(fmt(r.s)+'%',{align:'center',bold:true,color:col(r.s),fill:{color:tint(r.s)}})]);
-      if (rows.length) s.addTable([[hdr('ТТ'),hdr('Сотрудник'),hdr('Дата'),hdr('Оценка')]].concat(rows),{x:0.6,y:3.4,w:12.1,colW:[4.0,4.6,1.9,1.6],rowH:0.42,fontSize:11,border:{type:'solid',pt:0.5,color:C.ln}}); else s.addText('Проверок ниже 80% на неделе нет.',{x:0.6,y:3.5,w:12,h:0.5,fontFace:FN,fontSize:16,color:OK}); }
-    if (on('focus')){ const s = base('Фокус на следующую неделю', 'Автоматически по данным сайта — проверьте и поправьте под себя'); const F = [];
-      const wd = dirs.slice().sort((a,b)=>(a.fcPct==null?999:a.fcPct)-(b.fcPct==null?999:b.fcPct))[0]; if (wd && wd.fcPct<ST_OK+5) F.push(`Направление «${wd.label}» — прогноз ${fmt(wd.fcPct)}%: ${DG_ADV[wd.key]||'разобрать причины'}.`);
-      const ws = sal.slice().sort((a,b)=>a.avg-b.avg)[0]; if (ws && sal.length>1) F.push(`Салон «${rpShort(ws.name)}» — средний прогноз ${fmt(ws.avg)}%: провести разбор с руководителем и поставить недельную цель.`);
-      const ms = dirs.filter(z=>z.unit!=='шт'); const need = ms.reduce((t,z)=>t+z.need,0), pace = ms.reduce((t,z)=>t+z.pace,0); if (pace>0 && need/pace>1.05) F.push(`Нужный темп в ×${dec1(need/pace)} выше текущего: заложить ускорение в график и мотивацию на последние ${A.left} дн.`);
-      if (W.att){ const M = W.att.month, c = M.cats.map(x=>({t:x.t,p:M.tot.n>0?M.tot.cats[x.k].ch/M.tot.n*100:0,k:x.k})).sort((a,b)=>a.p/(ATT_TGT[a.k]||30)-b.p/(ATT_TGT[b.k]||30))[0]; if (c) F.push(`Attachment: «${c.t}» добавляют только в ${fmt(c.p)}% чеков со смартфоном — в скрипт и на кассу.`); }
-      if (W.vmr){ const low = W.vmr.wk.filter(r=>r.s<80).length; if (low) F.push(`ВМР: разобрать ${low} проверок ниже 80% и закрепить исправления на планёрке.`); }
-      if (!F.length) F.push('Критичных отклонений нет — удерживаем темп и фиксируем лучшие практики лидеров.');
-      s.addText(F.map((t,i)=>({text:`${i+1}. ${t}`,options:{breakLine:true,fontSize:17,color:C.tx,fontFace:FN}})),{x:0.6,y:1.6,w:12,h:5,valign:'top',paraSpaceAfter:14}); }
-    const fn = 'Weekly_Pulse_'+new Date().toISOString().slice(0,10)+'.pptx';
-    await pres.writeFile({fileName:fn}); st.textContent = 'Готово: '+fn;
-  }catch(e){ console.error(e); st.textContent = 'Не удалось собрать презентацию'+(e && e.message==='lib' ? ' (не загрузилась библиотека — проверьте интернет)' : '')+'.'; }
-  btn.disabled = false;
-}
-
 /* =================== Реестр отчётов сайта и поиск =================== */
 const SR_KW = {results:'месяц итоги план факт выполнение', dayres:'день вчера итоги дня', days:'по дням календарь динамика', forecast:'прогноз темп', dayplan:'план на день ежедневный остаток', summary:'общий свод минимальный прогноз', pulse:'weekly pulse презентация слайды pptx собрание управленцы', diag:'диагностика потери проблемы причины', attach:'attachment аттачмент допы аксессуары привязка телефон', analytics:'аналитика тепловая карта темп сотрудники sim', cards:'карточки защита экрана пзу часы наушники', recon:'сопоставления 1с регистрации трафик конверсия', reports:'отчеты выгрузки', dl:'сотрудники дл рейтинг продавцы', bonus:'бонус доход зарплата премия', tmbonus:'бонус тм калькулятор', vmr:'вмр качество проверки анкеты видео', auth:'входы журнал авторизации', links:'ссылки таблицы доступы настройки', main:'результаты главная', point:'точка салон торговая точка', rating:'рейтинг место'};
 const SR_RPT_KW = {details:'детали продаж салоны чеки', fact:'факт продаж план', sim:'детализация сим тарифы группы', recon:'сопоставления 1с регистрации трафик конверсия'};
@@ -6291,8 +6260,9 @@ async function wp2Build(){
   try{
     const [W] = await Promise.all([wp2Data(), wpLib(), wp2Zip(), wp2Logo()]); st.textContent = 'Рисуем слайды…';
     const pres = new PptxGenJS(); pres.layout = 'LAYOUT_WIDE'; pres.title = 'Собрание с управленцами'; pres.author = 'SUPER PROдажник by Miller';
-    const d = W.d, A = W.A, dim = W.dim, ps = W.ps, FN = 'Helvetica Neue', PR = wpPre(), AC = wpHex(PR.a), VI = wpHex(PR.b);
-    const C = {bg:'F5F5F7', card:'FFFFFF', ln:'E5E5EA', tx:'1D1D1F', mu:'6E6E73', hd:'FFFFFF'};
+    const d = W.d, A = W.A, dim = W.dim, ps = W.ps, FN = 'Helvetica Neue', PR = wpPre(), AC = wpHex(PR.a), VI = wpHex(PR.b), OKc = wpHex(PR.hi), MDc = wpHex(PR.mid), LOc = wpHex(PR.lo);
+    const wpMix = (h,t) => [0,2,4].map(i=>Math.round(255-(255-parseInt(h.substr(i,2),16))*t).toString(16).padStart(2,'0')).join('').toUpperCase();
+    const C = {bg:wpMix(AC,.07), card:'FFFFFF', ln:'E5E5EA', tx:'1D1D1F', mu:'6E6E73', hd:'FFFFFF'};
     const TN = {g:['E8F7ED','1F8A3B'], a:['FFF3DC','B26A00'], r:['FFE8E6','D1241A'], n:['FFFFFF','1D1D1F']};
     const lv = p => p==null ? 'n' : p>=ST_OK ? 'g' : p>=ST_WARN ? 'a' : 'r';
     const today = new Date(), dateStr = today.toLocaleDateString('ru-RU'), P = d.month||'';
@@ -6330,7 +6300,7 @@ async function wp2Build(){
 
     
 /* --- данные направлений по дням --- */
-    const sal0 = W.sal0, LBL = {phones:'Телефоны',acc:'Аксессуары',serv:'Услуги',sim:'SIM',ins:'Страховки'}, COL = {phones:'007AFF',acc:'AF52DE',serv:'34C759',sim:'FF9500',ins:'FF3B30'};
+    const sal0 = W.sal0, LBL = {phones:'Телефоны',acc:'Аксессуары',serv:'Услуги',sim:'SIM',ins:'Страховки'}, COL = {phones:AC,acc:VI,serv:OKc,sim:MDc,ins:LOc};
     const dirDays = k => { const by = {}; let plan = 0, unit = '₽'; sal0.forEach(s=>s.dirs.forEach(x=>{ if (x.key!==k) return; plan += x.plan||0; unit = x.unit||unit; x.days.forEach(z=>{ const n = Number(z.d.slice(0,2)); by[n] = (by[n]||0)+(z.v||0); }); })); return {by, plan, unit}; };
     const scale = u => u==='шт' ? 1 : 1000, uL = u => u==='шт' ? 'шт' : 'тыс. ₽';
     const paceSlide = (title, k) => { const s = base(title, `${LBL[k]} · темп по неделям · день ${ps} из ${dim}`), {by, plan, unit} = dirDays(k), k1 = scale(unit);
@@ -6386,34 +6356,34 @@ async function wp2Build(){
     { const vr = (W.vrows||[]).filter(r=>!W.sur || !r.tm || r.tm.toLowerCase().indexOf(W.sur)>=0), mx = vr.filter(r=>r.dt).map(r=>r.m).sort((a,b)=>a-b).pop()||0, cur = vr.filter(r=>r.m===mx||!mx);
       const gb = (arr,f) => { const m = {}; arr.forEach(r=>{ const k = f(r)||'—'; (m[k]=m[k]||[]).push(r.s); }); return Object.keys(m).map(k=>({k, n:m[k].length, a:avg(m[k])})); };
       const noData = s => { card(s,0.6,1.5,12.2,5.3); s.addText('Нет проверок ВМР за период',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'}); };
-      const barT = (s,x,y,w,h,arr,col,horiz) => { const lab = short(arr.map(z=>z.k),horiz?24:14); s.addChart(horiz ? pres.charts.BAR : [{type:pres.charts.BAR,data:[{name:'Оценка, %',labels:lab,values:arr.map(z=>Math.round(z.a))}],options:{chartColors:[col],barGapWidthPct:50,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:lab,values:arr.map(()=>85)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}], horiz ? [{name:'Оценка, %',labels:lab,values:arr.map(z=>Math.round(z.a))}] : chartOpt({x,y,w,h}), horiz ? chartOpt({x,y,w,h,barDir:'bar',chartColors:[col],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100}) : undefined); };
+      const barT = (s,x,y,w,h,arr,col,horiz) => { const lab = short(arr.map(z=>z.k),horiz?24:14); s.addChart(horiz ? pres.charts.BAR : [{type:pres.charts.BAR,data:[{name:'Оценка, %',labels:lab,values:arr.map(z=>Math.round(z.a))}],options:{chartColors:[col],barGapWidthPct:50,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:lab,values:arr.map(()=>85)}],options:{chartColors:[LOc],lineSize:2,lineDataSymbolSize:1}}], horiz ? [{name:'Оценка, %',labels:lab,values:arr.map(z=>Math.round(z.a))}] : chartOpt({x,y,w,h}), horiz ? chartOpt({x,y,w,h,barDir:'bar',chartColors:[col],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100}) : undefined); };
       { const s = base('ВМР · целевое 85%','Средняя оценка за '+(mx?MN_RU[mx]:'месяц')+' · по торговым точкам, сценариям и сотрудникам');
         if (!cur.length) noData(s);
         else { const byT = gb(cur,r=>vmrTT(r.tt)).sort((a,b)=>a.a-b.a), byS = gb(cur,r=>r.scen), byE = gb(cur,r=>r.fio).sort((a,b)=>a.a-b.a).slice(0,6);
           card(s,0.6,1.5,6.2,5.3); card(s,7.0,1.5,5.8,2.55); card(s,7.0,4.25,5.8,2.55);
-          s.addChart([{type:pres.charts.BAR,data:[{name:'Оценка, %',labels:short(byT.map(z=>z.k),14),values:byT.map(z=>Math.round(z.a))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:short(byT.map(z=>z.k),14),values:byT.map(()=>85)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.7,y:1.6,w:6.0,h:5.1}));
-          s.addChart(pres.charts.BAR,[{name:'Сценарии, %',labels:byS.map(z=>z.k),values:byS.map(z=>Math.round(z.a))}],chartOpt({x:7.1,y:1.55,w:5.6,h:2.45,barDir:'bar',chartColors:['AF52DE'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100}));
-          s.addChart(pres.charts.BAR,[{name:'Слабее всего, %',labels:short(byE.map(z=>z.k),24),values:byE.map(z=>Math.round(z.a))}],chartOpt({x:7.1,y:4.3,w:5.6,h:2.45,barDir:'bar',chartColors:['FF9500'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100})); } }
+          s.addChart([{type:pres.charts.BAR,data:[{name:'Оценка, %',labels:short(byT.map(z=>z.k),14),values:byT.map(z=>Math.round(z.a))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:short(byT.map(z=>z.k),14),values:byT.map(()=>85)}],options:{chartColors:[LOc],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.7,y:1.6,w:6.0,h:5.1}));
+          s.addChart(pres.charts.BAR,[{name:'Сценарии, %',labels:byS.map(z=>z.k),values:byS.map(z=>Math.round(z.a))}],chartOpt({x:7.1,y:1.55,w:5.6,h:2.45,barDir:'bar',chartColors:[VI],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100}));
+          s.addChart(pres.charts.BAR,[{name:'Слабее всего, %',labels:short(byE.map(z=>z.k),24),values:byE.map(z=>Math.round(z.a))}],chartOpt({x:7.1,y:4.3,w:5.6,h:2.45,barDir:'bar',chartColors:[MDc],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100})); } }
       { const s = base('ВМР · по критериям','Доля проверок, где критерий выполнен'); const crit = VMR_CR.map(c=>{ const v = cur.map(r=>r.cr[c[0]]).filter(x=>x!=null); return {k:c[1], key:c[0], a:v.length?avg(v)*100:null}; }).filter(z=>z.a!=null);
         card(s,0.6,1.5,7.6,5.3); card(s,8.4,1.5,4.4,5.3);
         if (!crit.length) s.addText('Нет данных',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
-        else { s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнено, %',labels:short(crit.map(z=>z.k),16),values:crit.map(z=>Math.round(z.a))}],options:{chartColors:[AC],barGapWidthPct:40,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:short(crit.map(z=>z.k),16),values:crit.map(()=>85)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.3,h:5.1,catAxisLabelFontSize:8.5}));
+        else { s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнено, %',labels:short(crit.map(z=>z.k),16),values:crit.map(z=>Math.round(z.a))}],options:{chartColors:[AC],barGapWidthPct:40,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Цель 85%',labels:short(crit.map(z=>z.k),16),values:crit.map(()=>85)}],options:{chartColors:[LOc],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.3,h:5.1,catAxisLabelFontSize:8.5}));
           const wk = crit.slice().sort((a,b)=>a.a-b.a)[0], tts = {}; cur.forEach(r=>{ if (r.cr[wk.key]!=null) (tts[vmrTT(r.tt)] = tts[vmrTT(r.tt)]||[]).push(r.cr[wk.key]); }); const tl = Object.keys(tts).map(k=>({k,a:avg(tts[k])*100})).sort((a,b)=>a.a-b.a).slice(0,10);
           s.addText('Слабый критерий: «'+wk.k+'» — по ТТ',{x:8.6,y:1.6,w:4.0,h:0.5,fontFace:FN,fontSize:12.5,bold:true,color:AC,valign:'top',objectName:'note'});
-          s.addChart(pres.charts.BAR,[{name:'%',labels:short(tl.map(z=>z.k),22),values:tl.map(z=>Math.round(z.a))}],chartOpt({x:8.5,y:2.15,w:4.2,h:4.55,barDir:'bar',chartColors:['FF3B30'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100})); } } }
+          s.addChart(pres.charts.BAR,[{name:'%',labels:short(tl.map(z=>z.k),22),values:tl.map(z=>Math.round(z.a))}],chartOpt({x:8.5,y:2.15,w:4.2,h:4.55,barDir:'bar',chartColors:[LOc],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin',valAxisMinVal:0,valAxisMaxVal:100})); } } }
     dark('СИМ-карты','Темп · сотрудники · тарифы');
     paceSlide('Сим · темп по неделям','sim'); daysSlide('Сим · по дням','sim'); staffSlide('Сим · доля сотрудников','sim');
     /* 12. тарифы */
     { const s = base('Сим · доля тарифов','Структура продаж по группам тарифов за месяц'), m = W.simM; card(s,0.6,1.5,5.8,5.3); card(s,6.6,1.5,6.2,5.3);
       if (!m || !m.tot) s.addText('Нет данных «Детализация СИМ»',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
       else { const ord = m.gl.map((x,i)=>i).sort((a,b)=>m.tot.v[b]-m.tot.v[a]).filter(i=>m.tot.v[i]>0), nm = i => m.gl[i].n==='#N/A'?'Без группы':m.gl[i].n;
-        s.addChart(pres.charts.DOUGHNUT,[{name:'Доля',labels:ord.map(nm),values:ord.map(i=>m.tot.v[i])}],{x:0.75,y:1.65,w:5.5,h:5.0,holeSize:55,showPercent:true,showLegend:true,legendPos:'b',legendFontSize:10,legendColor:C.mu,dataLabelColor:'FFFFFF',dataLabelFontSize:10,chartColors:['007AFF','AF52DE','34C759','FF9500','FF3B30','5AC8FA','A2845E','8E8E93'],objectName:'chart'});
-        s.addChart(pres.charts.BAR,[{name:'Продано, шт',labels:short(ord.slice(0,12).map(nm),26),values:ord.slice(0,12).map(i=>m.tot.v[i])}],chartOpt({x:6.75,y:1.6,w:5.9,h:5.1,barDir:'bar',chartColors:['007AFF'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin'})); } }
+        s.addChart(pres.charts.DOUGHNUT,[{name:'Доля',labels:ord.map(nm),values:ord.map(i=>m.tot.v[i])}],{x:0.75,y:1.65,w:5.5,h:5.0,holeSize:55,showPercent:true,showLegend:true,legendPos:'b',legendFontSize:10,legendColor:C.mu,dataLabelColor:'FFFFFF',dataLabelFontSize:10,chartColors:[AC,VI,OKc,MDc,LOc,wpMix(VI,.8),'A2845E','8E8E93'],objectName:'chart'});
+        s.addChart(pres.charts.BAR,[{name:'Продано, шт',labels:short(ord.slice(0,12).map(nm),26),values:ord.slice(0,12).map(i=>m.tot.v[i])}],chartOpt({x:6.75,y:1.6,w:5.9,h:5.1,barDir:'bar',chartColors:[AC],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin'})); } }
     /* 13. дорогие сим */
     { const s = base('Сим · дорогие тарифы','Структура групп тарифов по каждой ТТ, 100%'), m = W.simM; card(s,0.6,1.5,12.2,5.3);
       if (!m || !m.salons.length) s.addText('Нет данных «Детализация СИМ»',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
       else { const ord = m.gl.map((x,i)=>i).sort((a,b)=>m.tot.v[b]-m.tot.v[a]).filter(i=>m.tot.v[i]>0).slice(0,8), sl = m.salons, lab = short(sl.map(r=>sh(r.n)),16);
-        s.addChart(pres.charts.BAR,ord.map(i=>({name:String(m.gl[i].n).slice(0,22),labels:lab,values:sl.map(r=>{ const t = r.v.reduce((a,b)=>a+b,0)||1; return Math.round(r.v[i]/t*1000)/10; })})),chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,barGrouping:'percentStacked',chartColors:['007AFF','AF52DE','34C759','FF9500','FF3B30','5AC8FA','A2845E','8E8E93'],barGapWidthPct:40,catAxisLabelFontSize:salFZ})); } }
+        s.addChart(pres.charts.BAR,ord.map(i=>({name:String(m.gl[i].n).slice(0,22),labels:lab,values:sl.map(r=>{ const t = r.v.reduce((a,b)=>a+b,0)||1; return Math.round(r.v[i]/t*1000)/10; })})),chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,barGrouping:'percentStacked',chartColors:[AC,VI,OKc,MDc,LOc,wpMix(VI,.8),'A2845E','8E8E93'],barGapWidthPct:40,catAxisLabelFontSize:salFZ})); } }
     salTable('Зареги не в AS','Регистрации, не попавшие в AS · вносится вручную',['Торговая точка','Не в AS, шт','Комментарий'],n=>[cell(sh(n),{bold:true}),cell(''),cell('')],{colW:[4.5,2.4,5.0],note:'Источник данных уточняется.'});
     salTable('Пополнения','Пополнения по торговым точкам · вносится вручную',['Торговая точка','Пополнения, ₽','Комментарий'],n=>[cell(sh(n),{bold:true}),cell(''),cell('')],{colW:[4.5,2.4,5.0],note:'Источник данных уточняется.'});
     /* 16. правила активации */
@@ -6426,7 +6396,7 @@ async function wp2Build(){
     { const fi = rx => eco ? eco.cols.findIndex(c=>rx.test(c)) : -1, tx = i => String(eco.cols[i]||'').split('|').map(x=>x.trim()).filter(Boolean).join(' · ');
       const num = v => typeof v==='number' ? v : pctVal(v), pc = v => { const n = num(v); return n==null ? null : (Math.abs(n)<=10 ? n*100 : n); };
       const rowsX = salNames.map(n=>({n, r:ecoRow(n)}));
-      [['L4L',/l4l/i,'к прошлому году','007AFF',96,['Продажи прошлого года, ₽','Прогноз месяца, ₽']],['M2M',/m2m/i,'к прошлому месяцу','AF52DE',100,['Прогноз прошлого месяца, ₽','Прогноз месяца, ₽']]].forEach(([nm,rx,vs,col,fb,lbl])=>{
+      [['L4L',/l4l/i,'к прошлому году',AC,96,['Продажи прошлого года, ₽','Прогноз месяца, ₽']],['M2M',/m2m/i,'к прошлому месяцу',VI,100,['Прогноз прошлого месяца, ₽','Прогноз месяца, ₽']]].forEach(([nm,rx,vs,col,fb,lbl])=>{
         let gi = fi(rx); if (gi<2 && eco && eco.cols.length>fb && eco.rows.some(r=>typeof r[fb]==='number' && typeof r[fb-1]==='number' && typeof r[fb-2]==='number' && Math.abs(r[fb])<=10)) gi = fb;
         const hd = i => /^(прогн|план|факт)[^|]*\|?$/i.test(String(eco.cols[i]||'').trim()) ? null : tx(i);
          s = base(nm+' · рубли и проценты','Из «Экономических KPI» (KPI ОСС) · динамика '+vs); card(s,0.6,1.5,12.2,5.3);
@@ -6450,12 +6420,12 @@ async function wp2Build(){
         card(s,0.6,1.5,4.0,5.3); card(s,4.7,1.5,4.0,5.3); card(s,8.8,1.5,4.0,5.3);
         s.addText('Трафик, чел',{x:0.8,y:1.55,w:3.6,h:0.35,fontFace:FN,fontSize:12.5,bold:true,color:AC,objectName:'note'}); s.addText('Конверсия, %',{x:4.9,y:1.55,w:3.6,h:0.35,fontFace:FN,fontSize:12.5,bold:true,color:AC,objectName:'note'}); s.addText('Средняя цена, ₽',{x:9.0,y:1.55,w:3.6,h:0.35,fontFace:FN,fontSize:12.5,bold:true,color:AC,objectName:'note'});
         const o = {y:1.95,h:4.8,w:3.8,catAxisLabelFontSize:salFZ,barGapWidthPct:40,legendFontSize:9};
-        s.addChart(pres.charts.BAR,[{name:'План',labels:lab,values:rs.map(r=>pv(g(r,tp)))},{name:'Факт',labels:lab,values:rs.map(r=>pv(g(r,tf)))}],chartOpt(Object.assign({x:0.7,chartColors:['D1D1D6','007AFF']},o)));
-        s.addChart(pres.charts.BAR,[{name:'План',labels:lab,values:rs.map(r=>cv(pv(g(r,cp))))},{name:'Факт',labels:lab,values:rs.map(r=>cv(pv(g(r,cf))))}],chartOpt(Object.assign({x:4.8,chartColors:['E3D3F5','AF52DE']},o)));
-        if (ap>=0) s.addChart(pres.charts.BAR,[{name:'Ср. цена',labels:lab,values:rs.map(r=>pv(g(r,ap)))}],chartOpt(Object.assign({x:8.9,chartColors:['34C759'],showLegend:false},o))); else s.addText('Столбец со средней ценой не найден в KPI',{x:8.9,y:3.5,w:3.8,h:0.8,fontFace:FN,fontSize:12,color:C.mu,align:'center',objectName:'note'}); } }
+        s.addChart(pres.charts.BAR,[{name:'План',labels:lab,values:rs.map(r=>pv(g(r,tp)))},{name:'Факт',labels:lab,values:rs.map(r=>pv(g(r,tf)))}],chartOpt(Object.assign({x:0.7,chartColors:['D1D1D6',AC]},o)));
+        s.addChart(pres.charts.BAR,[{name:'План',labels:lab,values:rs.map(r=>cv(pv(g(r,cp))))},{name:'Факт',labels:lab,values:rs.map(r=>cv(pv(g(r,cf))))}],chartOpt(Object.assign({x:4.8,chartColors:['E3D3F5',VI]},o)));
+        if (ap>=0) s.addChart(pres.charts.BAR,[{name:'Ср. цена',labels:lab,values:rs.map(r=>pv(g(r,ap)))}],chartOpt(Object.assign({x:8.9,chartColors:[OKc],showLegend:false},o))); else s.addText('Столбец со средней ценой не найден в KPI',{x:8.9,y:3.5,w:3.8,h:0.8,fontFace:FN,fontSize:12,color:C.mu,align:'center',objectName:'note'}); } }
     /* 20. общий свод */
     { const s = base('Общий свод','Прогноз выполнения плана · день '+ps+' из '+dim); card(s,0.6,1.5,5.6,5.3); card(s,6.4,1.5,6.4,5.3);
-      s.addChart([{type:pres.charts.BAR,data:[{name:'Прогноз, %',labels:W.dirs.map(z=>z.label),values:W.dirs.map(z=>Math.round(z.fcPct||0))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:W.dirs.map(z=>z.label),values:W.dirs.map(()=>100)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.7,y:1.6,w:5.4,h:5.1}));
+      s.addChart([{type:pres.charts.BAR,data:[{name:'Прогноз, %',labels:W.dirs.map(z=>z.label),values:W.dirs.map(z=>Math.round(z.fcPct||0))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:W.dirs.map(z=>z.label),values:W.dirs.map(()=>100)}],options:{chartColors:[LOc],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.7,y:1.6,w:5.4,h:5.1}));
       const dirs = DIR_ORDER.filter(k=>W.sal.some(z=>z.st.some(q=>q.key===k))), rows = W.sal.slice().sort((a,b)=>(a.avg==null?999:a.avg)-(b.avg==null?999:b.avg));
       tbl(s,[[hc('Салон')].concat(dirs.map(k=>hc(LBL[k],{fontSize:9})))].concat(rows.map(z=>[cell(sh(z.name),{bold:true,fontSize:9})].concat(dirs.map(k=>{ const q = z.st.find(w=>w.key===k); return q&&q.fcPct!=null ? tint(fmt(q.fcPct)+'%',lv(q.fcPct),{fontSize:9.5}) : cell('—',{align:'center'}); }))),),{x:6.55,y:1.65,w:6.1,colW:[2.0].concat(dirs.map(()=>4.1/dirs.length)),rowH:rh(rows.length,0.38,0.15)}); note(s,'Справа — тепловая карта салонов: прогноз выполнения плана на конец месяца.',6.85); }
     paceSlide('Телефоны · темп по неделям','phones');
@@ -6463,20 +6433,20 @@ async function wp2Build(){
     { const s = base('Кредит и заявки','Выполнение кредитного плана по KPI ОСС · заявки вносятся вручную'); card(s,0.6,1.5,8.0,5.3); card(s,8.8,1.5,4.0,5.3);
       const ix = rx => { const f = ecoCols(rx)[0]; return f ? f[1] : -1; }, cr = ix(/^Кредит[^|]*\|Выпол/i), vals = salNames.map(n=>{ const r = ecoRow(n); return r&&cr>=0 ? (typeof r[cr]==='number' ? r[cr]*100 : pctVal(r[cr])) : null; });
       if (vals.every(v=>v==null)) s.addText('Нет данных по кредиту в «Экономических KPI»',{x:0.8,y:3.6,w:7.6,h:0.5,fontFace:FN,fontSize:15,color:C.mu,align:'center'});
-      else { const lab = short(salNames.map(sh),16); s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнение, %',labels:lab,values:vals.map(v=>v==null?null:Math.round(v))}],options:{chartColors:['34C759'],barGapWidthPct:45,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.7,h:5.1,catAxisLabelFontSize:salFZ})); }
+      else { const lab = short(salNames.map(sh),16); s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнение, %',labels:lab,values:vals.map(v=>v==null?null:Math.round(v))}],options:{chartColors:[OKc],barGapWidthPct:45,showValue:true,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:[LOc],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.7,h:5.1,catAxisLabelFontSize:salFZ})); }
       tbl(s,[[hc('Салон'),hc('Заявки')]].concat(salNames.map(n=>[cell(sh(n),{bold:true,fontSize:10}),cell('')])),{x:8.95,y:1.65,w:3.7,colW:[2.4,1.3],rowH:rh(salNames.length,0.4,0.15)}); }
     salTable('Выдача КД','Выдача кредитных договоров · вносится вручную',['Торговая точка','Выдано, шт','Комментарий'],n=>[cell(sh(n),{bold:true}),cell(''),cell('')],{colW:[4.5,2.4,5.0],note:'Источник данных уточняется.'});
     /* 24. голые смартфоны */
     { const s = base('Продажа «голых» смартфонов','Чеки со смартфоном без допов (аксессуары, услуги, страховки) · месяц'); card(s,0.6,1.5,12.2,5.3); const M = W.att && W.att.month;
       if (!M) s.addText('Нет данных Attachment',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
       else { const rows = M.salon.filter(z=>z.n>0).sort((a,b)=>b.none/b.n-a.none/a.n); const nn = z => z.none/z.n*100;
-        s.addChart(pres.charts.BAR,[{name:'Доля чеков без допов, %',labels:short(rows.map(z=>sh(z.k)),22),values:rows.map(z=>Math.round(nn(z)))}],chartOpt({x:0.75,y:1.6,w:6.3,h:5.1,barDir:'bar',chartColors:['FF3B30'],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin'}));
+        s.addChart(pres.charts.BAR,[{name:'Доля чеков без допов, %',labels:short(rows.map(z=>sh(z.k)),22),values:rows.map(z=>Math.round(nn(z)))}],chartOpt({x:0.75,y:1.6,w:6.3,h:5.1,barDir:'bar',chartColors:[LOc],showLegend:false,showValue:true,dataLabelFontSize:9,catAxisOrientation:'maxMin'}));
         tbl(s,[[hc('ТТ'),hc('Чеков'),hc('Без допов'),hc('Доля')]].concat(rows.map(z=>[cell(sh(z.k),{bold:true,fontSize:10}),cell(fmt(z.n),{align:'center'}),cell(fmt(z.none),{align:'center'}),tint(fmt(nn(z))+'%',nn(z)<=20?'g':nn(z)<=35?'a':'r')])),{x:7.2,y:1.65,w:5.45,colW:[2.4,1.0,1.1,0.95],rowH:rh(rows.length,0.38,0.15)}); } }
     paceSlide('Страховки · темп по неделям','ins');
     /* 26. комбо и страховки */
     { const s = base('Комбо и страховки','Страховки — по данным сайта, комбо — вносится вручную'); card(s,0.6,1.5,8.0,5.3); card(s,8.8,1.5,4.0,5.3);
       const lab = short(salNames.map(sh),16), q = n => { const z = W.sal.find(w=>w.name===n); return z && z.st.find(w=>w.key==='ins'); };
-      s.addChart(pres.charts.BAR,[{name:'План, ₽ тыс.',labels:lab,values:salNames.map(n=>{ const x = q(n); return x ? Math.round(x.plan/1000) : null; })},{name:'Факт, ₽ тыс.',labels:lab,values:salNames.map(n=>{ const x = q(n); return x ? Math.round(x.fact/1000) : null; })}],chartOpt({x:0.75,y:1.6,w:7.7,h:5.1,chartColors:['D1D1D6','FF3B30'],barGapWidthPct:45,catAxisLabelFontSize:salFZ,showValue:true,dataLabelFontSize:8}));
+      s.addChart(pres.charts.BAR,[{name:'План, ₽ тыс.',labels:lab,values:salNames.map(n=>{ const x = q(n); return x ? Math.round(x.plan/1000) : null; })},{name:'Факт, ₽ тыс.',labels:lab,values:salNames.map(n=>{ const x = q(n); return x ? Math.round(x.fact/1000) : null; })}],chartOpt({x:0.75,y:1.6,w:7.7,h:5.1,chartColors:['D1D1D6',LOc],barGapWidthPct:45,catAxisLabelFontSize:salFZ,showValue:true,dataLabelFontSize:8}));
       tbl(s,[[hc('Салон'),hc('Комбо')]].concat(salNames.map(n=>[cell(sh(n),{bold:true,fontSize:10}),cell('')])),{x:8.95,y:1.65,w:3.7,colW:[2.4,1.3],rowH:rh(salNames.length,0.4,0.15)}); }
     salTable('Проданные, но не зарегистрированные','Вносится вручную',['Торговая точка','Шт','Комментарий'],n=>[cell(sh(n),{bold:true}),cell(''),cell('')],{colW:[4.5,2.4,5.0]});
     paceSlide('Услуги · темп по неделям','serv'); daysSlide('Услуги · по дням','serv');
@@ -6484,7 +6454,7 @@ async function wp2Build(){
       const rowsS = sal0.map(z=>{ const x = z.dirs.find(q=>q.key==='serv'); if (!x) return null; const by = {}; x.days.forEach(q=>{ const n = Number(q.d.slice(0,2)); by[n] = (by[n]||0)+(q.v||0); }); let act = 0, sum = 0; for (let n=1; n<=Math.max(1,ps); n++){ const v = by[n]||0; if (v>0) act++; sum += v; } return {n:z.name, act, sum, perDay:sum/Math.max(1,ps), perAct:act?sum/act:0, need:(x.plan||0)/dim}; }).filter(Boolean);
       if (!rowsS.length) s.addText('Нет данных по услугам',{x:0.8,y:3.6,w:11.8,h:0.5,fontFace:FN,fontSize:16,color:C.mu,align:'center'});
       else { const lab = short(rowsS.map(r=>sh(r.n)),18), many = rowsS.length>12;
-        s.addChart([{type:pres.charts.BAR,data:[{name:'Услуги в день, ₽',labels:lab,values:rowsS.map(r=>Math.round(r.perDay))}],options:{chartColors:['34C759'],barGapWidthPct:45,showValue:!many,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Нужно в день, ₽',labels:lab,values:rowsS.map(r=>Math.round(r.need))}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:4}}],chartOpt({x:0.7,y:1.6,w:5.8,h:5.1,barDir:'col',catAxisLabelFontSize:salFZ}));
+        s.addChart([{type:pres.charts.BAR,data:[{name:'Услуги в день, ₽',labels:lab,values:rowsS.map(r=>Math.round(r.perDay))}],options:{chartColors:[OKc],barGapWidthPct:45,showValue:!many,dataLabelFontSize:9}},{type:pres.charts.LINE,data:[{name:'Нужно в день, ₽',labels:lab,values:rowsS.map(r=>Math.round(r.need))}],options:{chartColors:[LOc],lineSize:2,lineDataSymbolSize:4}}],chartOpt({x:0.7,y:1.6,w:5.8,h:5.1,barDir:'col',catAxisLabelFontSize:salFZ}));
         const tot = rowsS.reduce((a,r)=>({act:a.act+r.act,sum:a.sum+r.sum}),{act:0,sum:0});
         tbl(s,[[hc('Салон'),hc('Дней с услугами'),hc('Услуги, ₽'),hc('₽ в день'),hc('₽ в день продаж')]].concat(rowsS.map(r=>{ const q = r.act/Math.max(1,ps)*100; return [cell(sh(r.n),{bold:true,fontSize:10}),tint(r.act+' из '+ps,q>=85?'g':q>=60?'a':'r'),cell(fmt(r.sum),{align:'right'}),cell(fmt(r.perDay),{align:'right'}),cell(fmt(r.perAct),{align:'right'})]; })).concat([[cell('Итого',{bold:true,fill:{color:'F5F5F7'}}),cell(tot.act+' из '+(ps*rowsS.length),{align:'center',bold:true,fill:{color:'F5F5F7'}}),cell(fmt(tot.sum),{align:'right',bold:true,fill:{color:'F5F5F7'}}),cell(fmt(tot.sum/Math.max(1,ps)),{align:'right',bold:true,fill:{color:'F5F5F7'}}),cell('',{fill:{color:'F5F5F7'}})]]),{x:6.95,y:1.65,w:5.7,colW:[1.8,1.1,0.95,0.9,0.95],rowH:rh(rowsS.length+1,0.42,0.15)}); } }
     staffSlide('Услуги · доля сотрудников','serv');
@@ -6516,16 +6486,16 @@ async function wp2Build(){
       if (ready.length) dark('Дополнительные отчёты', ready.map(xT).join(' · '));
       for (const k of ready){
         if (k==='results'){ const s = xBase(k); card(s,0.6,1.5,7.6,5.3); card(s,8.4,1.5,4.4,5.3); const lab = dirsX.map(z=>z.label);
-          s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнено, %',labels:lab,values:dirsX.map(z=>Math.round(z.plan>0?z.fact/z.plan*100:0))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.3,h:5.1}));
+          s.addChart([{type:pres.charts.BAR,data:[{name:'Выполнено, %',labels:lab,values:dirsX.map(z=>Math.round(z.plan>0?z.fact/z.plan*100:0))}],options:{chartColors:[AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'План 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:[LOc],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:7.3,h:5.1}));
           tbl(s,[[hc('Направление'),hc('План'),hc('Факт')]].concat(dirsX.map(z=>[cell(z.label,{bold:true,fontSize:10}),cell(fmtU(z.plan,z.unit),{align:'right',fontSize:10}),cell(fmtU(z.fact,z.unit),{align:'right',fontSize:10})])),{x:8.55,y:1.65,w:4.1,colW:[1.5,1.3,1.3],rowH:0.5}); }
         else if (k==='dayres'){ const s = xBase(k); card(s,0.6,1.5,12.2,5.3); const lab = dirsX.map(z=>z.label), v = z => { const d1 = dlOf(z).filter(q=>dayN(q)===endD).reduce((t,q)=>t+(q.v||0),0), need = z.plan/dim; return need>0 ? Math.round(d1/need*100) : 0; };
-          s.addChart([{type:pres.charts.BAR,data:[{name:'Факт дня к норме дня, %',labels:lab,values:dirsX.map(v)}],options:{chartColors:['34C759'],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'Норма 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:['FF3B30'],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:11.9,h:5.1})); note(s,`Итоги дня: ${endD}-е число, факт дня относительно плана на день.`,6.85); }
+          s.addChart([{type:pres.charts.BAR,data:[{name:'Факт дня к норме дня, %',labels:lab,values:dirsX.map(v)}],options:{chartColors:[OKc],barGapWidthPct:45,showValue:true,dataLabelFontSize:10}},{type:pres.charts.LINE,data:[{name:'Норма 100%',labels:lab,values:lab.map(()=>100)}],options:{chartColors:[LOc],lineSize:2,lineDataSymbolSize:1}}],chartOpt({x:0.75,y:1.6,w:11.9,h:5.1})); note(s,`Итоги дня: ${endD}-е число, факт дня относительно плана на день.`,6.85); }
         else if (k==='days'){ const s = xBase(k); card(s,0.6,1.5,12.2,5.3); const ds = []; for (let n=1; n<=Math.max(1,endD); n++) ds.push(n);
-          s.addChart(pres.charts.LINE,dirsX.map(z=>({name:z.label,labels:ds.map(String),values:ds.map(n=>{ const need = z.plan/dim, f = dlOf(z).filter(q=>dayN(q)===n).reduce((t,q)=>t+(q.v||0),0); return need>0 ? Math.round(f/need*100) : null; })})),chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,chartColors:['007AFF','AF52DE','34C759','FF9500','FF3B30'],lineSize:2.5,lineDataSymbolSize:5})); note(s,'Факт каждого дня к плану на день, % (100% — норма).',6.85); }
+          s.addChart(pres.charts.LINE,dirsX.map(z=>({name:z.label,labels:ds.map(String),values:ds.map(n=>{ const need = z.plan/dim, f = dlOf(z).filter(q=>dayN(q)===n).reduce((t,q)=>t+(q.v||0),0); return need>0 ? Math.round(f/need*100) : null; })})),chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,chartColors:[AC,VI,OKc,MDc,LOc],lineSize:2.5,lineDataSymbolSize:5})); note(s,'Факт каждого дня к плану на день, % (100% — норма).',6.85); }
         else if (k==='forecast'){ const s = xBase(k); card(s,0.6,1.5,12.2,5.3); const lab = dirsX.map(z=>z.label);
-          s.addChart(pres.charts.BAR,[{name:'Факт к плану месяца, %',labels:lab,values:dirsX.map(z=>Math.round(z.plan>0?z.fact/z.plan*100:0))},{name:'Прогноз на конец месяца, %',labels:lab,values:dirsX.map(z=>Math.round(z.fcPct||0))}],chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,chartColors:['D1D1D6','007AFF'],barGapWidthPct:45,showValue:true,dataLabelFontSize:10})); }
+          s.addChart(pres.charts.BAR,[{name:'Факт к плану месяца, %',labels:lab,values:dirsX.map(z=>Math.round(z.plan>0?z.fact/z.plan*100:0))},{name:'Прогноз на конец месяца, %',labels:lab,values:dirsX.map(z=>Math.round(z.fcPct||0))}],chartOpt({x:0.75,y:1.6,w:11.9,h:5.1,chartColors:['D1D1D6',AC],barGapWidthPct:45,showValue:true,dataLabelFontSize:10})); }
         else if (k==='diag'){ const s = xBase(k); card(s,0.6,1.5,6.4,5.3); card(s,7.2,1.5,5.6,5.3); const L = dirsX.filter(z=>z.unit!=='шт').sort((a,b)=>b.gap-a.gap);
-          if (!L.length || L.every(z=>!(z.gap>0))) emptyX(s,'Дефицита до плана нет — все денежные направления идут по плану'); else { s.addChart(pres.charts.BAR,[{name:'Не хватает до плана, тыс. ₽',labels:L.map(z=>z.label),values:L.map(z=>Math.max(0,Math.round(z.gap/1000)))}],chartOpt({x:0.75,y:1.6,w:6.1,h:5.1,barDir:'bar',chartColors:['FF3B30'],showLegend:false,showValue:true,dataLabelFontSize:10,catAxisOrientation:'maxMin'}));
+          if (!L.length || L.every(z=>!(z.gap>0))) emptyX(s,'Дефицита до плана нет — все денежные направления идут по плану'); else { s.addChart(pres.charts.BAR,[{name:'Не хватает до плана, тыс. ₽',labels:L.map(z=>z.label),values:L.map(z=>Math.max(0,Math.round(z.gap/1000)))}],chartOpt({x:0.75,y:1.6,w:6.1,h:5.1,barDir:'bar',chartColors:[LOc],showLegend:false,showValue:true,dataLabelFontSize:10,catAxisOrientation:'maxMin'}));
             const wd = dirsX.slice().sort((a,b)=>(a.fcPct==null?999:a.fcPct)-(b.fcPct==null?999:b.fcPct)).slice(0,4);
             s.addText([{text:'Что делать',options:{bold:true,color:AC,fontSize:15,breakLine:true}}].concat(wd.map(z=>({text:`${z.label}: ${DG_ADV[z.key]||'разобрать причины отставания'}`,options:{bullet:true,breakLine:true,fontSize:12}}))),{x:7.4,y:1.65,w:5.2,h:5.0,fontFace:FN,color:C.tx,valign:'top',paraSpaceAfter:6,objectName:'note'}); } }
         else if (k==='dayplan'){ const s = xBase(k); card(s,0.6,1.5,12.2,5.3); const dl = DIR_ORDER.filter(q=>W.sal.some(z=>z.st.some(w=>w.key===q))), left = Math.max(1, dim-ps);
@@ -6536,8 +6506,8 @@ async function wp2Build(){
           else { const H = g[hi], ix = H.map((c,i)=>/^\d{2}\.\d{2}/.test(c)?i:-1).filter(i=>i>=0), lab = ix.map(i=>H[i].slice(0,5)), row = rx => g.find(r=>rx.test(r[1]||'')), nv = (r,i) => { const n = r ? rpNum(r[i]) : null; return n; };
             const sim1 = row(/^сим\s*1с/i), plan = row(/^план\s*$/i), tr = row(/^трафик/i), cv = row(/^конверсия/i), pc = row(/плановая конв/i);
             card(s,0.6,1.5,6.0,5.3); card(s,6.8,1.5,6.0,5.3);
-            s.addChart([{type:pres.charts.BAR,data:[{name:'Сим 1С, шт',labels:lab,values:ix.map(i=>nv(sim1,i))}],options:{chartColors:['FF9500'],barGapWidthPct:40}},{type:pres.charts.LINE,data:[{name:'План, шт',labels:lab,values:ix.map(i=>nv(plan,i))}],options:{chartColors:['1D1D1F'],lineSize:2.5,lineDataSymbolSize:3}}],chartOpt({x:0.7,y:1.6,w:5.8,h:5.1}));
-            s.addChart([{type:pres.charts.BAR,data:[{name:'Трафик, чел',labels:lab,values:ix.map(i=>nv(tr,i))}],options:{chartColors:['D1D1D6'],barGapWidthPct:40}},{type:pres.charts.LINE,data:[{name:'Конверсия, %',labels:lab,values:ix.map(i=>nv(cv,i))}],options:{chartColors:['AF52DE'],lineSize:2.5,lineDataSymbolSize:3,secondaryValAxis:true,secondaryCatAxis:true}}],chartOpt({x:6.9,y:1.6,w:5.8,h:5.1,valAxes:[{showValAxisTitle:false},{showValAxisTitle:false,valGridLine:{style:'none'}}],catAxes:[{catAxisLabelFontSize:10},{catAxisHidden:true}]})); } }
+            s.addChart([{type:pres.charts.BAR,data:[{name:'Сим 1С, шт',labels:lab,values:ix.map(i=>nv(sim1,i))}],options:{chartColors:[MDc],barGapWidthPct:40}},{type:pres.charts.LINE,data:[{name:'План, шт',labels:lab,values:ix.map(i=>nv(plan,i))}],options:{chartColors:['1D1D1F'],lineSize:2.5,lineDataSymbolSize:3}}],chartOpt({x:0.7,y:1.6,w:5.8,h:5.1}));
+            s.addChart([{type:pres.charts.BAR,data:[{name:'Трафик, чел',labels:lab,values:ix.map(i=>nv(tr,i))}],options:{chartColors:['D1D1D6'],barGapWidthPct:40}},{type:pres.charts.LINE,data:[{name:'Конверсия, %',labels:lab,values:ix.map(i=>nv(cv,i))}],options:{chartColors:[VI],lineSize:2.5,lineDataSymbolSize:3,secondaryValAxis:true,secondaryCatAxis:true}}],chartOpt({x:6.9,y:1.6,w:5.8,h:5.1,valAxes:[{showValAxisTitle:false},{showValAxisTitle:false,valGridLine:{style:'none'}}],catAxes:[{catAxisLabelFontSize:10},{catAxisHidden:true}]})); } }
         else if (k==='details'){ await grid(k,'details'); }
         else if (k==='fact'){ await grid(k,'fact'); }
         xDone.push(xT(k));
