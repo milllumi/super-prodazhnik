@@ -610,7 +610,18 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;bac
 #xtoast.on{opacity:1;transform:translate(-50%,0)}
 /* --- итоги дня --- */
 .at-lf{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}.at-sl{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--sub)}.at-sl select{min-height:44px;border-radius:12px;border:.5px solid var(--line);background:var(--card);color:var(--text);padding:0 10px;font:inherit;font-size:14px}
-.rv-flt{margin:8px 0}.rv-flt>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:650;font-size:14px}.rv-flt .vm-ctl{display:flex;flex-direction:column;gap:8px;padding:4px 0 8px}
+.rv-flt{margin:8px 0 12px}
+.rv-flt>summary.rv-fb{border:1px solid var(--line,rgba(0,0,0,.12));list-style:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;cursor:pointer;user-select:none}
+.rv-flt>summary.rv-fb::-webkit-details-marker{display:none}.rv-flt>summary.rv-fb::marker{content:''}
+.rv-fb .rv-ch{transition:transform var(--mo-base,.25s) ease;opacity:.7}.rv-flt[open] .rv-ch{transform:rotate(180deg)}
+.rv-fb .rv-n{font-style:normal;font-size:11px;font-weight:700;min-width:18px;height:18px;padding:0 5px;border-radius:9px;display:inline-grid;place-items:center;background:var(--accent,#0a84ff);color:#fff;line-height:1}
+.rv-flt[data-on] .rv-fb{border-color:var(--accent,#0a84ff)}
+.rv-flt .rv-pan{margin-top:8px;padding:14px;border-radius:var(--r,16px);background:var(--card,#fff);border:1px solid var(--line,rgba(0,0,0,.08))}
+.rv-flt .vm-ctl{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;align-items:stretch}
+.rv-flt .vm-ctl .chips{display:flex;flex-wrap:wrap;gap:8px}
+html[data-ios="cm"] .rv-flt .rv-pan{border:3px solid var(--cm-ink);border-radius:4px;box-shadow:4px 4px 0 var(--cm-ink);background:var(--cm-paper)}
+html[data-ios="cm"] .rv-fb .rv-n{background:var(--cm-red);border:2px solid var(--cm-ink);border-radius:50%}
+html[data-ios="px"] .rv-flt .rv-pan{border:1px solid var(--outline);border-radius:12px;background:var(--sch,var(--card))}
 .rv-sec{margin:12px 0 4px}.rv-body{margin-top:6px}.rv-body .an-h3:first-child{margin-top:8px}
 .dlc-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:8px}.dlc{padding:10px 12px 8px;border-radius:14px}.dlc-h{margin:6px 0 3px}.dls{margin-top:8px}.dls-h{padding:0 2px 5px}
 .dlu-bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}.dl-hero{gap:6px}
@@ -1979,6 +1990,73 @@ small,.muted{font-size:max(var(--fs-xs),.86em)}
 
 /* скорость: мелкие кнопки без backdrop-filter (слои blur дороги, на глаз не видны) */
 .icon-btn,.chipb,.mcol{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+
+/* звания лидеров: свой цвет у каждого направления, оформление по теме */
+.lead i{font-style:normal;margin-right:5px}
+.lead.ld-all{background:linear-gradient(135deg,#ffe066,#ff9f0a);color:#5a3200}
+.lead.ld-smart{background:linear-gradient(135deg,#a9d4ff,#5aa9ff);color:#08306b}
+.lead.ld-acc{background:linear-gradient(135deg,#ffc2e0,#ff7ab8);color:#6b0838}
+.lead.ld-serv{background:linear-gradient(135deg,#b8f0c8,#4cd27a);color:#08411f}
+.lead.ld-ins{background:linear-gradient(135deg,#a8ece6,#2bc4b8);color:#05403b}
+.lead.ld-sim{background:linear-gradient(135deg,#d8c7ff,#9b7bff);color:#2c0f73}
+html[data-ios="cm"] .lead{border:2px solid var(--cm-ink);border-radius:4px;box-shadow:2px 2px 0 var(--cm-ink);background:var(--cm-yel)!important;color:var(--cm-ink)!important;font-family:var(--fcm-h);font-weight:400;letter-spacing:.02em;text-transform:uppercase}
+html[data-ios="cm"] .lead.ld-all{background:var(--cm-red)!important;color:#fff!important}
+html[data-ios="bk"] .lead{border-radius:8px;background:#5B3DF5!important;color:#fff!important;box-shadow:0 0 0 1.5px #b6ff3b inset}
+html[data-ios="px"] .lead{background:var(--pc)!important;color:var(--opc)!important}
+
+.dw-c{border:1px solid color-mix(in srgb,var(--orange) 55%,transparent);background:color-mix(in srgb,var(--orange) 9%,var(--card))}
+.dw-h{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}.dw-h span{color:var(--muted);font-size:12px}
+.dw-c p{margin:6px 0 4px;font-size:13.5px;line-height:1.45}.dw-c summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--accent)}
+.dw-l{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px;font-size:12.5px}.dw-l li{display:flex;justify-content:space-between;gap:12px}.dw-l span{overflow-wrap:anywhere}
+html[data-ios="cm"] .dw-c{border:3px solid var(--cm-ink);border-radius:4px;box-shadow:4px 4px 0 var(--cm-red);background:var(--cm-paper)}
+html[data-ios="bk"] .dw-c{border-left:4px solid #5B3DF5}
+.dw-h{padding-right:44px}
+
+/* ===== СТАНДАРТ ИТОГОВЫХ СТРОК (агент report-design): без заливки — только жирность и линия сверху ===== */
+html:not(#_) :is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb,.dr-t2,.dr-mt,.rp-t,.rc-t,.pt-t,.vm-mt) tr.tot :is(td,th){background:var(--tbl-bg,var(--card))!important;box-shadow:none!important;font-size:inherit;font-weight:800;border-top:2px solid var(--text);border-bottom:0}
+html:not(#_) :is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb,.dr-t2,.dr-mt,.rp-t,.rc-t,.pt-t,.vm-mt) tr.tot+tr.tot :is(td,th){border-top:1px solid var(--line)}
+html[data-ios="cm"]:not(#_) :is(.tbl,.mtable,.rp-gridw,.dr-wide,.vm-mb,.dr-t2,.dr-mt,.rp-t,.rc-t,.pt-t,.vm-mt) tr.tot :is(td,th){border-top:3px solid var(--cm-ink);font-weight:900}
+html[data-ios="cm"]:not(#_) :is(.tbl,.mtable,.rp-gridw,.dr-wide,.dr-t2,.rp-t,.rc-t,.pt-t) tr.tot+tr.tot :is(td,th){border-top:1px solid var(--cm-ink)}
+html[data-ios="16"]:not(#_) :is(.tbl,.mtable,.rp-gridw,.dr-wide,.dr-t2,.rp-t,.rc-t,.pt-t) tr.tot :is(td,th),html[data-ios="bk"]:not(#_) :is(.tbl,.mtable,.rp-gridw,.dr-wide,.dr-t2,.rp-t,.rc-t,.pt-t) tr.tot :is(td,th){border-top:1px solid var(--text);font-weight:700}
+html[data-ios="px"]:not(#_) :is(.tbl,.mtable,.rp-gridw,.dr-wide,.dr-t2,.rp-t,.rc-t,.pt-t) tr.tot :is(td,th){background:var(--tbl-bg,var(--card))!important;border-top:1px solid var(--outline,var(--text));font-weight:700}
+
+/* ===== СТАНДАРТ ПРОПОРЦИЙ ОТЧЁТОВ (агент report-design) =====
+   сетка: один отступ между блоками (--rp-gap), один внутренний отступ карточки (--rp-pad);
+   строка салона: имя | полоса | значение — колонки одинаковой ширины во всех отчётах;
+   таблицы: первая колонка слева, все числа и их заголовки справа; ряд действий не заходит на заголовок */
+:root{--rp-gap:16px;--rp-pad:18px;--rp-name:clamp(120px,26%,220px);--rp-val:92px}
+.rp-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-bottom:var(--rp-gap)}
+.rp-top .rp-up{display:inline-flex;align-items:center;gap:8px;margin-left:auto;width:auto}
+#m-reports .stack,#rpBody.stack{gap:var(--rp-gap)}
+#m-reports :is(.rp-dir,.rp-ser,.rp-c,.rp-mc){padding:var(--rp-pad)}
+#m-reports .rp-dh{margin-bottom:12px}
+#m-reports .hx:has(.xt button:nth-child(3))>.rp-dh{padding-right:124px}
+#m-reports .rp-s{grid-template-columns:var(--rp-name) minmax(0,1fr) var(--rp-val);gap:4px 12px;padding:10px 0}
+#m-reports .rp-sv{white-space:nowrap;text-align:right}
+#m-reports .rp-sx{padding-left:0}
+#m-reports .rp-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:var(--rp-gap);align-items:stretch}
+#m-reports .rp-cards>*{display:flex;flex-direction:column}
+#m-reports .rp-chart{margin-bottom:var(--rp-gap)}
+#m-reports table:not(.rp-grid) :is(th,td){text-align:right}
+#m-reports table:not(.rp-grid) :is(th:first-child,td:first-child){text-align:left}
+#m-reports .tbl{margin-top:0}
+#m-reports .rp-ser .rp-cards{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+#m-reports table:not(.rp-grid) thead th:not(:first-child){text-align:right!important}
+#m-reports table:not(.rp-grid) tbody tr:nth-child(even) :is(td,th){background:color-mix(in srgb,var(--text) 4%,var(--card))}
+#m-reports table:not(.rp-grid) tbody th:first-child{background:inherit}
+#m-reports .hx.rp-ser>.rp-h{display:flex;align-items:center;min-height:32px;margin:0 0 12px;padding-right:84px}
+#m-reports .hx.rp-ser>.xt{top:0;right:0}
+@media(max-width:560px){:root{--rp-gap:12px;--rp-pad:14px;--rp-name:30%;--rp-val:74px}
+  #m-reports .hx>.rp-dh{padding-right:0;padding-top:40px}
+  #m-reports .rp-dh{flex-direction:column;align-items:flex-start;gap:6px}#m-reports .rp-dh .rp-big{text-align:left}#m-reports .rp-dh .rp-big small{display:inline;margin-left:6px}
+  .rp-top .rp-up{margin-left:0;width:100%}
+  #m-reports .hx:has(.xt button:nth-child(3))>.rp-dh{padding-right:0;padding-top:40px}}
+/* «Сотрудники ДЛ»: один отчёт «как в таблице», одинаковые промежутки (--rp-gap) между переключателем, подписью и карточкой */
+#m-dl .rp-top{margin:0 0 var(--rp-gap,16px)!important}
+#m-dl .rp-meta{margin:0 0 var(--rp-gap,16px)!important;padding:0}
+#m-dl .stack{display:flex;flex-direction:column;gap:var(--rp-gap,16px);margin:0!important}
+#m-dl .stack>.card,#m-dl .stack>section{margin:0!important}
+#m-dl .rp-dl .note-s{margin:12px 2px 0!important}
 </style>
 </head>
 <body>
@@ -3524,7 +3602,6 @@ function tabsFor(role,d){
     t.splice(bi(),0,['cards','Карточки']);
     if (!d.canLinks) t.splice(bi(),0,['recon','Сопоставления']);
     if (!d.canLinks) t.splice(bi(),0,['dl','Сотрудники ДЛ']);      // у РТТ/УТТ «Сотрудники ДЛ» (рейтинг + бонус) — только их сотрудники
-    if (d.summary) t.splice(4,0,['summary','Общий свод']);
     if (d.canLinks){ t[bi()]=['tmbonus','Бонус ТМ']; t.splice(5,0,['reports','Отчёты']); t.splice(6,0,['dl','Сотрудники ДЛ']);  t.splice(8,0,['auth','Входы'],['access','Доступы']); t.push(['pulse','Weekly Pulse']); t.push(['links','Ссылки']); if (DEMO) for (let i=t.length-1;i>=0;i--) if (t[i][0]==='tmbonus'||t[i][0]==='links') t.splice(i,1); }
   }
   const GL = [];                                   // выданные на время разделы — отдельным блоком «Предоставили доступ»
@@ -3557,8 +3634,10 @@ function applyView(){
 function lcParse(str){ const m=String(str||'').match(/^(\d{2})\.(\d{2})\.(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/); return m ? {d:m[1]+'.'+m[2]+'.'+m[3], t:m[4]!=null ? m[4].padStart(2,'0')+':'+m[5] : ''} : null; }
 function lcFor(d){ let lc = lcParse(d && d.lastCheck); if (!lc && d && d.updated && DEMO){ const x=new Date(new Date(d.updated).getTime()-40*60000); lc={d:x.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'}), t:x.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}; } return lc; }
 function updLine(d){ const el=$('#updLine'); if (!el) return; d=d||DATA; const lc=lcFor(d); if (!d||(!lc&&!d.updated)){ el.hidden=true; return; } el.hidden=false;
-  const dt = d.updated ? new Date(d.updated) : null, txt = lc ? lc.d+(lc.t?' в '+lc.t:'') : dt.toLocaleDateString('ru-RU')+' в '+dt.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-  el.textContent=(d.guest?'Доступ к отчётам до '+grFmt(d.guest.until)+' · ':'')+'Данные обновлены '+txt+(lc?' · последний чек':''); }
+  const dt = d.updated ? new Date(d.updated) : null, two = n=>String(n).padStart(2,'0');
+  const upd = dt && !isNaN(dt) ? two(dt.getDate())+'.'+two(dt.getMonth()+1)+'.'+dt.getFullYear()+' в '+two(dt.getHours())+':'+two(dt.getMinutes()) : '';
+  const chk = lc ? lc.d+(lc.t?' в '+lc.t:'') : '';
+  el.textContent=(d.guest?'Доступ к отчётам до '+grFmt(d.guest.until)+' · ':'')+(upd?'Данные обновлены '+upd:'')+(chk?(upd?' · ':'')+'последний чек '+chk:''); }
 function setTab(t){
   const virt = t; GV = t.indexOf('g_')===0; if (GV) t = t.slice(2);
   WRAP.dataset.tab = t; updLine(); try{ mnavSync(virt); }catch(e){}
@@ -3601,7 +3680,8 @@ let LAST=0;
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden && store.get('token') && !$('#app').hidden && Date.now()-LAST>30*60*1000) load(true); });
 
 function paint(d){
-  DATA = d; LEADERS = d.leaders || (DEMO ? {serv:'Смирнова Анна',smart:'Иванов Пётр',acc:'Попова Мария',ins:'Орлова Дарья',sim:'Соколов Артём'} : {});
+  if (DEMO && DEMO_TM() && !d.dataWarn) d.dataWarn = {other:[{g:'Продукты оператора',n:1,sum:2940},{g:'(не исп) Неактуальные номенклатуры',n:2,sum:600}],noGroup:{n:122,sum:1412888,fixN:122,fixSum:1412888,models:73,top:[{n:'Смартфон Samsung A07s 4/128Gb Black РСТ НЕМАРКИРУЕМЫЙ ТОВАР',sum:96880},{n:'Смартфон Honor X7d 8/256Gb НЕМАРКИРУЕМЫЙ ТОВАР',sum:81990},{n:'Мобильный телефон Olmio X14 Black НЕМАРКИРУЕМЫЙ ТОВАР',sum:60400}]}};
+  DATA = d; LEADERS = d.leaders || (DEMO ? {all:'Иванов Пётр',serv:'Смирнова Анна',smart:'Иванов Пётр',acc:'Попова Мария',ins:'Орлова Дарья',sim:'Соколов Артём'} : {}); if (d.role==='seller') leadNotify(d.name);
   if (d.role==='manager') renderManager(d); else renderSeller(d);
   applyView();
   { const lc=lcFor(d); $('#upd').textContent = lc ? 'чек '+lc.d.slice(0,5)+(lc.t?' '+lc.t:'') : 'обновлено '+new Date(d.updated).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); } updLine(d);
@@ -3811,6 +3891,22 @@ function fcBase(days, fact, dim, today, passed){
   return {full, done, pace: full>0 ? done/full : 0, forecast: full>0 ? done/full*dim : 0};
 }
 
+
+/* Сторож данных (только ТМ): чеки, у которых в выгрузке нет группы товара */
+function dataWarnHTML(d){
+  const W = d && d.dataWarn, cw = W && W.credits;
+  const cr = cw ? `<div class="card dw-c fade" role="status"><div class="dw-h"><b>⚠️ Кредиты не загружаются</b></div><p>${esc(cw)}. Пока так, кредиты (шт и ₽) у сотрудников считаются нулём. Проверьте строку «Кредиты» в листе «Ссылки» (ссылка, название вкладки месяца, доступ к таблице) и формулу IMPORTRANGE в листе «Кредиты текущий месяц».</p></div>` : '';
+  return cr + dataWarnMain_(d);
+}
+function dataWarnMain_(d){
+  const W = d && d.dataWarn, g = W && W.noGroup, og = (W && W.other) || []; if (!W || (!(g && g.n) && !og.length)) return '';
+  if (!(g && g.n)) return `<div class="card dw-c fade" role="status"><div class="dw-h"><b>⚠️ Не учтены группы товаров</b></div><p>${og.map(x=>esc(x.g)+': '+x.n+' чеков на '+fmt(Math.round(x.sum))+' ₽').join('; ')}. Нет ни карточки, ни ставки бонуса — проверьте группу в каталоге 1С.</p></div>`;
+  const rub = v => fmt(Math.round(v||0))+' ₽', rest = g.n-g.fixN;
+  const top = (g.top||[]).slice(0,5).map(x=>`<li><span>${esc(String(x.n).replace(/\s*НЕМАРКИРУЕМЫЙ ТОВАР/i,''))}</span><b>${rub(x.sum)}</b></li>`).join('');
+  return `<div class="card dw-c fade" role="status"><div class="dw-h"><b>⚠️ Чеков без группы товара: ${g.n} на ${rub(g.sum)}</b><span>${g.models||''} поз.</span></div>
+    <p>В выгрузке из 1С у этих товаров группа «нет». ${g.fixN?`Как телефоны учтены ${g.fixN} чеков на ${rub(g.fixSum)} (по названию «Смартфон», «Мобильный телефон», «Планшет»). `:''}${rest>0?`<b>Не учтены: ${rest} чеков на ${rub(g.sum-g.fixSum)}.</b> `:''}Чтобы цифры в таблице и на сайте совпали, поставьте этим позициям группу в каталоге 1С.</p>
+    ${og.length?`<p><b>Ещё не учтены:</b> ${og.map(x=>esc(x.g)+' — '+x.n+' чеков на '+fmt(Math.round(x.sum))+' ₽').join('; ')}. Для них нет ни карточки, ни ставки бонуса.</p>`:''}<details><summary>Самые крупные позиции</summary><ul class="dw-l">${top}</ul></details></div>`;
+}
 function renderManager(d){
   switchRole('manager',d);
   $('#content').hidden = true; $('#mgrView').hidden = false;
@@ -3824,6 +3920,7 @@ function renderManager(d){
     <div class="fade"><div class="eyebrow">${esc(d.month)} · ${esc(d.roleTitle)}</div>
       <h1>Привет, ${esc(first[1]||first[0])} 👋</h1>
       ${d.salons.length?'':'<div class="sub">Салон не найден в таблице</div>'}</div>
+    ${dataWarnHTML(d)}
     ${d.salons.length>1?`<div class="chips" role="group" aria-label="Салон">
       <button class="chipb" data-sel="all" aria-pressed="${SEL==='all'}">Все салоны</button>
       ${d.salons.map((s,i)=>`<button class="chipb" data-sel="${i}" aria-pressed="${SEL===String(i)}">${esc(s.name)}</button>`).join('')}</div>`:''}`;
@@ -3855,7 +3952,7 @@ function renderManager(d){
     let dg = '', hm = '';
     try{ dg = diagPane(d, A); }catch(e){ console.error(e); dg = '<div class="card empty">Диагностика временно недоступна.</div>'; }
     try{ hm = `<div id="anHeat">${anHeat(d)}</div>`; }catch(e){ console.error(e); }
-    $('#m-forecast').innerHTML = forecastPane(A) + dg + hm;
+    $('#m-forecast').innerHTML = forecastPane(A) + dg;       // тепловая карта убрана: дублировала «Светофор салонов» на том же экране
     $('#m-days').querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{DIRSEL=b.dataset.dir; $('#m-days').innerHTML=daysPane(DATA,aggregate(DATA)); bindDays(); animate();});
   }
   $('#loading').hidden = true;
@@ -4030,14 +4127,14 @@ let SUMVIEW = 'table';
 /* таблица «Салоны × направления» из листа с двумя шапками (направление → план / факт / %): общий свод, итоги дня, факт продаж */
 function drTableHtml(g, note){
   let hr = -1; for (let r=0;r<Math.min(g.length,10);r++) if (g[r].some(c=>/^факт$/i.test(String(c).trim()))) hr = r;
-  if (hr<1) return '<div class="stack">'+rpGrid(g,{hl:nm=>!/КЗН|\s(БЛН|МТС|Т2|МФ)\b/.test(nm)})+'</div>';
+  if (hr<1) return '<div class="stack">'+rpGrid(g,{hl:nm=>!/КЗН|(?:^|\s)(?:БЛН|МТС|Т2|МФ)(?=\s|$)/.test(nm)})+'</div>';
   const W = Math.max(...g.map(r=>r.length)), dirOf = []; let cur = '';
   for (let c=1;c<W;c++){ const t=String((g[hr-1]||[])[c]||'').trim(); if (t) cur=t; dirOf[c]=cur; }
   const dmap = {}, dirs = [];
   for (let c=1;c<W;c++){ const lab=String(g[hr][c]||'').trim(), dn=dirOf[c]; if (!lab||!dn) continue; if (!dmap[dn]){ dmap[dn]={name:dn,key:({'sim':'sim','сим':'sim','телефоны':'phones','аксессуары':'acc','услуги':'serv','страховки':'ins'})[dn.toLowerCase()]||'', cols:[]}; dirs.push(dmap[dn]); } dmap[dn].cols.push({c,lab}); }
   const body = g.slice(hr+1).filter(r=>String(r[0]||'').trim());
-  const isLead = nm => !/КЗН|\s(БЛН|МТС|Т2|МФ)\b/.test(nm);
-  const isTmRow = nm => /миллер|^\s*тм\b|итого|все салоны/i.test(String(nm));
+  const isLead = nm => !/КЗН|(?:^|\s)(?:БЛН|МТС|Т2|МФ)(?=\s|$)/.test(nm);
+  const isTmRow = nm => /миллер|^\s*тм(?=\s|$)|итого|все салоны/i.test(String(nm));
   const lead = body.filter(r=>isLead(String(r[0]))).sort((x,y)=>isTmRow(x[0])-isTmRow(y[0])), sal = body.filter(r=>!isLead(String(r[0])));
   const pcOf = v => { const n=parseFloat(String(v).replace(/\s/g,'').replace(',','.')); return /%/.test(String(v)) && isFinite(n) ? n : null; };
   const nfs = v => { v=String(v==null?'':v).trim(); const n=parseFloat(v.replace(/\s/g,'').replace(',','.')); return /^-?[\d\s]+([.,]\d+)?$/.test(v) && isFinite(n) ? fmt(n,0) : v; };
@@ -4541,7 +4638,7 @@ function rpDraw(key, r, host){
   const el = $(host||'#rpBody'); if (!el) return;
   if (r.missing){ el.innerHTML = `<div class="card empty">Лист «${esc(r.name)}» не найден в таблице. Как только он появится, страница заполнится автоматически.</div>`; return; }
   let html;
-  try{ const g = rpClean(r.grid); html = key==='details' ? rpDetails(g) : key==='dl' ? rpDLView(g, r.calc) : key==='fact' ? drTableHtml(g, '<div class="note-s" style="margin-top:10px">Факт продаж на сегодня по салонам и направлениям. «%» — выполнение плана.</div>') : rpGrid(g, {}); }
+  try{ const g = rpClean(r.grid); html = key==='details' ? rpDetails(g) : key==='dl' ? rpDLView(g, r.calc) : key==='summary' ? drTableHtml(g) : key==='fact' ? drTableHtml(g, '<div class="note-s" style="margin-top:10px">Факт продаж на сегодня по салонам и направлениям. «%» — выполнение плана.</div>') : rpGrid(g, {}); }
   catch(e){ console.error(e); html = `<div class="card empty">Не удалось разобрать лист «${esc(r.name)}».</div>`; }
   const t = r.at ? new Date(r.at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}) : '';
   el.innerHTML = `<div class="rp-meta"><b>${esc(r.name)}</b>${t?' · обновлено '+t:''}</div>`+html;
@@ -4707,7 +4804,9 @@ function dlCardHtml(e){
     <div class="dld-l">${rows}</div>${q?`<div class="dlc-q">${q}</div>`:''}</article>`;
 }
 function dlInner(){
-  const S = DLSRC, emps = dlParse(S.g);
+  const S = DLSRC;
+  return rpDLTable(S.g, S.calc);                      // только вид «как в таблице» (список карточек убран)
+  const emps = dlParse(S.g);
   const seg = (k, items, lab) => `<div class="dlu-g"><span class="dlu-l">${lab||''}</span><div class="chips dlg" role="group" aria-label="${lab||''}">${items.map(x=>`<button type="button" class="chipb" data-dlu="${k}:${x[0]}" aria-pressed="${String(DLUI[k]===true?'1':DLUI[k]===false?'0':DLUI[k])===x[0]}">${x[1]}</button>`).join('')}</div></div>`;
   if (!emps) return rpDLTable(S.g, S.calc);
   const q = DLUI.q.trim().toLowerCase(), list = emps.filter(e=>!q || (e.name+' '+e.tt).toLowerCase().includes(q));
@@ -4824,16 +4923,16 @@ function rpParseDetails(g){
 const RPTX = {}; let RPTX_N = 0;
 function rpCopyText(title, dateLbl, rows, fmtV, goal){
   const pc = v => v==null ? '—' : Math.round(v)+'%';
-  const dy = d => d==null ? '➖ нет данных' : d>0.05 ? '📈 +'+fmt(d,1).replace('.',',')+' п.п.' : d<-0.05 ? '📉 −'+fmt(Math.abs(d),1).replace('.',',')+' п.п.' : '➖ без изменений';
-  const line = (r,ic) => `${ic} ${r.n} — ${pc(r.fc)} — ${r.last==null ? 'нет продаж' : fmtV(r.last)} — ${dy(r.dyn)}`;
+  const dy = d => d==null ? 'нет данных' : d>0.05 ? '▲ +'+fmt(d,1).replace('.',',')+' п.п.' : d<-0.05 ? '▼ −'+fmt(Math.abs(d),1).replace('.',',')+' п.п.' : '= без изменений';
+  const line = (r,ic) => `${ic?ic+' ':'• '}${r.n} — ${pc(r.fc)} — ${r.last==null ? 'нет продаж' : fmtV(r.last)} — ${dy(r.dyn)}`;
   const lead = rows.filter(r=>r.fc!=null && r.fc>=100).sort((a,b)=>b.fc-a.fc), out = rows.filter(r=>r.fc!=null && r.fc<100).sort((a,b)=>a.fc-b.fc), none = rows.filter(r=>r.fc==null);
   const medal = ['🥇','🥈','🥉'], withF = rows.length-none.length;
-  const L = [`📊 ${title}${dateLbl?' · день '+dateLbl:''}`, '📍 Точка — прогноз — продажи за день — динамика прогноза'];
-  if (goal && goal.pct!=null) L.push('', `🎯 Цель дня: закрыто ${Math.round(goal.pct)}% ${goal.pct>=100?'✅':goal.pct>=90?'🟠':'🔴'}${goal.fact!=null&&goal.plan>0?` (факт ${fmtV(goal.fact)} из ${fmtV(goal.plan)})`:''}`);
-  if (lead.length) L.push('', '🏆 Лидеры прогноза — план закрываем', ...lead.map((r,i)=>line(r, medal[i]||'🟢')));
-  if (out.length) L.push('', '⚠️ Аутсайдеры прогноза — нужен рывок', ...out.map(r=>line(r, r.fc<90 ? '🔴' : '🟠')));
-  if (none.length) L.push('', '⚪ Без прогноза', ...none.map(r=>line(r,'⚪')));
-  if (withF) L.push('', `✅ В плане: ${lead.length} из ${withF}`);
+  const L = [`📊 ${title}${dateLbl?' · день '+dateLbl:''}`, 'Точка — прогноз — продажи за день — динамика прогноза'];
+  if (goal && goal.pct!=null) L.push('', `Цель дня: закрыто ${Math.round(goal.pct)}%${goal.fact!=null&&goal.plan>0?` (факт ${fmtV(goal.fact)} из ${fmtV(goal.plan)})`:''}`);
+  if (lead.length) L.push('', '🏆 Лидеры прогноза — план закрываем', ...lead.map((r,i)=>line(r, medal[i]||'')));
+  if (out.length) L.push('', '⚠️ Аутсайдеры прогноза — нужен рывок', ...out.map(r=>line(r,'')));
+  if (none.length) L.push('', 'Без прогноза', ...none.map(r=>line(r,'')));
+  if (withF) L.push('', `В плане: ${lead.length} из ${withF}`);
   return L.join('\n');
 }
 /* текст «Карточек»: общий факт и факт за последний день; группы — «продажи были» и «не было продаж» (сколько дней с последней продажи) */
@@ -4846,9 +4945,9 @@ function rpCardsText(cd, labels, lj, f, tot){
   const all = rows.reduce((t,r)=>t+(r.total||0),0), dayAll = rows.reduce((t,r)=>t+(r.sold?r.last:0),0);
   const days = k => k+' '+(k%10===1&&k%100!==11?'день':(k%10>=2&&k%10<=4&&(k%100<10||k%100>=20))?'дня':'дней');
   const yes = rows.filter(r=>r.sold).sort((a,b)=>b.last-a.last), no = rows.filter(r=>!r.sold).sort((a,b)=>b.gap-a.gap);
-  const L = [`📦 ${cd.title}`, `📅 Последний день: ${dayLbl}`, `🧮 Всего за месяц: ${f(all)} · 🕐 за ${dayLbl}: ${f(dayAll)}`];
-  if (yes.length) L.push('', `🟢 Продажи были (${dayLbl}) — ${yes.length} из ${n}`, ...yes.map(r=>`✅ ${r.n} — всего ${f(r.total)} · за день ${f(r.last)}`));
-  if (no.length) L.push('', `🔴 Не было продаж (${dayLbl}) — ${no.length} из ${n}`, ...no.map(r=>`⏳ ${r.n} — всего ${f(r.total)} · ${r.since ? 'без продаж '+days(r.gap)+' (последняя '+r.since+')' : 'продаж в месяце не было'}`));
+  const L = [`📦 ${cd.title}`, `Последний день: ${dayLbl}`, `Всего за месяц: ${f(all)} · за ${dayLbl}: ${f(dayAll)}`];
+  if (yes.length) L.push('', `🟢 Продажи были (${dayLbl}) — ${yes.length} из ${n}`, ...yes.map(r=>`• ${r.n} — всего ${f(r.total)} · за день ${f(r.last)}`));
+  if (no.length) L.push('', `🔴 Не было продаж (${dayLbl}) — ${no.length} из ${n}`, ...no.map(r=>`• ${r.n} — всего ${f(r.total)} · ${r.since ? 'без продаж '+days(r.gap)+' (последняя '+r.since+')' : 'продаж в месяце не было'}`));
   return L.join('\n');
 }
 /* динамика прогноза: прогноз при темпе «по сегодня» против темпа «по вчера», п.п. закрытия плана */
@@ -5069,7 +5168,7 @@ function rpMatrix(sg, opt){
   const allPct = numCols.every(c=>body.every(r=>!r[c]||rpPct(r[c])));
   const mkTitle = title || (allPct ? '<h2 class="rp-h">Доли, %</h2>' : (H1[lc]?`<h2 class="rp-h">${esc(H1[lc])}</h2>`:''));
   const seen = {};
-  const isShop = nm => /КЗН|\s(БЛН|МТС|Т2|МФ)\b/.test(nm);
+  const isShop = nm => /КЗН|(?:^|\s)(?:БЛН|МТС|Т2|МФ)(?=\s|$)/.test(nm);
   const hasShops = body.some(r=>isShop(String(r[lc]||'')));
   /* строка ТМ (не точка, когда в таблице есть точки) и «Итого» всегда в конце */
   const rowsO = body.map(r=>{ let nm = String(r[lc]||'').trim()||'—'; seen[nm]=(seen[nm]||0)+1; if (seen[nm]>1) nm += ' · '+seen[nm]; return {r, nm, tot:isTotRow(r)||(hasShops&&nm!=='—'&&!isShop(nm)&&rpNum(nm)===null)}; });
@@ -5225,23 +5324,36 @@ function daySumPane(d){
     <div class="note-s" style="margin-top:10px">План / Факт / % — выбранный день; «Завтра» — нужный объём на следующий день${nx?' ('+esc(nx.slice(0,5))+')':''}.</div>
     <div class="dr-copy"><button class="chipb" id="daySumCopy">Копировать текстом</button></div></div>`;
 }
-function bindDayRes(){ bindDayPlan(); $('#m-dayres').querySelectorAll('[data-dr]').forEach(b=>b.onclick=()=>{ DAYSEL=b.dataset.dr; dayComboDraw(DATA); }); $('#m-dayres').querySelectorAll('[data-dtop]').forEach(b=>b.onclick=()=>{ DAYTOP=b.dataset.dtop; dayComboDraw(DATA); }); const cb=$('#daySumCopy'); if (cb) cb.onclick=async()=>{ try{ await navigator.clipboard.writeText(window.__daySumTxt()); xToast('Скопировано'); }catch(e){ xToast('Не удалось скопировать'); } }; }
+function bindDayRes(){ bindDayPlan(); $('#m-dayres').querySelectorAll('[data-dr]').forEach(b=>b.onclick=()=>{ DAYSEL=b.dataset.dr; dayComboDraw(DATA); }); $('#m-dayres').querySelectorAll('[data-dtop]').forEach(b=>b.onclick=()=>{ DAYTOP=b.dataset.dtop; dayComboDraw(DATA); }); $('#m-dayres').querySelectorAll('[data-dmode]').forEach(b=>b.onclick=()=>{ DAYMODE=b.dataset.dmode; dayComboDraw(DATA); }); const cb=$('#daySumCopy'); if (cb) cb.onclick=async()=>{ try{ await navigator.clipboard.writeText(window.__daySumTxt()); xToast('Скопировано'); }catch(e){ xToast('Не удалось скопировать'); } }; }
 /* «Итоги дня» = итоги + план на день + факт продаж на сегодня (раньше три отдельных экрана) */
+let DAYMODE = 'day';
+function dayMonthHTML(d){
+  const S = d.summary;
+  if (S){
+    if (S.missing) return '<div class="card empty">Лист «'+esc(S.name)+'» не найден в таблице. Как только он появится, страница заполнится автоматически.</div>';
+    if (!S.found) return '<div class="card empty">В листе «'+esc(S.name)+'» не нашлось строк ваших салонов.</div>';
+    return drTableHtml(rpClean(S.head.concat(S.rows)));
+  }
+  return '<div id="dayMonth" class="stack"><div class="card empty rp-wait"><span class="rp-spin"></span>Считаем…</div></div>';   // ТМ: общий свод считает сервер
+}
+/* «Итоги дня» = одна таблица «Салоны × направления» с переключателем Месяц / Сегодня (раньше «Общий свод», «Итоги дня» и «Факт продаж» были тремя таблицами) + план на день */
 function dayComboDraw(d){
   const el = $('#m-dayres'); if (!el) return;
-  const withPlan = !!(d.canLinks || gOn(d,'dayplan')), withFact = !!(d.canLinks || gOn(d,'reports'));
-  const tabs = [['sum','Сводка'],['res','Итог дня'],...(withPlan?[['plan','План на день']]:[]),...(withFact?[['fact','Факт продаж']]:[])];
+  const withPlan = !!(d.canLinks || gOn(d,'dayplan'));
+  const tabs = [['sum','Салоны × направления'],...(withPlan?[['plan','План на день']]:[])];
   if (!tabs.some(t=>t[0]===DAYTOP)) DAYTOP = 'sum';
-  const res = dayResPane(viewD(d,'dayres'));
-  const seg = `<div class="chips dr-top" role="tablist" aria-label="Раздел">${tabs.map(t=>`<button class="chipb" role="tab" data-dtop="${t[0]}" aria-pressed="${t[0]===DAYTOP}">${t[1]}</button>`).join('')}</div>`;
-  let body = '';
-  if (DAYTOP==='sum') body = daySumPane(viewD(d,'dayres'));
-  else if (DAYTOP==='res') body = res;
-  else if (DAYTOP==='plan') body = '<div id="m-dayplan" class="stack">'+dayPlanPane(viewD(d,'dayplan'))+'</div>';
-  else body = '<div id="dayFact"></div>';
-  el.innerHTML = seg + (DAYTOP==='sum' ? res.slice(0, res.indexOf('<div class="card')) : '') + body;
+  const res = dayResPane(viewD(d,'dayres'));             // выбирает день и рисует переключатель дней
+  const seg = tabs.length>1 ? `<div class="chips dr-top" role="tablist" aria-label="Раздел">${tabs.map(t=>`<button class="chipb" role="tab" data-dtop="${t[0]}" aria-pressed="${t[0]===DAYTOP}">${t[1]}</button>`).join('')}</div>` : '';
+  const mode = `<div class="chips dr-mode" role="group" aria-label="Период">${[['month','Месяц'],['day','Сегодня']].map(m=>`<button class="chipb" data-dmode="${m[0]}" aria-pressed="${m[0]===DAYMODE}">${m[1]}</button>`).join('')}</div>`;
+  let body = '', pre = '';
+  if (DAYTOP==='sum'){
+    pre = mode;
+    if (DAYMODE==='month') body = dayMonthHTML(d);
+    else { body = daySumPane(viewD(d,'dayres')); pre += res.slice(0, res.indexOf('<div class="card')); }
+  } else body = '<div id="m-dayplan" class="stack">'+dayPlanPane(viewD(d,'dayplan'))+'</div>';
+  el.innerHTML = seg + pre + body;
   bindDayRes();
-  if (DAYTOP==='fact') rpLoad('fact', false, '#dayFact');
+  if (DAYTOP==='sum' && DAYMODE==='month' && !d.summary) rpLoad('summary', false, '#dayMonth');
 }
 
 /* =================== ПОДСКАЗКИ при наведении / касании =================== */
@@ -6176,7 +6288,8 @@ function vmrRevInner(base, k){
   const list = (S.all ? cur.slice().sort((a,b)=>(b.dt||0)-(a.dt||0)) : low.slice().sort((a,b)=>a.s-b.s)), shown = list.slice(0,30);
   const lst = `<h3 class="an-h3">${S.all?'Все проверки':'Проверки на разбор'} · ${list.length}</h3>${shown.length?`<div class="vm-rev">${shown.map(r=>rvItem(r, k==='tm'||mgr)).join('')}</div>`:'<div class="empty">Проверок ниже '+REV_LOW+'% нет — отлично!</div>'}${list.length>shown.length?`<div class="note-s">Показаны ${shown.length} из ${list.length}. Сузьте период фильтрами выше.</div>`:''}<div class="note-s" style="margin-top:8px">«На разбор» — проверки с оценкой ниже ${REV_LOW}%, от худших. Красные теги — невыполненные пункты чек-листа. Недели — по календарной неделе года из выгрузки.</div>`;
   REVX = {dyn: (chart+piv) ? `<div class="eyebrow">Разбор</div><h2>Динамика</h2>${chart.replace(/<h3 class="an-h3">[^<]*<\/h3>/,`<div class="at-s">${S.m==='all'?'По месяцам':'По неделям, '+(MN_RU[S.m]||S.m)} — средняя оценка проверок.</div>`)}${piv}` : '', cmb: cdyn ? `<div class="eyebrow">Разбор</div><h2>Комбо и рассрочка</h2>${cdyn.replace(/<h3 class="an-h3">🎁 Комбо и 💳 рассрочка · динамика<\/h3>/,'<div class="at-s">Динамика: как часто предлагали комбо и рассрочку.</div>')}` : ''};
-  return `<details class="rv-flt"><summary>Фильтры</summary>${ctl}</details>`+kpis+`<div class="rv-body">${lst}</div>`;
+  const nF = (S.t!=='all'?1:0)+(S.m!=='all'?1:0)+(S.w!=='all'?1:0)+(S.sc!=='all'?1:0)+(S.all?1:0);
+  return `<details class="rv-flt"${nF?' data-on="1"':''}><summary class="chipb rv-fb"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M3 5h14M6 10h8M8.5 15h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Фильтры</span>${nF?`<em class="rv-n" aria-label="Выбрано: ${nF}">${nF}</em>`:''}<svg class="rv-ch" viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="rv-pan">${ctl}</div></details>`+kpis+`<div class="rv-body">${lst}</div>`;
 }
 function vmrRevCard(base, k){
   const t = k==='tm' ? ['Разбор','Проверки на разбор'] : ROLE==='manager' ? ['ВМР · мои торговые точки','Проверки ВМР по моим ТТ'] : ['ВМР · мои проверки','Мои проверки ВМР'];
@@ -6914,11 +7027,32 @@ document.addEventListener('click', e=>{ const it = e.target.closest('.vm-ri[data
 document.addEventListener('keydown', e=>{ if ((e.key==='Enter'||e.key===' ') && e.target.matches && e.target.matches('.vm-ri[data-ri]')){ e.preventDefault(); e.target.click(); } });
 
 /* =================== Рейтинг: общий и по направлениям, титулы лидеров =================== */
-const LEAD_T = {serv:['⏳','ценитель своего времени'], smart:['🦾','железный человек'], acc:['💍','любитель побрякушек'], ins:['🛡️','на страже защиты'], sim:['📡','алло, я на связи']};
+/* Звания лидеров: [значок, название, подсказка]. all — первое место в общем рейтинге; остальные — первое место по направлению. */
+const LEAD_T = {
+  all:  ['👑','Звезда команды',      'Первое место в общем рейтинге'],
+  smart:['📱','Повелитель экранов',  'Первое место по телефонам: продаёт больше всех смартфонов'],
+  acc:  ['🎧','Волшебник комплекта', 'Первое место по аксессуарам: к каждому телефону — полный набор'],
+  serv: ['🛠️','Золотые руки',        'Первое место по услугам: пакеты, плёнка, чистка — всё в дело'],
+  ins:  ['🛡️','Рыцарь защиты',       'Первое место по страховкам: клиент под надёжной защитой'],
+  sim:  ['📡','Человек-антенна',     'Первое место по SIM: на связи с каждым клиентом']
+};
 const RT_TABS = [['all','Общий'],['smart','Телефоны'],['acc','Аксессуары'],['serv','Услуги'],['ins','Страховки'],['sim','Сим']];
 let LEADERS = {}, RT = 'all';
 const ldKey = n => String(n||'').toLowerCase().replace(/ё/g,'е').split(/\s+/).slice(0,2).join(' ');
-function leadTags(name){ const k = ldKey(name); if (!k) return ''; return Object.keys(LEAD_T).filter(d=>LEADERS[d] && ldKey(LEADERS[d])===k).map(d=>`<span class="lead" title="Первое место в рейтинге: ${esc((RT_TABS.find(x=>x[0]===d)||[])[1]||'')}">${LEAD_T[d][0]} ${LEAD_T[d][1]}</span>`).join(''); }
+function leadTags(name){ const k = ldKey(name); if (!k) return ''; return Object.keys(LEAD_T).filter(d=>LEADERS[d] && ldKey(LEADERS[d])===k).map(d=>`<span class="lead ld-${d}" title="${esc(LEAD_T[d][2])}"><i aria-hidden="true">${LEAD_T[d][0]}</i>${LEAD_T[d][1]}</span>`).join(''); }
+/* звание перешло: сообщаем, когда сотрудник получил или потерял звание */
+function leadNotify(me){
+  try{
+    const k = ldKey(me), key = 'leaders:'+(store.get('login')||'x'), prev = JSON.parse(store.get(key)||'null');
+    store.set(key, JSON.stringify(LEADERS));
+    if (!prev || !k) return;
+    Object.keys(LEAD_T).forEach(d=>{
+      const was = prev[d] && ldKey(prev[d])===k, now = LEADERS[d] && ldKey(LEADERS[d])===k;
+      if (now && !was) xToast('🎉 Вам досталось звание «'+LEAD_T[d][1]+'»');
+      else if (was && !now && LEADERS[d]) xToast('«'+LEAD_T[d][1]+'» перешло к '+LEADERS[d]);
+    });
+  }catch(e){}
+}
 function ratingList(d){
   const list = RT==='all' ? d.rating : ((d.ratings||{})[RT]||[]), medal = p => p<=3 ? `<span class="medal g${p}">${p}</span>` : p;
   if (!list.length) return '<div class="empty">По этому направлению рейтинга пока нет.</div>';
@@ -7094,7 +7228,7 @@ function diagPane(d, A){
     trCard = `<div class="card fade"><h2>Трафик и конверсия</h2><div class="dg-trs">${rows}</div>
       <div class="note-s" style="margin-top:10px">Данные KPI ОСС. Столбец — факт, бледное продолжение — прогноз на конец месяца, чёрная метка — план. Трафик есть — значит, потери в конверсии: разбирать скрипт встречи и работу с возражениями.</div></div>`;
   }
-  return hero + lightCard + lossCard + reachCard + actCard + wdCard + trCard;
+  return hero + lossCard + reachCard + actCard + wdCard + trCard;
 }
 </script>
 </body>

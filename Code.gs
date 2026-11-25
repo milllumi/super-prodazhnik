@@ -48,7 +48,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 21600;                                 // кэш данных: 6 ч (максимум CacheService); warmCache() обновляет его после выгрузки продаж (08:20 и 15:20)
-const CACHE_EPOCH = 'e12';
+const CACHE_EPOCH = 'e13';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -239,33 +239,63 @@ function data_(req) {
   if (!user) return { error: 'auth' };                // убрали из списка «Доступ» — доступ закрыт сразу
   try { maintain_(ss); } catch (e) {}
   try { const vk = 'vis:' + key, cc = CacheService.getScriptCache(); if (!cc.get(vk)) { cc.put(vk, '1', 3600); authLog_(user, 'визит', req.dev); } } catch (e) {}
-  const out = cached_('u:' + key, TTL_, function () {
+  const out0 = cached_('u:' + key, TTL_, function () {
     const d = user.manager ? managerData_(ss, user, access) : sellerData_(ss, user, access);
     d.leaders = leaders_(ss, access); d.updated = new Date().toISOString(); return d;
   });
+  const lead = leadersLive_(ss, access), out = Object.assign({}, out0, { leaders: lead });
+  if (user.roleTitle === 'ТМ') { try { const sm = salesModel_(ss), ng = sm.noGroup, og = sm.otherGroups || []; const cr = creditRows_(ss), cw = cr.src === 'error' ? cr.err : ''; if ((ng && ng.n) || og.length || cw) out.dataWarn = { noGroup: ng, other: og, credits: cw }; } catch (e) {} }          // сторож: чеки без группы          // звания — всегда свежие, вне кэша личных данных
   const g = user.manager && user.roleTitle !== 'ТМ' ? grantActive_(ss, user) : null;     // временный доступ к отчётам — вне кэша данных
   if (!g) return out;
   const res = Object.assign({}, out, { guest: { until: new Date(g.until).toISOString(), sections: g.secs } });
   if (['dayres', 'dayplan', 'analytics'].some(function (k) { return g.secs.indexOf(k) >= 0; })) {      // «вид ТМ»: данные по всей сети ТМ
     const tmU = access.filter(function (a) { return a.roleTitle === 'ТМ' && a.manager; })[0];
-    if (tmU) res.tmData = cached_('u:' + tmU.key, TTL_, function () { const d = managerData_(ss, tmU, access); d.leaders = leaders_(ss, access); d.updated = new Date().toISOString(); return d; });
+    if (tmU) res.tmData = cached_('u:' + tmU.key, TTL_, function () { const d = managerData_(ss, tmU, access); d.leaders = leaders_(ss, access); d.updated = new Date().toISOString(); return d; }); if (res.tmData) res.tmData = Object.assign({}, res.tmData, { leaders: lead });
   }
   return res;
 }
 // Обновление кэша: не по таймеру, а сразу после выгрузки продаж (importChecks_ ставит разовый запуск через минуту → warmAfterImport_).
 // installTrigger() — один раз: убирает старый триггер «каждые 30 минут» и сразу обновляет кэш.
 function installTrigger() {
-  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmCache') ScriptApp.deleteTrigger(t); });
-  warmCache();
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (['warmCache', 'warmMore_', 'warmHourly_'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('warmHourly_').timeBased().everyHours(1).create();     // раз в час: догреваем кэш (в пределах лимита 6 минут)
+  scheduleMore_(1);
+}
+function warmHourly_() { warm_(false); }
+function warmMore_() { warm_(false); }
+function scheduleMore_(min) {                                   // продолжение прогрева, если за один запуск не успели всех
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmMore_') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('warmMore_').timeBased().after((min || 1) * 60000).create();
 }
 function warmAfterImport_() { warmCache(); }
 function scheduleWarm_() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmAfterImport_') ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('warmAfterImport_').timeBased().after(60000).create();
 }
-function warmCache() {
-  FRESH_ = true;
-  const ss = ss_();
+// Суммы и количество в выгрузке чеков иногда лежат текстом («1 393,00») — SUM и сводные таблицы их не видят.
+// Переводим такие ячейки колонок J:K в числа (формулы не трогаем); запускается из warmCache перед пересчётом.
+function fixAmounts_(ss) {
+  const sh = sheetByName_(ss, RAW_.SHEET); if (!sh) return 0;
+  const lr = sh.getLastRow(); if (lr < 2) return 0;
+  const rg = sh.getRange(2, 10, lr - 1, 2), v = rg.getValues(), f = rg.getFormulas();
+  let n = 0;
+  const out = v.map(function (row, i) {
+    return row.map(function (x, j) {
+      if (f[i][j]) return f[i][j];                                    // формулу оставляем как есть
+      if (typeof x === 'string' && x.trim() !== '') { const q = num_(x); if (q !== null) { n++; return q; } }
+      return x;
+    });
+  });
+  if (n) { rg.setValues(out); SpreadsheetApp.flush(); }
+  return n;
+}
+function fixAmounts() { return fixAmounts_(ss_()); }                // можно запустить вручную
+function warmCache() { warm_(true); }
+// fresh=true — пересчёт с нуля (после загрузки чеков); false — только то, чего нет в кэше. Лимит Apps Script — 6 минут: после 4,5 мин останавливаемся и планируем продолжение.
+function warm_(fresh) {
+  FRESH_ = !!fresh;
+  const T0 = Date.now(), ss = ss_();
+  try { const fx = fixAmounts_(ss); if (fx) Logger.log('Суммы текстом → числа: ' + fx); } catch (e) { Logger.log('fixAmounts_: ' + e); }
   try { readAccess_(ss); readSalonSheet_(ss); readMonthPlan_(ss); readPlan_(ss); readIncome_(ss); readSchedule_(ss); } catch (e) {}
   try { kpiShopsDrop_(); } catch (e) {}
   const access = readAccess_(ss);
@@ -274,12 +304,13 @@ function warmCache() {
   try { salesModel_(ss); detailsGrid_(ss); incomeModel_(ss); scheduleHours_(ss); } catch (e) {}      // расчёты по чекам (вместо сводных таблиц)
   try { cardsAll_(ss); } catch (e) {}
   try { dlBonusFull_(ss); } catch (e) {}                              // «Бонус»: считаем заранее, при открытии вкладки — из кэша
-  const t0 = Date.now();
+  let cut = false;
   access.forEach(function (u) {                                   // готовые ответы для руководителей и продавцов (в пределах лимита времени)
-    if (Date.now() - t0 > 240000) return;
+    if (Date.now() - T0 > 270000) { cut = true; if (fresh) cacheDrop_('u:' + u.key); return; }      // не успели — сбросим старый кэш, продолжение пересчитает
     try { cached_('u:' + u.key, TTL_, function () { const d = u.manager ? managerData_(ss, u, access) : sellerData_(ss, u, access); d.updated = new Date().toISOString(); return d; }); } catch (e) {}
   });
   FRESH_ = false;
+  if (cut) scheduleMore_(1);
 }
 function kpiShopsDrop_() { CacheService.getScriptCache().remove('kpiShops2'); CacheService.getScriptCache().remove('kpiGrades'); }
 
@@ -724,11 +755,18 @@ function next3_(sched, person, mainSalon) {
 /* ---------- «Общий свод» для РТТ / УТТ: лист как есть, только строки их салонов ---------- */
 // В «общем своде» вместо «План на день» ставим «План на месяц»: по салону — из листа «План», по строке руководителя — сумма его салонов;
 // если плана на месяц нет (например «Кредиты») — план на день × дни месяца.
+// План на месяц: лист «План» приоритетнее «Целей»; «Цели» дополняют (строка ТМ — сумма салонов, считается в readGoalsTable_).
+function planMonthMerged_(ss) {
+  const mp = readMonthPlan_(ss), gt = readGoalsTable_(ss), out = {};
+  Object.keys(mp).forEach(function (k) { out[k] = {}; Object.keys(mp[k]).forEach(function (d) { out[k][d] = mp[k][d]; }); });
+  Object.keys(gt).forEach(function (k) { const o = out[k] = out[k] || {}; ['sim', 'phones', 'acc', 'serv', 'ins'].forEach(function (d) { if (!(o[d] > 0) && gt[k][d] > 0) o[d] = gt[k][d]; }); });
+  return out;
+}
 function summaryMonthPlan_(ss, v, salonNames) {
   let hr = -1;
   for (let r = 0; r < Math.min(v.length, 10); r++) if (v[r].some(function (c) { return norm_(c) === 'факт'; })) hr = r;
   if (hr < 1) return v;
-  const mp = readMonthPlan_(ss), dim = readSalonSheet_(ss).daysInMonth || 30;
+  const mp = planMonthMerged_(ss);
   const dirOf = function (c) {                                   // направление группы: ближайшая слева непустая ячейка строки над шапкой
     for (let i = c; i >= 0; i--) { const t = norm_(v[hr - 1][i]); if (t) return SALON_DIRS[t] || t; }
     return '';
@@ -744,11 +782,9 @@ function summaryMonthPlan_(ss, v, salonNames) {
     const key = norm_(out[r][0]); if (!key) continue;
     cols.forEach(function (x) {
       const own = mp[key] && mp[key][x.dir] > 0 ? mp[key][x.dir] : null;
-      const day = num_(out[r][x.c]);
       let val = own;
       if (val === null && !mp[key] && salonNames && !sn[key]) val = sumOf(x.dir);       // строка руководителя
-      if (val === null && day !== null) val = Math.round(day * dim);
-      if (val !== null) out[r][x.c] = String(Math.round(val));
+      out[r][x.c] = val !== null ? String(Math.round(val)) : '';                        // плана на месяц нет — пусто (раньше подставлялся «план на день × дни», а он включает отставание)
     });
   }
   return out;
@@ -1399,6 +1435,8 @@ function num_(s) {
   const n = parseFloat(s);
   return isNaN(n) ? null : n;
 }
+// Число из ячейки выгрузки: суммы ≥ 1000 иногда лежат текстом («1 393,00») — Number() даёт NaN → 0, как и SUM в таблице
+function numCell_(v) { if (typeof v === 'number') return v; const n = num_(v); return n === null ? 0 : n; }
 function norm_(s) { return String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim(); }
 function short_(full) { return String(full).trim().split(/\s+/).slice(0, 2).join(' '); }
 
@@ -1457,6 +1495,11 @@ function dstr_(v, tz) {                                 // дата чека →
   return m ? pad2_(m[1]) + '.' + m[2] + '.' + m[3] : '';
 }
 // Колонки-признаки листа «Группа товаров» (L:AM) — те же формулы, что в таблице, но на сайте
+// Телефон по строке чека: группа пусто / «Телефоны и планшеты»; а также группа «нет» (в каталоге 1С модель без группы) при названии «Смартфон …», «Мобильный телефон …», «Планшет …»
+function isPhoneRow_(r) {
+  const g = r.g; if (g === '' || g === 'Телефоны и планшеты') return true;
+  return g === 'нет' && /^(смартфон|мобильный телефон|планшет)\s/i.test(String(r.n || '').trim());
+}
 function saleFlags_(r, excl) {
   const w = words_(r.n), L = lcase_(w[0]), M = lcase_(w[1]), tm = r.tm === RAW_.TM;
   const ex = tm ? (excl.hasOwnProperty(lcase_(String(r.n).trim())) ? excl[lcase_(String(r.n).trim())] : 0) : '';
@@ -1494,7 +1537,7 @@ function salesRows_(ss) {
       const d = dstr_(x[7], tz), b = String(x[1] || '').trim();
       if (!d || !b) return;
       rows.push({ g: String(x[0] || '').trim(), n: b, tm: String(x[3] || '').trim(), s: String(x[4] || '').trim(), e: String(x[5] || '').trim(),
-        d: d, q: Number(x[9]) || 0, k: Number(x[10]) || 0,
+        d: d, q: numCell_(x[9]), k: numCell_(x[10]),
         c: String(x[6] || '').trim(), h: hourOf_(x[7]), mi: minOf_(x[7]), p: String(x[8] || '').trim() });
     });
     const excl = {}, es = sheetByName_(ss, RAW_.EXCL);
@@ -1518,11 +1561,15 @@ function lastCheck_(ss) {
   } catch (e) { return ''; }
 }
 // Агрегация: { cards:{key:{салон:{день:значение}}}, emp:{ФИО:{phones,acc,serv,sim,ins}}, month, year, maxDay, salons:{key:[имена]} }
+// Группы, у которых есть карточка или ставка бонуса; всё остальное сторож покажет ТМ
+const KNOWN_GROUPS_ = ['Телефоны и планшеты', 'Аксессуары', 'Услуги', 'Сим-карты', 'Страхование и защита', 'Финансовые продукты'];
 function salesAgg_(data) {
   const rows = data.rows || [], excl = data.excl || {};
   let ym = 0;
   rows.forEach(function (r) { const p = r.d.split('.'); ym = Math.max(ym, Number(p[2]) * 12 + Number(p[1])); });
-  const out = { cards: {}, emp: {}, month: ym ? ((ym - 1) % 12) + 1 : 0, year: ym ? Math.floor((ym - 1) / 12) : 0, maxDay: 0, salonsAll: {} };
+  const ng = { n: 0, sum: 0, fixN: 0, fixSum: 0, items: {} };          // чеки с группой «нет» (товар без группы в каталоге 1С)
+  const ng2 = {};                                                        // группы, которые сайт не учитывает ни в карточках, ни в бонусе
+  const out = { noGroup: ng, otherGroups: ng2, cards: {}, emp: {}, month: ym ? ((ym - 1) % 12) + 1 : 0, year: ym ? Math.floor((ym - 1) / 12) : 0, maxDay: 0, salonsAll: {} };
   const put = function (key, salon, day, val) {
     const c = out.cards[key] = out.cards[key] || {}, s = c[salon] = c[salon] || {};
     s[day] = (s[day] || 0) + val;
@@ -1532,7 +1579,9 @@ function salesAgg_(data) {
     const p = r.d.split('.'); if (Number(p[1]) + Number(p[2]) * 12 !== ym) return;      // только текущий месяц листа
     const day = Number(p[0]); out.maxDay = Math.max(out.maxDay, day); out.salonsAll[r.s] = 1;
     const f = saleFlags_(r, excl), g = r.g;
-    if ((g === '' || g === 'Телефоны и планшеты') && f.tm) { put('phones', r.s, day, r.k); eadd(r.e, 'phones', r.k); }
+    if (g === 'нет') { ng.n++; ng.sum += r.k; const fx = isPhoneRow_(r); if (fx) { ng.fixN++; ng.fixSum += r.k; } const it = ng.items[r.n] = ng.items[r.n] || { n: r.n, q: 0, sum: 0, fix: fx }; it.q += r.q; it.sum += r.k; }
+    if (g !== 'нет' && !isPhoneRow_(r) && KNOWN_GROUPS_.indexOf(g) < 0) { const o = ng2[g] = ng2[g] || { g: g, n: 0, sum: 0 }; o.n++; o.sum += r.k; }
+    if (isPhoneRow_(r) && f.tm) { put('phones', r.s, day, r.k); eadd(r.e, 'phones', r.k); }
     if (g === 'Аксессуары') { put('acc', r.s, day, r.k); if (f.tm) eadd(r.e, 'acc', r.k); }
     if (g === 'Услуги' && f.serv) { put('serv', r.s, day, r.k); eadd(r.e, 'serv', r.k); }
     if (g === 'Сим-карты' && f.simOk) { put('sim', r.s, day, r.q); eadd(r.e, 'sim', r.q); }
@@ -1540,9 +1589,11 @@ function salesAgg_(data) {
     if (f.screen) put('screen', r.s, day, r.q);
     ['pzu', 'watch', 'head', 'bp', 'clean', 'pack'].forEach(function (k) { if (f[k]) put(k, r.s, day, 1); });
   });
+  ng.top = Object.keys(ng.items).map(function (k) { return ng.items[k]; }).sort(function (a, b) { return b.sum - a.sum; }).slice(0, 8); ng.models = Object.keys(ng.items).length; delete ng.items;
+  out.otherGroups = Object.keys(ng2).map(function (k) { return ng2[k]; }).sort(function (a, b) { return b.sum - a.sum; });
   return out;
 }
-function salesModel_(ss) { return cached_('sales:agg', TTL_, function () { return salesAgg_(salesRows_(ss)); }); }
+function salesModel_(ss) { return cached_('sales:agg2', TTL_, function () { return salesAgg_(salesRows_(ss)); }); }
 
 /* ---------- План: «Цели» (план на месяц по салонам/ТМ + накопительная доля) и «План по конверсии» (доля по дням) ---------- */
 const GOAL_DIRS_ = { 'телефоны': 'phones', 'аксессуары': 'acc', 'услуги': 'serv', 'страховки': 'ins', 'сим': 'sim' };
@@ -1560,6 +1611,15 @@ function readGoalsTable_(ss) {                          // { norm(имя): { pho
       const o = out[norm_(nm)] = { name: nm };
       Object.keys(cols).forEach(function (k) { const n = num_(v[r][cols[k]]), d = num_(v[r][cols[k] + 1]); if (n !== null) o[k] = n; if (d !== null) o[k + 'Day'] = d; });
     }
+    // План на месяц берём из листа «План» (приоритетнее «Целей»); «план на день» из «Целей» пересчитываем пропорционально новому плану.
+    // Строка ТМ в «Плане» отсутствует — это сумма плана её салонов.
+    const mp = readMonthPlan_(ss), tmK = norm_(RAW_.TM), DK = ['sim', 'phones', 'acc', 'serv', 'ins'];
+    const setPlan = function (o, d, p) { const g = o[d]; if (g > 0 && o[d + 'Day'] !== undefined) o[d + 'Day'] = o[d + 'Day'] * p / g; o[d] = p; };
+    Object.keys(out).forEach(function (k) { if (k === tmK) return; DK.forEach(function (d) { const p = mp[k] && mp[k][d]; if (p > 0) setPlan(out[k], d, p); }); });
+    if (out[tmK]) DK.forEach(function (d) {
+      let t = 0, any = false; Object.keys(out).forEach(function (k) { if (k !== tmK && out[k][d] > 0) { t += out[k][d]; any = true; } });
+      if (any) setPlan(out[tmK], d, t);
+    });
     return out;
   });
 }
@@ -1726,7 +1786,7 @@ function rowBonus_(r, f, T) {
   if (f.serv === 1) b += r.k * rt('Услуги | Настройки') * SEASON_;
   if (g === 'Страхование и защита') b += r.k * rt('Страхование остальное / КСЖ /') * SEASON_;
   if (g === 'Сим-карты' && f.excl === 0) { const t = T.tariffs[lcase_(r.n.trim())]; if (t && t.grp) b += rt(t.grp) * SEASON_; }
-  if (g === 'Телефоны и планшеты') b += (f.L === 'мобильный' || f.L === 'сотовый') ? r.k * 0.1 : r.k * 0.01 * SEASON_;
+  if (g === 'Телефоны и планшеты' || (g === 'нет' && isPhoneRow_(r))) b += (f.L === 'мобильный' || f.L === 'сотовый') ? r.k * 0.1 : r.k * 0.01 * SEASON_;
   if (g === 'Аксессуары') b += r.k * rt('Аксессуары и носимая электроника 10%') * SEASON_;
   if (g === 'Финансовые продукты') b += r.k * 0.003;
   return b;
@@ -1884,7 +1944,7 @@ function salonWord_(s) {                                // «КЗН Ершова
 }
 function salonShort_(s) { return String(s || '').replace(/^\s*КЗН\s+/i, '').replace(/\s+БЛН.*$/i, '').replace(/\s*\(.*?\)\s*/g, ' ').trim(); }
 function dlMonthPlanFor_(ss, salon) {                   // план салона на месяц; название в «График» и в «План» может отличаться оформлением
-  const mp = readMonthPlan_(ss), k = norm_(salon);
+  const mp = planMonthMerged_(ss), k = norm_(salon);
   if (mp[k]) return mp[k];
   const w = salonWord_(salon), ks = Object.keys(mp);
   for (let i = 0; i < ks.length; i++) if (salonWord_(ks[i]) === w) return mp[ks[i]];
@@ -1894,6 +1954,28 @@ function dlRankAvg_(arr, i, desc) {                     // RANK.AVG: ничьи 
   let gt = 0, eq = 0; const x = arr[i];
   for (let j = 0; j < arr.length; j++) { if (arr[j] === null) continue; if (arr[j] === x) eq++; else if (desc ? arr[j] > x : arr[j] < x) gt++; }
   return gt + (eq + 1) / 2;
+}
+function looseName_(s) { return norm_(s).replace(/ё/g, 'е').split(/\s+/).slice(0, 2).join(' '); }   // «Фамилия Имя» без отчества и без ё: в графике и в чеках ФИО пишут по-разному
+/* Кредиты: лист «Кредиты текущий месяц» — IMPORTRANGE из книги по ссылке «Кредиты» (лист «Ссылки»). Если формула дала #REF! (нет доступа / нет вкладки месяца) —
+   читаем эту книгу напрямую. Возвращает { rows: [[…A:U]], src: 'sheet' | 'book' | 'error', err }. Колонки: C — ФИО, D — сумма. */
+function creditRows_(ss) {
+  return cached_('cred:rows', TTL_, function () {
+    const sh = sheetByName_(ss, 'Кредиты текущий месяц');
+    let v = sh ? sh.getDataRange().getDisplayValues() : [];
+    const bad = !v.length || (v.length < 3 && /^#/.test(String(v[0][0] || '')));
+    if (!bad) return { rows: v, src: 'sheet' };
+    try {
+      const ls = sheetByName_(ss, 'Ссылки').getDataRange().getDisplayValues();
+      const row = ls.filter(function (r) { return norm_(r[0]) === 'кредиты'; })[0];
+      if (!row) return { rows: [], src: 'error', err: 'в листе «Ссылки» нет строки «Кредиты»' };
+      const id = (/\/d\/([\w-]+)/.exec(String(row[1])) || [])[1];
+      if (!id) return { rows: [], src: 'error', err: 'в строке «Кредиты» нет ссылки на таблицу' };
+      const book = SpreadsheetApp.openById(id), want = norm_(String(row[2] || '').split('!')[0]);
+      const tab = book.getSheets().filter(function (x) { return norm_(x.getName()) === want; })[0];
+      if (!tab) return { rows: [], src: 'error', err: 'в таблице кредитов нет вкладки «' + String(row[2] || '').split('!')[0] + '»' };
+      return { rows: tab.getDataRange().getDisplayValues(), src: 'book' };
+    } catch (e) { return { rows: [], src: 'error', err: 'таблица кредитов недоступна: ' + String(e.message || e).slice(0, 120) }; }
+  });
 }
 function dlModel_(ss) {
   return cached_('dl:model', TTL_, function () {
@@ -1919,8 +2001,8 @@ function dlModel_(ss) {
     const num0 = function (s) { const n = num_(s); return n === null ? 0 : n; };
     const wt = {}, w = sheetByName_(ss, 'Рабочее время сотрудников');
     if (w) w.getDataRange().getDisplayValues().forEach(function (x) { const k = norm_(x[1]); if (k && wt[k] === undefined && num_(x[4]) !== null) wt[k] = num_(x[4]); });
-    const cr = {}, cs = sheetByName_(ss, 'Кредиты текущий месяц');
-    if (cs) cs.getDataRange().getDisplayValues().forEach(function (x) { const k = norm_(x[2]); if (!k) return; const o = cr[k] = cr[k] || { n: 0, sum: 0 }; o.n++; o.sum += num0(x[3]); });
+    const cr = {};
+    creditRows_(ss).rows.forEach(function (x) { const k = norm_(x[2]); if (!k) return; const o = cr[k] = cr[k] || { n: 0, sum: 0 }; o.n++; o.sum += num0(x[3]); });
     const vmr = {}, vs = sheetByName_(ss, 'ВМР'), mon = new Date().getMonth() + 1;
     if (vs) vs.getRange(4, 2, Math.max(1, Math.min(vs.getLastRow(), 400) - 3), 14).getDisplayValues().forEach(function (x) { const k = norm_(x[0]); if (k && vmr[k] === undefined) vmr[k] = (mon >= 7 && mon <= 12 ? String(x[mon - 6] || '').trim() : ''); });   // колонки месяцев ВМР — июль…декабрь; иначе пусто, а не чужая колонка
     const att = {}, as = sheetByName_(ss, 'Показатели сотрудников');
@@ -1928,8 +2010,10 @@ function dlModel_(ss) {
       const hv = as.getRange(3, 8, 1, 80).getDisplayValues()[0]; let ac = -1; hv.forEach(function (h, i) { if (ac < 0 && norm_(h) === 'аттачмент') ac = i; });
       if (ac >= 0) as.getRange(4, 8, Math.max(1, Math.min(as.getLastRow(), 1000) - 3), ac + 1).getDisplayValues().forEach(function (x) { const k = norm_(x[0]); if (k && att[k] === undefined) att[k] = num_(x[ac]); });
     }
-    const ef = empFacts_(ss), rows = order.map(function (k) {
-      const e = emps[k], t = sh_[k] || { plan: 0, work: 0, fact: 0 }, f = ef[k] || {};
+    const ef = empFacts_(ss), efl = {};
+    Object.keys(ef).forEach(function (k) { efl[looseName_(k)] = efl[looseName_(k)] || ef[k]; });
+    const rows = order.map(function (k) {
+      const e = emps[k], t = sh_[k] || { plan: 0, work: 0, fact: 0 }, f = ef[k] || efl[looseName_(k)] || {};
       let tt = '', best = -1; Object.keys(e.hours).forEach(function (s) { if (e.hours[s] > best) { best = e.hours[s]; tt = s; } });
       const plan = {}, fact = {}, day = {}, rem = {}, fc = {};
       const den = t.plan - t.work;
@@ -2191,7 +2275,7 @@ function attCat_(r) {
   return 'acc';
 }
 function attIsPhone_(r) {
-  if (!(r.g === '' || r.g === 'Телефоны и планшеты') || r.q <= 0) return false;
+  if (!isPhoneRow_(r) || r.q <= 0) return false;
   const n = lcase_(r.n);
   if (/кнопоч|планшет/.test(n)) return false;
   return (r.k / r.q) >= ATT_.PHONE_MIN;
@@ -2523,5 +2607,15 @@ function leaders_(ss, access) {
   const allowed = {}; access.forEach(function (a) { if (!a.manager) allowed[a.key] = true; });
   const sellers = readPlan_(ss).filter(function (s) { return allowed[norm_(s.name)]; }), r = ratingsFor_(sellers, ''), out = {};
   Object.keys(r).forEach(function (k) { if (r[k].length && r[k][0].score > 0) out[k] = r[k][0].name; });
+  // общий рейтинг — как в sellerData_: по месту из таблицы, затем по среднему % плана
+  sellers.forEach(function (s) {
+    if (s.rating !== null && s.rating !== undefined) { s.score = s.rating; return; }
+    const pcts = s.metrics.filter(function (m) { return m.planMonth > 0; }).map(function (m) { return m.pct; });
+    s.score = pcts.length ? pcts.reduce(function (a, b) { return a + b; }, 0) / pcts.length : 0;
+  });
+  const top = sellers.slice().sort(function (a, b) { const pa = a.place || 9999, pb = b.place || 9999; return pa !== pb ? pa - pb : b.score - a.score; })[0];
+  if (top && top.score > 0) out.all = short_(top.name);
   return out;
 }
+// звания считаем отдельно от личных кэшей: короткий кэш (2 мин), чтобы звание сразу переходило новому лидеру
+function leadersLive_(ss, access) { return cached_('leaders', 120, function () { return leaders_(ss, access); }); }
