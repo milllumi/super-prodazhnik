@@ -5026,7 +5026,7 @@ function rpEmpCard(cd){
   const rows = cd.rows||[];
   return `<section class="card rp-dir rp-emp fade"><div class="rp-dh"><div><div class="eyebrow">${esc(cd.dir||'Детали продаж')}</div><h2>${esc(cd.title)}</h2></div>
     <div class="rp-big num">${fmt(cd.total||0)}<small>продаж за месяц</small></div></div>
-    <div class="tbl"><table class="rp-et"><thead><tr><th>Сотрудник</th><th class="num">Дней</th><th class="num">Продаж</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.name)}</td><td class="num">${x.days==null?'—':x.days}</td><td class="num"><b>${fmt(x.n||0)}</b></td></tr>`).join('')}</tbody></table></div></section>`;
+    <div class="tbl"><table class="rp-et"><thead><tr><th>Сотрудник</th><th class="num">Дней</th><th class="num">Продаж</th><th class="num" title="Продаж ÷ отработанных дней">За смену</th></tr></thead><tbody>${rows.map(x=>{ const per = x.days>0 ? x.n/x.days : null; return `<tr><td>${esc(x.name)}</td><td class="num">${x.days==null?'—':x.days}</td><td class="num"><b>${fmt(x.n||0)}</b></td><td class="num">${per==null?'—':fmt(per,1)}</td></tr>`; }).join('')}</tbody></table></div><div class="note-s" style="margin-top:8px">«За смену» — продажи ÷ отработанные дни.</div></section>`;
 }
 function rpPivotCard(cd,i){
   const sub = [['Салон'].concat(cd.rows.map(x=>x.label)).concat(['Итого'])];
