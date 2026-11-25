@@ -7081,7 +7081,7 @@ function ratingList(d){
 }
 function ratingHTML(d){
   return `<h2>Рейтинг команды</h2><div class="chips rt-tabs" role="group" aria-label="Рейтинг">${RT_TABS.map(x=>`<button class="chipb" data-rt="${x[0]}" aria-pressed="${RT===x[0]}">${x[1]}</button>`).join('')}</div><div id="ratingList">${ratingList(d)}</div>
-    <div class="sub" style="font-size:13px">Топ-5 — «лидеры продаж»; рейтинги по направлениям — по обороту (Сим и защита экрана — по штукам), первое место получает звание. Руководители салонов в рейтинг не входят.</div>`;
+    <div class="sub" style="font-size:13px">Топ-5 — «лидеры продаж»; все рейтинги — по обороту (Сим и защита экрана — по штукам), общий — по сумме оборота в рублях; первое место получает звание. Руководители салонов в рейтинг не входят.</div>`;
 }
 document.addEventListener('click', e=>{ const b = e.target.closest('[data-rt]'); if (!b || !DATA) return; RT = b.dataset.rt; const c = $('#ratingCard'); if (c) c.querySelectorAll('[data-rt]').forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.rt===RT))); const l = $('#ratingList'); if (l) l.innerHTML = ratingList(DATA); });
 

@@ -820,13 +820,14 @@ function sellerData_(ss, sess, access) {
     const pcts = s.metrics.filter(function (m) { return m.planMonth > 0; }).map(function (m) { return m.pct; });
     s.score = pcts.length ? pcts.reduce(function (a, b) { return a + b; }, 0) / pcts.length : 0;
   });
+  // общий рейтинг — по обороту (телефоны + аксессуары + услуги + страховки, ₽); при равенстве — по месту из таблицы
   const ranked = sellers.slice().sort(function (a, b) {
-    const pa = a.place || 9999, pb = b.place || 9999;
-    return pa !== pb ? pa - pb : b.score - a.score;
+    const ta = turnover_(a), tb = turnover_(b);
+    return ta !== tb ? tb - ta : (a.place || 9999) - (b.place || 9999);
   });
   const meKey = sess.key;
   const rating = ranked.map(function (s, i) {
-    return { place: i + 1, name: short_(s.name), score: Math.round(s.score), me: norm_(s.name) === meKey };
+    return { place: i + 1, name: short_(s.name), score: Math.round(turnover_(s)), me: norm_(s.name) === meKey };
   });
   const me = sellers.filter(function (s) { return norm_(s.name) === meKey; })[0];
   if (!me) return { error: 'no_data' };
@@ -2649,14 +2650,13 @@ function leaders_(ss, access) {
   const allowed = {}; access.forEach(function (a) { if (!a.manager) allowed[a.key] = true; });
   const sellers = readPlan_(ss).filter(function (s) { return allowed[norm_(s.name)]; }), r = ratingsFor_(sellers, '', screenQty_(ss)), out = {};
   Object.keys(r).forEach(function (k) { if (r[k].length && r[k][0].score > 0) out[k] = r[k][0].name; });
-  // «Звезда команды» — наибольший общий оборот в рублях: телефоны + аксессуары + услуги + страховки (Сим считается штуками и в рубли не складывается)
+  // «Звезда команды» — первое место в общем рейтинге (наибольший общий оборот в рублях)
   let best = null, bt = 0;
-  sellers.forEach(function (s) {
-    const t = s.metrics.filter(function (m) { return m.key !== 'sim'; }).reduce(function (a, m) { return a + (m.fact || 0); }, 0);
-    if (t > bt) { bt = t; best = s; }
-  });
+  sellers.forEach(function (s) { const t = turnover_(s); if (t > bt) { bt = t; best = s; } });
   if (best) out.all = short_(best.name);
   return out;
 }
+// общий оборот продавца в рублях: телефоны + аксессуары + услуги + страховки (Сим считается штуками и в рубли не складывается)
+function turnover_(s) { return s.metrics.filter(function (m) { return m.key !== 'sim'; }).reduce(function (a, m) { return a + (m.fact || 0); }, 0); }
 // звания считаем отдельно от личных кэшей: короткий кэш (2 мин), чтобы звание сразу переходило новому лидеру
 function leadersLive_(ss, access) { return cached_('leaders', 120, function () { return leaders_(ss, access); }); }
