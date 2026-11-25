@@ -779,7 +779,9 @@ html[data-ios="bk"] .btn:not(.ghost),html[data-ios="16"] .btn:not(.ghost){box-sh
 .rp-sn:has(.rp-ns){white-space:normal;overflow:visible}
 .cp-seg{margin:0 0 12px}
 .rp-et{width:100%}.rp-et td,.rp-et th{padding:7px 8px}.rp-et th.num,.rp-et td.num{text-align:right;white-space:nowrap}.rp-et td:first-child{overflow-wrap:anywhere}
-.rc-big .rp-ax{font-size:13px}.rc-big .rp-vl{font-size:13px}
+.rc-big .rp-ax{font-size:13px}.rc-big .rp-vl{font-size:13px;font-variant-numeric:tabular-nums}
+.rc-big .rp-vl.vt{fill:var(--text);font-weight:600}.rc-big .rp-vl.vtot{fill:var(--text)}.rc-big .rp-vl.vs{fill:var(--blue);font-weight:700}.rc-big .rp-vl.vc{fill:var(--orange);font-weight:700}
+html[data-ios="cm"] .rc-big .rp-vl{fill:var(--cm-ink);font-weight:900}
 .rp-ser .rp-cl,.rp-dir .rc-kp+.rp-chart .rp-cl{font-size:13.5px}
 @media(max-width:560px){.rc-big .rp-ax,.rc-big .rp-vl{font-size:14px}}
 h2.n3h{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 16px}
@@ -4664,35 +4666,53 @@ function rcAxis(labels, n, W, xAt, H){
   for(let i=0;i<n;i+=step){ const xx=xAt(i), an=xx<24?'start':(xx>W-24?'end':'middle'); out+=`<text class="rp-ax" x="${an==='start'?2:(an==='end'?W-2:xx).toFixed?xx.toFixed(1):xx}" y="${H-5}" text-anchor="${an}">${esc(String(labels[i]).slice(0,5))}</text>`; }
   return out;
 }
+/* подписи значений на графиках «Сопоставления»: размер и поворот подбираются под ширину столбца; цвет и шрифт — через классы (их красит тема) */
+const rcFs = bw => bw>=44 ? 12.5 : bw>=30 ? 11 : bw>=22 ? 10 : Math.max(8, Math.min(10, bw-1.2));
+const rcStep = (bw, fs) => bw>=fs+1 ? 1 : Math.ceil((fs+1)/bw);
+function rcLbl(x, base, txt, bw, fs, cls, step, i){      // base — нижняя точка подписи; вернёт {s: svg, h: занятая высота}
+  if (i%step) return {s:'',h:0};
+  txt = String(txt); const w = txt.length*fs*.6;
+  if (w+2 <= bw*1.15) return {s:`<text class="rp-vl ${cls}" style="font-size:${fs}px" x="${x.toFixed(1)}" y="${Math.max(fs+1,base-1).toFixed(1)}" text-anchor="middle">${txt}</text>`, h:fs+2};
+  const b = Math.max(base, w+4);
+  return {s:`<text class="rp-vl ${cls}" style="font-size:${fs}px" transform="translate(${x.toFixed(1)},${b.toFixed(1)}) rotate(-90)" text-anchor="start" dy=".34em">${txt}</text>`, h:w+3};
+}
 function rpCombo(days, s, conv){
   // как в примере из таблицы: серые столбцы — трафик, узкие столбцы — сим 1с (общая левая шкала «Сим»),
   // плавная линия — конверсия (правая шкала, %), пунктиры — плановая конверсия и план сим
-  const n=days.length, W=Math.max(340,Math.min(900,Math.round((($('#app')||document.body).clientWidth||innerWidth)-72))), H=Math.round(Math.max(200,Math.min(340,W*.46))), pl=42, pr=46, pb=24, pt=20, labels=days.map(d=>d.slice(0,5));
-  const bw=(W-pl-pr)/n, xc=i=>pl+i*bw+bw/2;
+  const n=days.length, W=Math.max(340,Math.min(900,Math.round((($('#app')||document.body).clientWidth||innerWidth)-72))); let H=Math.round(Math.max(200,Math.min(340,W*.46))); const pl=42, pr=46, pb=24, labels=days.map(d=>d.slice(0,5));
+  const bw=(W-pl-pr)/n, xc=i=>pl+i*bw+bw/2, fs=rcFs(bw), step=rcStep(bw,fs), tMax=Math.max(1,...s.traffic.filter(v=>v!=null)), tLen=String(fmt(tMax)).length*fs*.6;
+  const pt = tLen+2>bw*1.15 ? Math.round(tLen+16) : 26; H += pt-20;                     // место под повёрнутые подписи сверху
   const nice=(m)=>{ const p=Math.pow(10,Math.floor(Math.log10(m||1))), f=m/p; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p; };
   const left=[...s.traffic,...s.sim1c,...(s.plan||[])].filter(v=>v!=null), mL=nice(Math.max(1,...left)*1.04);
   const right=[...conv,s.planConv].filter(v=>v!=null), mR=nice(Math.max(1,...right)*1.1);
   const yL=v=>pt+(H-pt-pb)*(1-v/mL), yR=v=>pt+(H-pt-pb)*(1-v/mR);
-  const lab = n<=16 && bw>=34, f1=v=>(Math.round(v*10)/10+'%').replace('.',',');
+  const f1=v=>(Math.round(v*10)/10+'%').replace('.',',');
   const grid=[0,.25,.5,.75,1].map(t=>{ const y=pt+(H-pt-pb)*(1-t); return `<line x1="${pl}" x2="${W-pr}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1"/><text class="rp-ax" x="${pl-4}" y="${(y+3).toFixed(1)}" text-anchor="end">${fmt(mL*t)}</text><text class="rp-ax" x="${W-pr+4}" y="${(y+3).toFixed(1)}" text-anchor="start">${(Math.round(mR*t*10)/10+'').replace('.',',')}%</text>`; }).join('');
-  const tr=s.traffic.map((v,i)=>{ if(v==null) return ''; const x=pl+i*bw+bw*.16,w=bw*.68,y0=yL(v); return `<rect style="fill:var(--muted);opacity:.42" x="${x.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1,H-pb-y0).toFixed(1)}" rx="2"/>`+(lab?`<text class="rp-vl" style="fill:var(--text)" x="${xc(i).toFixed(1)}" y="${(H-pb-30).toFixed(1)}" text-anchor="middle">${fmt(v)}</text>`:''); }).join('');
-  const sm=s.sim1c.map((v,i)=>{ if(v==null) return ''; const x=pl+i*bw+bw*.30,w=bw*.40,y0=yL(v); return `<rect style="fill:var(--blue)" x="${x.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1.5,H-pb-y0).toFixed(1)}" rx="2"/>`+(lab&&v?`<text class="rp-vl" style="fill:var(--blue);font-weight:700" x="${xc(i).toFixed(1)}" y="${(Math.min(H-pb-3,y0-3)).toFixed(1)}" text-anchor="middle">${v}</text>`:''); }).join('');
+  const tr=s.traffic.map((v,i)=>{ if(v==null) return ''; const x=pl+i*bw+bw*.16,w=bw*.68,y0=yL(v); return `<rect style="fill:var(--muted);opacity:.42" x="${x.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1,H-pb-y0).toFixed(1)}" rx="2"/>`; }).join('');
+  const sm=s.sim1c.map((v,i)=>{ if(v==null) return ''; const x=pl+i*bw+bw*.30,w=bw*.40,y0=yL(v); return `<rect style="fill:var(--blue)" x="${x.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1.5,H-pb-y0).toFixed(1)}" rx="2"/>`; }).join('');
+  const nums=days.map((_,i)=>{ const vT=s.traffic[i], vS=s.sim1c[i]; let o='', top=1e9;     // сим — над своим столбцом, трафик — над самым высоким (если места мало, выше подписи сим)
+    if (vS>0){ const l=rcLbl(xc(i), yL(vS)-2, vS, bw, fs, 'vs', step, i); o+=l.s; if (l.s) top=yL(vS)-2-l.h-1; }
+    if (vT>0){ const tw=String(fmt(vT)).length*fs*.6, rot=tw+2>bw*1.15, inH=H-pb-yL(vT), base=H-pb-(fs+22);   // трафик — внутри столбца над подписью сим, чтобы не мешать линии конверсии
+      const inside = inH >= (rot?tw+(fs+22)+6:fs+22+fs+6);
+      const l=rcLbl(xc(i), inside?base:Math.min(yL(vT), top)-2, fmt(vT), bw, fs, 'vt', step, i); o+=l.s; }
+    return o; }).join('');
   const smooth=(pts)=>{ if(pts.length<2) return pts.length?`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`:''; let d=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`; for(let i=0;i<pts.length-1;i++){ const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2,t=.18;
       d+=` C${(p1[0]+(p2[0]-p0[0])*t).toFixed(1)},${(p1[1]+(p2[1]-p0[1])*t).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])*t).toFixed(1)},${(p2[1]-(p3[1]-p1[1])*t).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`; } return d; };
   const cp=conv.map((v,i)=>v==null?null:[xc(i),yR(v)]).filter(Boolean);
-  const cvL = cp.length ? `<path d="${smooth(cp)}" fill="none" class="rp-ln" style="stroke:var(--orange)"/>`+(lab?conv.map((v,i)=>v==null?'':`<text class="rp-vl" style="fill:var(--orange);font-weight:700" x="${xc(i).toFixed(1)}" y="${(yR(v)-5).toFixed(1)}" text-anchor="middle">${f1(v)}</text>`).join(''):'')+cp.map(p=>`<circle class="rp-dot" style="fill:var(--orange)" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.2"/>`).join('') : '';
+  const cvL = cp.length ? `<path d="${smooth(cp)}" fill="none" class="rp-ln" style="stroke:var(--orange)"/>`+cp.map(p=>`<circle class="rp-dot" style="fill:var(--orange)" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.2"/>`).join('') : '';
+  const cNums = conv.map((v,i)=>v==null?'':rcLbl(xc(i), yR(v)-5, f1(v), bw, fs, 'vc', step, i).s).join('');
   const pcL = s.planConv!=null ? `<line x1="${xc(0).toFixed(1)}" x2="${xc(n-1).toFixed(1)}" y1="${yR(s.planConv).toFixed(1)}" y2="${yR(s.planConv).toFixed(1)}" stroke="var(--orange)" stroke-width="1.8" stroke-dasharray="5 4"/><text class="rp-vl" style="fill:var(--orange)" x="${(W-pr-2).toFixed(1)}" y="${(yR(s.planConv)-4).toFixed(1)}" text-anchor="end">план ${f1(s.planConv)}</text>` : '';
   const pp=(s.plan||[]).map((v,i)=>v==null||!(v>0)?null:[xc(i),yL(v)]).filter(Boolean);
   const psL = pp.length ? `<path d="${smooth(pp)}" fill="none" stroke="var(--pink)" stroke-width="1.8" stroke-dasharray="5 4"/>`+(false?(s.plan||[]).map((v,i)=>{ if(!(v>0)) return ''; const sy=s.sim1c[i]==null?9e9:yL(s.sim1c[i])-3, py=yL(v)-4, dy=Math.abs(py-sy)<11?-11:0; return `<text class="rp-vl" style="fill:var(--pink)" x="${xc(i).toFixed(1)}" y="${(py+dy).toFixed(1)}" text-anchor="middle">${v}</text>`; }).join(''):'') : '';
-  const hits=days.map((_,i)=>{ const t=[labels[i],'Трафик: '+(s.traffic[i]==null?'—':fmt(s.traffic[i])),'Сим 1с: '+(s.sim1c[i]==null?'—':s.sim1c[i])+(s.plan&&s.plan[i]>0?' · план '+s.plan[i]:''),'Конверсия: '+(conv[i]==null?'—':f1(conv[i]))+(s.planConv!=null?' · план '+f1(s.planConv):'')].join('\n');
+  const hits=days.map((_,i)=>{ const t=[labels[i],'Трафик: '+(s.traffic[i]==null?'—':fmt(s.traffic[i]))+(s.planConv>0&&s.plan&&s.plan[i]>0?' · план '+fmt(s.plan[i]/s.planConv*100):''),'Сим 1с: '+(s.sim1c[i]==null?'—':s.sim1c[i])+(s.plan&&s.plan[i]>0?' · план '+s.plan[i]:''),'Конверсия: '+(conv[i]==null?'—':f1(conv[i]))+(s.planConv!=null?' · план '+f1(s.planConv):'')].join('\n');
     return `<rect class="rp-hit" x="${(pl+i*bw).toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${H}" data-tip="${tipA(t)}"/>`; }).join('');
-  return `<svg class="rp-svg rc-big" style="max-height:none" viewBox="0 0 ${W} ${H}" role="img">${grid}${tr}${sm}${psL}${pcL}${cvL}${rcAxis(labels,n,W,i=>xc(i),H)}${hits}</svg>`;
+  return `<svg class="rp-svg rc-big" style="max-height:none" viewBox="0 0 ${W} ${H}" role="img">${grid}${tr}${sm}${psL}${pcL}${cvL}${nums}${cNums}${rcAxis(labels,n,W,i=>xc(i),H)}${hits}</svg>`;
 }
 function rpStackDays(days, a, b, tot){   // a — не актив (снизу), b — актив (сверху)
   const n=days.length, g=rcPrep({}), {W,H,pl,pr,pb,pt}=g, labels=days.map(d=>d.slice(0,5));
-  const bw=(W-pl-pr)/n, xc=i=>pl+i*bw+bw/2, mx=Math.max(1,...tot.filter(v=>v!=null)), y=v=>pt+(H-pt-pb)*(1-v/mx);
+  const bw=(W-pl-pr)/n, xc=i=>pl+i*bw+bw/2, mx=Math.max(1,...tot.filter(v=>v!=null)), y=v=>pt+(H-pt-pb)*(1-v/mx), fs2=rcFs(bw), st2=rcStep(bw,fs2);
   const seg=(i,v,base,col)=>{ if(!v) return ''; const x=pl+i*bw+bw*.18,w=bw*.64,y1=y(base+v),y0=y(base); return `<rect style="fill:${col}" x="${x.toFixed(1)}" y="${y1.toFixed(1)}" width="${w.toFixed(1)}" height="${Math.max(1,y0-y1).toFixed(1)}" rx="2"/>`; };
-  const bars=days.map((_,i)=>{ const A=a[i]||0,B=b[i]||0; return seg(i,B,0,'var(--green)')+seg(i,A,B,'var(--orange)')+(n<=16&&bw>=24&&tot[i]?`<text class="rp-vl" x="${xc(i).toFixed(1)}" y="${Math.max(9,y(tot[i])-3).toFixed(1)}" text-anchor="middle">${tot[i]}</text>`:''); }).join('');
+  const bars=days.map((_,i)=>{ const A=a[i]||0,B=b[i]||0; return seg(i,B,0,'var(--green)')+seg(i,A,B,'var(--orange)')+(tot[i]>0?rcLbl(xc(i), y(tot[i])-3, tot[i], bw, fs2, 'vt vtot', st2, i).s:''); }).join('');
   const hits=days.map((_,i)=>`<rect class="rp-hit" x="${(pl+i*bw).toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${H}" data-tip="${tipA([labels[i],'Сим у оператора: '+(tot[i]==null?'—':tot[i]),'Актив: '+(b[i]==null?'—':b[i]),'Не актив: '+(a[i]==null?'—':a[i])].join('\n'))}"/>`).join('');
   return `<svg class="rp-svg rc-big" viewBox="0 0 ${W} ${H}" role="img">${bars}${rcAxis(labels,n,W,xc,H)}${hits}</svg>`;
 }
@@ -4701,16 +4721,22 @@ function reconBody(r, o){
   const pf = v => v==null?'—':(Math.round(v*10)/10+'%').replace('.',',');
   const conv = days.map((_,i)=> s.traffic[i]>0 && s.sim1c[i]!=null ? s.sim1c[i]/s.traffic[i]*100 : null);
   const tS=sum(s.sim1c), tT=sum(s.traffic), cAvg = tT>0 ? tS/tT*100 : null, planSum=sum(s.plan||[]);
+  // плановый трафик расчётный: план сим на день ÷ плановая конверсия; сравниваем только по дням, где есть факт трафика
+  const pT = days.map((_,i)=> s.planConv>0 && s.plan && s.plan[i]>0 ? s.plan[i]/s.planConv*100 : null);
+  const tP = pT.reduce((a,v,i)=>a+(v!=null&&s.traffic[i]!=null?v:0),0), tTc = s.traffic.reduce((a,v,i)=>a+(v!=null&&pT[i]!=null?v:0),0);
+  const tPct = tP>0 ? tTc/tP*100 : null, tDev = tP>0 ? tTc-tP : null, tCol = tPct==null ? '' : stCol(tPct);
+  const sg = v => (v>0?'+':v<0?'−':'')+fmt(Math.abs(v));
+  const trafKp = `<div><span>Трафик</span><b${tCol?` style="color:${tCol}"`:''}>${fmt(tT)}</b>${tP>0?`<small>план ${fmt(tP)}</small><small style="color:${tCol};font-weight:700">${sg(tDev)} к плану</small>${fcChip(tPct, (tDev>=0?'+':'−')+fmt(Math.abs(tPct-100),1).replace('.',',')+'%')}`:''}</div>`;
   const dt = (cols, rows) => `<button class="rp-tg on" data-tg type="button">Таблица по датам <span>▾</span></button><div><div class="tbl mtable"><table class="rc-t"><thead><tr><th class="l">Дата</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(x=>`<tr><th class="l">${x[0]}</th>${x.slice(1).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
   let out='';
   if (has(s.sim1c)||has(s.traffic)){
     const cp = (cAvg!=null && s.planConv>0) ? fcChip(cAvg/s.planConv*100) : '';
     out += `<section class="card rp-dir fade"><div class="rp-dh"><div><div class="eyebrow">${esc(o.key==='all'?o.label:rpShort(o.label))}</div><h2>Сим 1с · трафик · конверсия</h2></div>
       <div class="rp-big num">${fmt(tS)}<small>сим 1с за месяц${planSum?' · план '+fmt(planSum):''}</small></div></div>
-      <div class="rc-kp num"><div><span>Сим 1с</span><b>${fmt(tS)}</b>${planSum?`<small>план ${fmt(planSum)}</small>`:''}</div><div><span>Трафик</span><b>${fmt(tT)}</b></div><div><span>Конверсия</span><b>${pf(cAvg)}</b><small>${s.planConv!=null?'план '+pf(s.planConv):''}</small>${cp}</div></div>
+      <div class="rc-kp num"><div><span>Сим 1с</span><b>${fmt(tS)}</b>${planSum?`<small>план ${fmt(planSum)}</small>`:''}</div>${trafKp}<div><span>Конверсия</span><b>${pf(cAvg)}</b><small>${s.planConv!=null?'план '+pf(s.planConv):''}</small>${cp}</div></div>
       <div class="rp-chart"><div class="rp-cl"><span><i class="k" style="background:var(--muted);opacity:.5"></i>Трафик</span><span><i class="k" style="background:var(--blue)"></i>Сим 1с</span><span><i class="k" style="background:var(--orange)"></i>Конверсия, %</span><span><i class="k pl"></i>План конв.</span>${planSum?'<span><i class="k pl" style="background:var(--pink)"></i>План сим</span>':''}</div>${rpCombo(days,s,conv)}</div>
-      <div class="rp-note">Серые столбцы — трафик, синие — сим 1с (левая шкала). Оранжевая линия — конверсия, пунктир — плановая конверсия (правая шкала, %). Розовый пунктир — план сим.</div>
-      ${dt(['Сим 1с','План','Трафик','Конв.','План конв.'], days.map((d,i)=>[d.slice(0,5), s.sim1c[i]==null?'':s.sim1c[i], (s.plan&&s.plan[i])||'', s.traffic[i]==null?'':fmt(s.traffic[i]), conv[i]==null?'':pf(conv[i]), s.planConv!=null?pf(s.planConv):'']))}</section>`;
+      <div class="rp-note">План трафика — расчётный: план сим на день ÷ плановая конверсия; цвет — выполнение этого плана. Серые столбцы — трафик, синие — сим 1с (левая шкала). Оранжевая линия — конверсия, пунктир — плановая конверсия (правая шкала, %). Розовый пунктир — план сим.</div>
+      ${dt(['Сим 1с','План','Трафик','План траф.','Конв.','План конв.'], days.map((d,i)=>{ const dv = pT[i]!=null&&s.traffic[i]!=null ? s.traffic[i]/pT[i]*100 : null; return [d.slice(0,5), s.sim1c[i]==null?'':s.sim1c[i], (s.plan&&s.plan[i])||'', s.traffic[i]==null?'':(dv==null?fmt(s.traffic[i]):`<span style="color:${stCol(dv)};font-weight:700">${fmt(s.traffic[i])}</span>`), pT[i]==null?'':fmt(pT[i]), conv[i]==null?'':pf(conv[i]), s.planConv!=null?pf(s.planConv):'']; }))}</section>`;
   }
   const A=s.inactive||[], B=s.active||[], O=s.simOp||[];
   if (has(A)||has(B)||has(O)){
