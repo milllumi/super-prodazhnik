@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cdefs%3E%3ClinearGradient id=%27a%27 x1=%270%27 y1=%270%27 x2=%271%27 y2=%271%27%3E%3Cstop offset=%270%27 stop-color=%27%230a84ff%27/%3E%3Cstop offset=%271%27 stop-color=%27%23bf5af2%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27url(%23a)%27/%3E%3Cpath d=%27M40 5 21 35h12l-5 24 21-33H37z%27 fill=%27%23ffd60a%27/%3E%3C/svg%3E">
 <title>SUPER PROдажник</title>
-<script>(function(){try{var q=localStorage.getItem('ios16');if(q==='1')document.documentElement.setAttribute('data-ios','16');else if(q==='px')document.documentElement.setAttribute('data-ios','px');else if(q==='bk')document.documentElement.setAttribute('data-ios','bk');var pr=localStorage.getItem('prefx');if(pr)document.documentElement.setAttribute('data-pre',pr)}catch(e){}})();</script>
+<script>(function(){try{var q=localStorage.getItem('ios16');if(q==='1')document.documentElement.setAttribute('data-ios','16');else if(q==='px')document.documentElement.setAttribute('data-ios','px');else if(q==='cm')document.documentElement.setAttribute('data-ios','cm');else if(q==='bk')document.documentElement.setAttribute('data-ios','bk');var pr=localStorage.getItem('prefx');if(pr)document.documentElement.setAttribute('data-pre',pr)}catch(e){}})();</script>
 <style>
 
 :root{
@@ -1685,7 +1685,7 @@ html:not([data-theme=dark]) .at-miss,html:not([data-theme=dark]) .at-cc{color:co
 @keyframes anGlow{0%{opacity:0;transform:scale(.96);filter:brightness(1.35) saturate(1.3)}100%{opacity:1;transform:none;filter:none}}
 @keyframes anGrow{0%{opacity:0;transform:translate3d(0,28px,0) scale(.96);transform-origin:50% 100%}70%{opacity:1;transform:translate3d(0,-2px,0) scale(1.005)}100%{opacity:1;transform:none}}
 @keyframes anBlur{0%{opacity:0;filter:blur(12px);transform:translate3d(0,10px,0)}100%{opacity:1;filter:none;transform:none}}
-@keyframes anPop{0%{opacity:0;transform:scale(.88) rotate(-.6deg)}55%{opacity:1;transform:scale(1.035) rotate(.2deg)}100%{opacity:1;transform:none}}
+@keyframes anPop{0%{opacity:0;transform:scale(.88)}55%{opacity:1;transform:scale(1.035)}100%{opacity:1;transform:none}}
 @keyframes anSlide{0%{opacity:0;transform:translate3d(-18px,0,0)}100%{opacity:1;transform:none}}
 @keyframes bgDrift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(3%,-2%,0) scale(1.06)}100%{transform:translate3d(-3%,3%,0) scale(1.03)}}
 html[data-pre=ocean]{--an:anWave;--an-d:.85s;--an-e:cubic-bezier(.22,.8,.2,1);--an-p:.98;--bg-d:34s}
@@ -1703,7 +1703,7 @@ html[data-pre=graphite]{--an:anSlide;--an-d:.4s;--an-e:cubic-bezier(.2,.8,.2,1);
 :is(html[data-pre=ocean],html[data-pre=sunset],html[data-pre=forest],html[data-pre=lavender],html[data-pre=rose],html[data-pre=graphite]) body::before{position:fixed;inset:-12%;animation:bgDrift var(--bg-d,40s) ease-in-out infinite alternate;will-change:transform}
 
 /* «Стиль»: свой характер движения и живой фон */
-@keyframes bkIn{0%{opacity:0;transform:translate3d(0,18px,0) scale(.94) rotate(-.8deg)}60%{opacity:1;transform:translate3d(0,-3px,0) scale(1.02) rotate(.3deg)}100%{opacity:1;transform:none}}
+@keyframes bkIn{0%{opacity:0;transform:translate3d(0,18px,0) scale(.94)}60%{opacity:1;transform:translate3d(0,-3px,0) scale(1.02)}100%{opacity:1;transform:none}}
 @keyframes bkFlow{0%{transform:translate3d(0,0,0) rotate(0) scale(1)}50%{transform:translate3d(4%,-3%,0) rotate(6deg) scale(1.1)}100%{transform:translate3d(-4%,4%,0) rotate(-5deg) scale(1.04)}}
 @keyframes bkShine{0%{background-position:-160% 0}100%{background-position:260% 0}}
 html[data-ios="bk"] :is(.fade,.rv.in,.ncard,.dlc,.bnc,.m,.vm-k,.dr-t,.at-ck){animation:bkIn .65s cubic-bezier(.34,1.56,.64,1) backwards!important;animation-delay:calc(var(--i,0)*45ms)!important}
@@ -1753,6 +1753,232 @@ html[data-ios="bk"] body::before{display:none!important;animation:none!important
 #bkDots{display:none;position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
 html[data-ios="bk"] #bkDots{display:block}
 html[data-ios="bk"] #app,html[data-ios="bk"] #login{position:relative;z-index:1}
+
+/* =================== ТЕМА «КОМИКС»: панели, жирный контур, растровые точки, цвета комикса =================== */
+html[data-ios="cm"]:root{color-scheme:light;
+ --cm-ink:#0d0d12;--cm-red:#E62429;--cm-blue:#1F4FBF;--cm-yel:#D9E8FF;--cm-sun:#FFD21F;--cm-paper:#F6F1E4;--cm-sky:#BFE3FF;
+ --bg:#F6F1E4;--card:#FFFFFF;--text:#0d0d12;--muted:#3b3b48;--line:#0d0d12;--track:#E9E2CF;--blur:#F6F1E4;--shadow:5px 5px 0 #0d0d12;
+ --blue:#1F4FBF;--accent:#1F4FBF;--orange:#F2A900;--green:#12A150;--pink:#E62429;--purple:#B5179E;--gold:#F2A900;--r:6px;--g-bg:#F6F1E4;--g-hi:none;--g-bd:#0d0d12;--g-sh:5px 5px 0 #0d0d12;--g-f:none;
+ --fcm-h:'Russo One',Impact,'Arial Black','Helvetica Neue',sans-serif;--fcm-b:Nunito,'Trebuchet MS','Segoe UI',Arial,sans-serif}
+html[data-ios="cm"] body{font-family:var(--fcm-b);font-weight:700;letter-spacing:0;font-synthesis:none;font-variant-numeric:lining-nums;color:var(--cm-ink);
+ background-color:#F6F1E4;
+ background-image:radial-gradient(circle at 50% 50%,rgba(230,36,41,.13) 1.7px,transparent 2.1px),radial-gradient(circle at 50% 50%,rgba(31,79,191,.10) 1.4px,transparent 1.9px);
+ background-size:15px 15px,15px 15px;background-position:0 0,7.5px 7.5px;background-attachment:fixed}
+html[data-ios="cm"] body::before{display:none!important}
+html[data-ios="cm"] h1,html[data-ios="cm"] h2,html[data-ios="cm"] h3,html[data-ios="cm"] .eyebrow,html[data-ios="cm"] .brand .wm{font-family:var(--fcm-h);font-weight:400;letter-spacing:.01em;text-transform:uppercase;font-synthesis:none}
+html[data-ios="cm"] h1{font-size:1.9em;line-height:1.05}
+html[data-ios="cm"] h2{font-size:1.28em;line-height:1.12}
+html[data-ios="cm"] h3{font-size:1.02em;line-height:1.2}
+html[data-ios="cm"] .eyebrow{font-size:12px;letter-spacing:.04em}
+html[data-ios="cm"] .num,html[data-ios="cm"] .m b,html[data-ios="cm"] .hero .big{font-family:var(--fcm-h);letter-spacing:0;font-variant-numeric:tabular-nums}
+html[data-ios="cm"] :is(p,li,td,th,label,small,span,div){font-synthesis:none}
+html[data-ios="cm"] :is(.at-s,.note-s,.cap,small){font-weight:700;color:#33333f}
+
+/* шапка и меню — «полоса» комикса */
+html[data-ios="cm"] .top{background:#fff;border-bottom:4px solid var(--cm-ink);box-shadow:0 5px 0 var(--cm-red)!important;backdrop-filter:none;-webkit-backdrop-filter:none}
+html[data-ios="cm"] .demo-banner{background:var(--cm-red);color:#fff;border-bottom:3px solid var(--cm-ink);font-weight:800}
+html[data-ios="cm"] .brand .wm{text-shadow:2px 2px 0 #fff}
+html[data-ios="cm"] .icon-btn{background:#fff;border:3px solid var(--cm-ink);border-radius:50%;box-shadow:3px 3px 0 var(--cm-ink);color:var(--cm-ink)}
+html[data-ios="cm"] .icon-btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--cm-ink)}
+html[data-ios="cm"] .tabbar,html[data-ios="cm"] .mnav{background:#fff;border:3px solid var(--cm-ink);box-shadow:5px 5px 0 var(--cm-ink)!important;backdrop-filter:none;-webkit-backdrop-filter:none}
+html .tabbar.menu-float.menu-attached{}
+html[data-ios="cm"] .tabbar.menu-float.menu-attached{background:#fff;border:0;border-right:4px solid var(--cm-ink);border-bottom:4px solid var(--cm-ink);box-shadow:5px 5px 0 var(--cm-red)!important;border-radius:0!important}
+html[data-ios="cm"] .seg{background:var(--cm-paper);border:3px solid var(--cm-ink);border-radius:8px}
+html[data-ios="cm"] .seg button,html[data-ios="cm"] #tabseg>button{font-family:var(--fcm-h);font-weight:400;font-size:14px;letter-spacing:.03em;text-transform:uppercase;border-radius:6px;color:var(--cm-ink)}
+html[data-ios="cm"] .seg button.on,html[data-ios="cm"] #tabseg>button.on{background:var(--cm-yel);color:var(--cm-ink);border:3px solid var(--cm-ink);box-shadow:3px 3px 0 var(--cm-red)}
+html[data-ios="cm"] .mnav .mn-i.on,html[data-ios="cm"] .mnav .mn-i[aria-current]{background:var(--cm-yel);color:var(--cm-ink);border-radius:8px;box-shadow:inset 0 0 0 3px var(--cm-ink)}
+
+/* карточки-панели */
+html[data-ios="cm"] .card{background:#fff;border:4px solid var(--cm-ink);border-radius:4px;box-shadow:7px 7px 0 var(--cm-ink)!important;position:relative}
+html[data-ios="cm"] .card:nth-of-type(3n+2){box-shadow:7px 7px 0 var(--cm-red)!important}
+html[data-ios="cm"] .card:nth-of-type(3n){box-shadow:7px 7px 0 var(--cm-blue)!important}
+html[data-ios="cm"] .card.empty{background:var(--cm-paper)}
+html[data-ios="cm"] .eyebrow{display:inline-block;background:var(--cm-yel);color:var(--cm-ink);border:3px solid var(--cm-ink);padding:2px 10px;font-size:14px;transform:rotate(-1.2deg);box-shadow:3px 3px 0 var(--cm-ink)}
+html[data-ios="cm"] .card>h2:first-of-type{display:inline-block;background:var(--cm-red);color:#fff;border:3px solid var(--cm-ink);padding:2px 12px;transform:rotate(-.8deg);box-shadow:4px 4px 0 var(--cm-ink);text-shadow:2px 2px 0 var(--cm-ink)}
+
+/* главный блок — комикс-разворот с взрывом */
+html[data-ios="cm"] div.hero{background:var(--cm-red)!important;background-image:radial-gradient(circle,rgba(255,255,255,.28) 2.2px,transparent 2.6px)!important;background-size:12px 12px!important;color:#fff;border:5px solid var(--cm-ink);border-radius:4px;box-shadow:9px 9px 0 var(--cm-ink)!important;overflow:hidden}
+html[data-ios="cm"] div.hero::after{content:"";position:absolute;right:-18px;top:-18px;width:120px;height:120px;background:var(--cm-sun);opacity:.9;clip-path:polygon(50% 0,61% 22%,85% 10%,78% 35%,100% 40%,80% 55%,95% 78%,70% 72%,62% 100%,50% 78%,35% 98%,32% 72%,5% 80%,20% 55%,0 38%,25% 33%,18% 8%,40% 22%);z-index:0;pointer-events:none}
+html[data-ios="cm"] div.hero>*:not(.xt){position:relative;z-index:1}
+html[data-ios="cm"] div.hero h1,html[data-ios="cm"] div.hero .big,html[data-ios="cm"] div.hero .big *{color:#fff;text-shadow:4px 4px 0 var(--cm-ink);-webkit-text-stroke:1px var(--cm-ink);paint-order:stroke fill}
+html[data-ios="cm"] div.hero .hero-row>div{background:#fff;color:var(--cm-ink);border:3px solid var(--cm-ink);border-radius:4px;box-shadow:4px 4px 0 var(--cm-ink);backdrop-filter:none;-webkit-backdrop-filter:none}
+html[data-ios="cm"] div.hero .hero-row>div *{color:var(--cm-ink)}
+html[data-ios="cm"] div.hero .pill,html[data-ios="cm"] div.hero .badge-place{background:var(--cm-yel);color:var(--cm-ink);border:3px solid var(--cm-ink);box-shadow:3px 3px 0 var(--cm-ink);font-family:var(--fcm-h);font-weight:400;letter-spacing:.05em}
+html[data-ios="cm"] div.hero .hero-gr{background:var(--cm-yel);color:var(--cm-ink);border:3px solid var(--cm-ink)}
+
+/* кнопки, чипы, переключатели */
+html[data-ios="cm"] .btn:not(.ghost){background:var(--cm-red)!important;background-image:none!important;color:#fff!important;border:3px solid var(--cm-ink)!important;border-radius:6px!important;font-family:var(--fcm-h);font-weight:400;font-size:1em;letter-spacing:.03em;text-transform:uppercase;box-shadow:5px 5px 0 var(--cm-ink)!important;text-shadow:2px 2px 0 var(--cm-ink);transition:transform .08s,box-shadow .08s}
+html[data-ios="cm"] .btn:not(.ghost):active{transform:translate(5px,5px);box-shadow:0 0 0 var(--cm-ink)!important}
+html[data-ios="cm"] .btn.ghost,html[data-ios="cm"] .chipb,html[data-ios="cm"] .ngr button,html[data-ios="cm"] .th-pre-b{background:#fff;color:var(--cm-ink);border:3px solid var(--cm-ink);border-radius:6px;font-weight:900;box-shadow:3px 3px 0 var(--cm-ink)}
+html[data-ios="cm"] .chipb[aria-pressed="true"],html[data-ios="cm"] .ngr button[aria-pressed="true"],html[data-ios="cm"] .th-pre-b.on,html[data-ios="cm"] .th-pre2 button[aria-pressed="true"]{background:var(--cm-yel)!important;color:var(--cm-ink)!important;box-shadow:3px 3px 0 var(--cm-red)!important;border-color:var(--cm-ink)!important}
+html[data-ios="cm"] input,html[data-ios="cm"] select,html[data-ios="cm"] textarea,html[data-ios="cm"] .vm-sel{background:#fff;color:var(--cm-ink);border:3px solid var(--cm-ink);border-radius:6px;font-weight:800}
+html[data-ios="cm"] input:focus-visible,html[data-ios="cm"] select:focus-visible,html[data-ios="cm"] button:focus-visible,html[data-ios="cm"] summary:focus-visible{outline:4px solid var(--cm-blue);outline-offset:2px}
+html[data-ios="cm"] details{border-color:var(--cm-ink)}
+html[data-ios="cm"] .sel-chip,html[data-ios="cm"] .dd-btn{background:#fff;border:3px solid var(--cm-ink);border-radius:6px;box-shadow:3px 3px 0 var(--cm-ink);font-weight:900}
+
+/* плитки показателей */
+html[data-ios="cm"] :is(.m,.vm-k,.dr-t,.rc-kp>div,.atq-k>div,.bnc,.dlc,.kpi){background:var(--cm-paper);border:3px solid var(--cm-ink);border-radius:4px;box-shadow:4px 4px 0 var(--cm-ink)}
+html[data-ios="cm"] :is(.m,.vm-k,.kpi):nth-child(3n+2){background:#E4EEFF}
+html[data-ios="cm"] :is(.m,.vm-k,.kpi):nth-child(3n){background:#FDE6E6}
+html[data-ios="cm"] .kpi.main{background:var(--cm-red);color:#fff}
+
+/* таблицы */
+html[data-ios="cm"] :is(.tbl,.mtable,table){border-color:var(--cm-ink)}
+html[data-ios="cm"] :is(.tbl,.mtable) thead th,html[data-ios="cm"] table thead th{background:var(--cm-blue);color:#fff;font-family:var(--fcm-h);font-weight:400;font-size:.82em;letter-spacing:.03em;text-transform:uppercase;border-bottom:3px solid var(--cm-ink)}
+html[data-ios="cm"] :is(.tbl,.mtable,table) td,html[data-ios="cm"] :is(.tbl,.mtable,table) th{border-color:var(--cm-ink)}
+html[data-ios="cm"] :is(.tbl,.mtable) tbody tr:nth-child(even) td,html[data-ios="cm"] :is(.tbl,.mtable) tbody tr:nth-child(even) th{background:var(--cm-paper)}
+html[data-ios="cm"] :is(.tbl,.mtable) tr.tot td,html[data-ios="cm"] :is(.tbl,.mtable) tr.tot th{background:var(--cm-yel)!important;font-weight:900}
+
+/* статусы */
+html[data-ios="cm"] .tag-ok{color:#0a7a3a!important}html[data-ios="cm"] .tag-mid{color:#a86a00!important}html[data-ios="cm"] .tag-bad{color:var(--cm-red)!important}
+html[data-ios="cm"] :is(.st-ok,.st-wait,.st-none,.fc-chip,.pcell,.pct-chip){border:2.5px solid var(--cm-ink);border-radius:4px;font-weight:900;box-shadow:2px 2px 0 var(--cm-ink)}
+
+/* ГРАФИКИ И ДИАГРАММЫ: контур как у рисунка тушью, плоские цвета, растр в заливках */
+html[data-ios="cm"] svg :is(rect,path,circle,polygon,line,polyline){shape-rendering:geometricPrecision}
+html[data-ios="cm"] .ring svg{filter:drop-shadow(3px 3px 0 var(--cm-ink))}
+html[data-ios="cm"] .ring .t{stroke:#fff}
+html[data-ios="cm"] .ring .p{stroke-linecap:butt}
+html[data-ios="cm"] .ring b,html[data-ios="cm"] .ring .rp{font-family:var(--fcm-h);font-weight:400;letter-spacing:.04em}
+html[data-ios="cm"] .bar{background:#fff;border:3px solid var(--cm-ink);border-radius:3px;height:16px;box-shadow:2px 2px 0 var(--cm-ink)}
+html[data-ios="cm"] .bar i{border-radius:0;border-right:3px solid var(--cm-ink);background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.35) 0 3px,transparent 3px 7px)!important}
+html[data-ios="cm"] :is(.an-svg,.rp-svg,.vm-svg,.dl-svg,.chart-svg) :is(rect,path.area,circle){stroke:var(--cm-ink);stroke-width:2.2px;paint-order:stroke}
+html[data-ios="cm"] :is(.an-svg,.rp-svg,.vm-svg,.dl-svg,.chart-svg) :is(path.line,polyline,path[fill=none]){stroke-width:3.4px;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(2px 2px 0 var(--cm-ink))}
+html[data-ios="cm"] :is(.an-svg,.rp-svg) text,html[data-ios="cm"] .rp-ax{font-family:var(--fcm-b);font-weight:900;fill:var(--cm-ink)}
+html[data-ios="cm"] .an-svg line[stroke-dasharray],html[data-ios="cm"] .rp-svg line{stroke:var(--cm-ink)!important;opacity:.5}
+html[data-ios="cm"] .heat td,html[data-ios="cm"] .hm-c{border:2px solid var(--cm-ink)!important;border-radius:0}
+html[data-ios="cm"] #calc .cv canvas{filter:drop-shadow(3px 3px 0 var(--cm-ink))}
+html[data-ios="cm"] #calc{--c-sal:#1F4FBF;--c-eco:#E62429;--c-adm:#FFD21F;--c-op:#12A150;--c-chs:#B5179E;--ink:#0d0d12;--mute:#3b3b48;--grid:#0d0d12;--neutral:#C7C7D1;--card:#fff;--accent:#E62429;--in-bg:#FFF4CF;--in-line:#0d0d12;--in-ink:#0d0d12;--good:#12A150;--bad:#E62429}
+
+/* уведомления, окна, подсказки — «выноски» */
+html[data-ios="cm"] :is(.ntp,.nt-panel,.themepanel,.sheet,.modal,.pop,.dd-menu,.srch-box){background:#fff;border:4px solid var(--cm-ink);border-radius:6px;box-shadow:7px 7px 0 var(--cm-ink)}
+html[data-ios="cm"] .ncard{background:#fff;border:3px solid var(--cm-ink);border-radius:4px;box-shadow:4px 4px 0 var(--cm-ink)}
+html[data-ios="cm"] .ncard.tm{background:#FFF3C4;border-color:var(--cm-ink)}
+html[data-ios="cm"] .login-card{border:5px solid var(--cm-ink);border-radius:4px;box-shadow:10px 10px 0 var(--cm-red)!important;background:#fff}
+html[data-ios="cm"] .login-card::before{display:none!important}
+html[data-ios="cm"] .demo{background:var(--cm-red);color:#fff;border:2px solid var(--cm-ink);font-family:var(--fcm-h);letter-spacing:.05em}
+html[data-ios="cm"] .toast,html[data-ios="cm"] .snack{background:#fff;color:var(--cm-ink);border:3px solid var(--cm-ink);box-shadow:4px 4px 0 var(--cm-ink)}
+html[data-ios="cm"] ::selection{background:var(--cm-yel);color:var(--cm-ink)}
+
+/* движение: «шлёп» панелей, как появление кадра */
+@keyframes cmPanel{0%{opacity:0;transform:translate3d(0,26px,0) scale(.94)}55%{opacity:1;transform:translate3d(0,-4px,0) scale(1.015)}100%{opacity:1;transform:none}}
+html[data-ios="cm"] :is(.fade,.rv.in,.ncard,.dlc,.bnc,.m,.vm-k,.dr-t,.at-ck){animation:cmPanel .5s cubic-bezier(.3,1.5,.5,1) backwards!important;animation-delay:calc(var(--i,0)*50ms)!important}
+html[data-ios="cm"] .pane:not([hidden]){animation:cmPanel .45s cubic-bezier(.3,1.5,.5,1) backwards}
+@media (hover:hover){html[data-ios="cm"] .card{transition:transform .15s,box-shadow .15s}html[data-ios="cm"] .card:hover{transform:translate(-3px,-3px)}}
+@media (prefers-reduced-motion:reduce){html[data-ios="cm"] :is(.fade,.rv.in,.ncard,.dlc,.bnc,.m,.vm-k,.dr-t,.at-ck,.pane){animation:none!important}}
+@media (max-width:700px){html[data-ios="cm"] .card{box-shadow:5px 5px 0 var(--cm-ink)!important}html[data-ios="cm"] div.hero::after{width:84px;height:84px;right:-14px;top:-14px}}
+
+html[data-ios="cm"] :is(.an-svg,.rp-svg,.vm-svg,svg.chart) rect[fill]:not([fill="none"]):not([fill="transparent"]){fill-opacity:1;opacity:1}
+html[data-ios="cm"] svg circle[stroke-dasharray]{stroke-linecap:butt;filter:drop-shadow(2px 2px 0 var(--cm-ink))}
+
+/* «Все разделы» (нижняя шторка телефона) — по выбранной теме */
+@media (max-width:900px),(hover:none){
+html[data-ios="cm"] .ms-bg{background:rgba(13,13,18,.5);background-image:radial-gradient(circle,rgba(230,36,41,.35) 1.6px,transparent 2px);background-size:12px 12px;-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-ios="cm"] .ms-p{background:#fff;background-image:none;border:4px solid var(--cm-ink);border-radius:6px;box-shadow:7px 7px 0 var(--cm-red)}
+html[data-ios="cm"] .ms-grab{height:6px;background:var(--cm-ink);opacity:1}
+html[data-ios="cm"] .ms-ttl{font-family:var(--fcm-h);font-weight:400;text-transform:uppercase;font-size:19px;letter-spacing:.02em}
+html[data-ios="cm"] .ms-b h3{font-family:var(--fcm-h);font-weight:400;color:var(--cm-red);font-size:12.5px;letter-spacing:.04em}
+html[data-ios="cm"] .ms-t{background:var(--cm-paper);border:3px solid var(--cm-ink);border-radius:4px;box-shadow:3px 3px 0 var(--cm-ink);color:var(--cm-ink)}
+html[data-ios="cm"] .ms-t:nth-child(3n+2){background:#E4EEFF}html[data-ios="cm"] .ms-t:nth-child(3n){background:#FDE6E6}
+html[data-ios="cm"] .ms-t:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--cm-ink)}
+html[data-ios="cm"] .ms-ic{background:#fff;color:var(--cm-ink);border:3px solid var(--cm-ink);border-radius:50%}
+html[data-ios="cm"] .ms-n{font-weight:900;font-size:11.5px}
+html[data-ios="cm"] .ms-n,html[data-ios="bk"] .ms-n{overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
+html[data-ios="cm"] .ms-t.on{background:var(--cm-yel);border-color:var(--cm-ink);box-shadow:3px 3px 0 var(--cm-red)}
+html[data-ios="cm"] .ms-t.on .ms-ic{background:var(--cm-red);color:#fff}
+
+html[data-ios="bk"] .ms-p{background:var(--card);background-image:none;border:1.5px solid color-mix(in srgb,#5B3DF5 55%,var(--line));border-radius:18px;box-shadow:6px 6px 0 color-mix(in srgb,#5B3DF5 28%,transparent)}
+html[data-ios="bk"] .ms-ttl{font-family:var(--font-d,inherit);font-weight:700}
+html[data-ios="bk"] .ms-b h3{color:#5B3DF5;font-weight:800}
+html[data-ios="bk"] .ms-t{border-radius:12px;border-left:4px solid #5B3DF5;background:color-mix(in srgb,#5B3DF5 7%,var(--track))}
+html[data-ios="bk"] .ms-t:nth-child(3n+2){border-left-color:#8fd400}html[data-ios="bk"] .ms-t:nth-child(3n){border-left-color:#ff2d87}
+html[data-ios="bk"] .ms-ic{background:#5B3DF5;color:#fff;border-radius:10px}
+html[data-ios="bk"] .ms-t.on{box-shadow:3px 3px 0 #b6ff3b;border-color:#5B3DF5}
+
+html[data-ios="px"] .ms-p{background:var(--bg);background-image:none;border:0;border-radius:28px}
+html[data-ios="px"] .ms-t{border-radius:20px;background:color-mix(in srgb,var(--accent) 8%,var(--card));border:0}
+html[data-ios="px"] .ms-ic{border-radius:50%;background:color-mix(in srgb,var(--accent) 22%,transparent)}
+html[data-ios="px"] .ms-t.on{background:color-mix(in srgb,var(--accent) 24%,var(--card))}
+
+html[data-ios="16"] .ms-p{background:var(--blur);background-image:none;border:.5px solid var(--line);border-radius:14px;box-shadow:var(--g-sh)}
+html[data-ios="16"] .ms-t{border-radius:12px;background:var(--card);border:.5px solid var(--line)}
+html[data-ios="16"] .ms-ic{border-radius:10px;background:var(--accent);color:#fff}
+html[data-ios="16"] .ms-t.on{border-color:var(--accent)}
+}
+
+/* выпадающие списки: плотный фон по теме (без просвечивания) */
+.dd-pop,.vm-pop{background:var(--card,#fff)!important;background-image:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html[data-ios="16"] .dd-pop,html[data-ios="16"] .vm-pop,html[data-ios="bk"] .dd-pop,html[data-ios="bk"] .vm-pop{background:var(--card,#fff)!important}
+html[data-ios="px"] .dd-pop,html[data-ios="px"] .vm-pop{background:var(--sch,var(--card))!important}
+html[data-ios="cm"] .dd-pop,html[data-ios="cm"] .vm-pop{background:#fff!important;border:3px solid var(--cm-ink);border-radius:6px;box-shadow:5px 5px 0 var(--cm-red);animation:none}
+html[data-ios="cm"] .dd-o{border-radius:4px;font-weight:800;color:var(--cm-ink)}
+html[data-ios="cm"] .dd-o:hover{background:var(--cm-yel)}
+html[data-ios="cm"] .dd-o.on{background:var(--cm-red);color:#fff}
+html[data-ios="bk"] .dd-pop{border:1.5px solid color-mix(in srgb,#5B3DF5 55%,var(--line));box-shadow:5px 5px 0 color-mix(in srgb,#5B3DF5 28%,transparent)}
+html[data-ios="bk"] .dd-o.on{background:#5B3DF5;color:#fff}
+
+/* уведомления: обводка и шрифты по теме */
+html[data-ios="cm"] .nt-pan{background:#fff!important;border:4px solid var(--cm-ink);border-radius:6px;box-shadow:7px 7px 0 var(--cm-red);animation:none}
+html[data-ios="cm"] .nt-pan .th-h b{font-family:var(--fcm-h);font-weight:400;text-transform:uppercase;font-size:18px;letter-spacing:.02em}
+html[data-ios="cm"] .nt-pan .th-h small{font-weight:700;color:var(--cm-ink);opacity:.7}
+html[data-ios="cm"] .nt-pan .nt-gr button{border:3px solid var(--cm-ink);border-radius:4px;background:#fff;box-shadow:2px 2px 0 var(--cm-ink);font-weight:900;color:var(--cm-ink)}
+html[data-ios="cm"] .nt-pan .nt-gr button[aria-pressed=true]{background:var(--cm-red)!important;color:#fff!important;outline:0}html[data-ios="cm"] .nt-pan .nt-gr button b{font-family:var(--fcm-h);font-weight:400}
+html[data-ios="cm"] .nt-pan .nt-i{background:var(--cm-paper);border:3px solid var(--cm-ink);border-radius:4px;box-shadow:3px 3px 0 var(--cm-ink);color:var(--cm-ink)}
+html[data-ios="cm"] .nt-i:nth-child(even){background:#E4EEFF}
+html[data-ios="cm"] .nt-pan .nt-i.new{background:var(--cm-yel)!important;border-color:var(--cm-ink);box-shadow:3px 3px 0 var(--cm-red)}
+html[data-ios="cm"] .nt-pan .nt-i b{font-family:var(--fcm-h)!important;font-weight:400!important;font-size:13.5px;letter-spacing:.01em}
+html[data-ios="cm"] .nt-i small{color:var(--cm-ink);font-weight:700;opacity:.8}
+html[data-ios="cm"] .nt-i em{font-weight:800;color:var(--cm-red)}
+html[data-ios="cm"] .nt-k{background:#fff;border:2px solid var(--cm-ink);border-radius:50%;padding:3px 5px}
+html[data-ios="cm"] .nt-pan .btn.ghost{border:3px solid var(--cm-ink);border-radius:4px;background:#fff;box-shadow:3px 3px 0 var(--cm-ink);font-weight:900;color:var(--cm-ink)}
+html[data-ios="cm"] .nt-toast{background:#fff!important;border:3px solid var(--cm-ink);border-radius:4px;box-shadow:5px 5px 0 var(--cm-red);color:var(--cm-ink)}
+html[data-ios="cm"] .nt-toast b{font-family:var(--fcm-h);font-weight:400}
+
+html[data-ios="bk"] .nt-pan{background:var(--card)!important;border:1.5px solid color-mix(in srgb,#5B3DF5 55%,var(--line));border-radius:18px;box-shadow:6px 6px 0 color-mix(in srgb,#5B3DF5 28%,transparent)}
+html[data-ios="bk"] .nt-pan .th-h b{font-weight:800}
+html[data-ios="bk"] .nt-pan .nt-gr button[aria-pressed=true]{background:#5B3DF5;color:#fff;outline:0}
+html[data-ios="bk"] .nt-i{background:color-mix(in srgb,#5B3DF5 6%,var(--track));border:1px solid var(--line);border-left:4px solid #5B3DF5;border-radius:12px}
+html[data-ios="bk"] .nt-i.new{background:color-mix(in srgb,#5B3DF5 14%,var(--card));border-color:#5B3DF5;box-shadow:3px 3px 0 #b6ff3b}
+html[data-ios="bk"] .nt-k{background:#5B3DF5;color:#fff}
+html[data-ios="bk"] .nt-toast{background:var(--card)!important;border:1.5px solid #5B3DF5;box-shadow:4px 4px 0 color-mix(in srgb,#5B3DF5 28%,transparent)}
+
+html[data-ios="px"] .nt-pan{background:var(--sch,var(--card))!important}
+html[data-ios="px"] .nt-i{border:0;border-radius:20px;background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+html[data-ios="px"] .nt-i.new{background:color-mix(in srgb,var(--accent) 20%,var(--card))}
+html[data-ios="px"] .nt-k{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}
+
+html:not([data-ios]) .nt-pan{background:var(--card)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+
+/* ============ СТАНДАРТ ШРИФТОВ (единые группы для всех тем) ============
+   Группы: ui — интерфейс/текст; display — заголовки и крупные числа; num — таблицы и цифры.
+   Шкала: --fs-xs 12 · --fs-s 13 · --fs-m 15 · --fs-l 18 · --fs-xl 22 · --fs-2xl clamp(26,5vw,40) */
+:root{--f-ui:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--f-display:var(--f-ui);--fw-ui:500;--fw-d:700;--ls-d:-.01em;
+  --fs-xs:12px;--fs-s:13px;--fs-m:15px;--fs-l:18px;--fs-xl:22px;--fs-2xl:clamp(26px,5vw,40px)}
+html[data-ios="px"]{--f-ui:"Google Sans","Google Sans Text","Product Sans",Roboto,"Segoe UI",system-ui,sans-serif;--f-display:var(--f-ui);--fw-d:600;--ls-d:0}
+html[data-ios="bk"]{--f-ui:var(--font-b);--f-display:var(--font-d);--fw-d:600;--ls-d:-.01em}
+html[data-ios="cm"]{--f-ui:var(--fcm-b);--f-display:var(--fcm-h);--fw-d:400;--ls-d:.02em}
+body,button,input,select,textarea{font-family:var(--f-ui)}
+:is(h1,h2,h3,.hero-big,.m-name,.brand,.rc-big,.rp-big,.ms-ttl,.th-h>div>b,.nt-i b,.sec-t,.card>h3,.dr-t b,.m-fact b,.rc-kp b){font-family:var(--f-display);font-weight:var(--fw-d);letter-spacing:var(--ls-d)}
+html[data-ios="cm"] :is(h1,h2,h3,.hero-big,.m-name,.rc-big,.rp-big,.ms-ttl,.dr-t b,.m-fact b,.rc-kp b){text-transform:none;font-synthesis:none}
+:is(table,.tbl,.m-fact b,.hero-big,.rc-big,.rp-big,.dr-t b,.rc-kp b,.num){font-variant-numeric:tabular-nums lining-nums}
+small,.muted{font-size:max(var(--fs-xs),.86em)}
+
+/* ============ СТАНДАРТ ДВИЖЕНИЯ ============
+   Правила: анимируем только transform/opacity/filter; при наведении элементы не сдвигаются
+   (сдвиг из-под курсора даёт дрожание на краях) — меняются только тень, цвет, яркость;
+   вращение во входных анимациях запрещено; длительности из токенов. */
+:root{--mo-fast:.15s;--mo-base:.25s;--mo-slow:.45s}
+@media (hover:hover){
+  .card:hover,.chipb:hover,.icon-btn:hover,.btn:hover,.mfab:hover,#tabseg>button:hover,.vm-ri:hover,.th-pre2 button:hover,.nt-i:hover,.ms-t:hover,
+  #login .login-card .btn:hover,.login-card .demo-roles .btn:hover{transform:none!important}
+  html[data-ios="cm"] .card:hover{box-shadow:10px 10px 0 var(--cm-ink)}
+  html[data-ios="bk"] :is(#content,#mgrView,#newsView,.pane) .card:not(.hero):not(.empty):hover{box-shadow:8px 8px 0 color-mix(in srgb,var(--bk-c,#5B3DF5) 38%,transparent)!important}
+  .card:hover{box-shadow:var(--g-sh)}
+}
+.card,.chipb,.icon-btn,.btn{transition-property:box-shadow,background-color,border-color,color,filter,opacity;transition-duration:var(--mo-base)}
+@media (prefers-reduced-motion:reduce){.card,.pane,.fade,.rv{animation:none!important}}
+
+/* скорость: мелкие кнопки без backdrop-filter (слои blur дороги, на глаз не видны) */
+.icon-btn,.chipb,.mcol{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 </style>
 </head>
 <body>
@@ -2276,7 +2502,7 @@ function tables(r){
 /* ---------- рендер ---------- */
 let R=null;
 function render(){
-  const r=compute(S);R=r;const C=COL();C.anim=undefined; Chart.defaults.color=C.mute;
+  const r=compute(S);R=r;const C=COL();C.anim=undefined; Chart.defaults.color=C.mute; Chart.defaults.font.family = document.documentElement.dataset.ios==='cm' ? "Nunito,'Russo One',Impact,sans-serif" : "-apple-system,BlinkMacSystemFont,'SF Pro Text',Inter,'Segoe UI',Roboto,sans-serif";
   /* KPI */
   const K=r.T;
   document.getElementById('kpis').innerHTML=
@@ -2377,6 +2603,7 @@ function setup(){
   document.getElementById('prefill').addEventListener('click',()=>{if(!PRE){toast('Нет данных таблицы для подстановки');return}TOUCH={};saveTouch();S=clone(DEF);applyPre(true);save();buildForms();render();toast('Подставлены данные из таблицы')});
   document.querySelectorAll('#calc .subtabs button').forEach(b=>b.addEventListener('click',()=>sub(b.dataset.sub)));
   const redraw=()=>{Object.keys(live).forEach(k=>{live[k].destroy();delete live[k]});render()};
+  window.__calcRedraw = redraw;
   try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw)}catch(e){}
   new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 }
@@ -5716,15 +5943,9 @@ const THEME_DEF_ = {a:'#0a84ff', b:'#bf5af2', lo:'#ff375f', mid:'#ff9f0a', hi:'#
 const THEME_DEF = THEME_DEF_;
 const THEME_PRE = [
  {id:'classic',  n:'Классика', a:'#0a84ff', b:'#bf5af2', lo:'#ff375f', mid:'#ff9f0a', hi:'#30d158', amb:true,  ios:0,    d:'iOS 27 · жидкое стекло'},
- {id:'ocean',    n:'Океан',    a:'#00a6d6', b:'#3a86ff', lo:'#ff375f', mid:'#ff9f0a', hi:'#30d158', amb:true,  ios:0,    d:'Волны и прохлада'},
- {id:'sunset',   n:'Закат',    a:'#ff6b35', b:'#ff375f', lo:'#ff375f', mid:'#ff9f0a', hi:'#30d158', amb:true,  ios:0,    d:'Тёплое свечение'},
- {id:'forest',   n:'Лес',      a:'#2fa84f', b:'#12a594', lo:'#ff375f', mid:'#ff9f0a', hi:'#30d158', amb:true,  ios:0,    d:'Мягкий рост'},
- {id:'lavender', n:'Лаванда',  a:'#7c5cff', b:'#d65bff', lo:'#ff375f', mid:'#ff9f0a', hi:'#30d158', amb:true,  ios:0,    d:'Дымка и размытие'},
- {id:'rose',     n:'Роза',     a:'#ff4d8d', b:'#ff9f0a', lo:'#ff375f', mid:'#ff9f0a', hi:'#30d158', amb:true,  ios:0,    d:'Упругие всплески'},
- {id:'graphite', n:'Графит',   a:'#5b6572', b:'#8e8e93', lo:'#ff375f', mid:'#ff9f0a', hi:'#30d158', amb:true,  ios:0,    d:'Сдержанно и быстро'},
- {id:'ios16',    n:'iOS 16',   a:'#007aff', b:'#5856d6', lo:'#ff3b30', mid:'#ff9500', hi:'#34c759', amb:false, ios:16,   d:'Классика iOS'},
  {id:'pixel',    n:'Pixel',    a:'#1a73e8', b:'#0b57d0', lo:'#d93025', mid:'#f9ab00', hi:'#1e8e3e', amb:false, ios:'px', d:'Material You'},
- {id:'style',    n:'Стиль',    a:'#5B3DF5', b:'#8E78FF', lo:'#D6383D', mid:'#C96A00', hi:'#1E8E55', amb:false, ios:'bk', d:'Фиолетовый акцент, лайм и живой фон'}
+ {id:'style',    n:'Стиль',    a:'#5B3DF5', b:'#8E78FF', lo:'#D6383D', mid:'#C96A00', hi:'#1E8E55', amb:false, ios:'bk', d:'Фиолетовый акцент, лайм и живой фон'},
+ {id:'comic',    n:'Комикс',   a:'#1F4FBF', b:'#E62429', lo:'#E62429', mid:'#F2A900', hi:'#12A150', amb:false, ios:'cm', d:'Панели, контуры и растровые точки'}
 ];
 
 /* «Стиль»: живой фон из точек (как в «Бонус-калькуляторе») */
@@ -5750,13 +5971,13 @@ const themeKey = () => 'theme:'+(store.get('login')||'guest');
 const th2rgb = h => { h = String(h||'#000').replace('#',''); if (h.length===3) h = h.split('').map(c=>c+c).join(''); const n = parseInt(h,16)||0; return [n>>16&255, n>>8&255, n&255]; };
 const thMix = (a,b,t) => { const x = th2rgb(a), y = th2rgb(b); return '#'+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,'0')).join(''); };
 const preById = id => THEME_PRE.find(x=>x.id===id);
-function preGuess(p){ if (p.pre && preById(p.pre)) return p.pre; if (p.ios===16) return 'ios16'; if (p.ios==='px') return 'pixel'; if (p.ios==='bk') return 'style'; const m = THEME_PRE.find(x=>!x.ios && String(x.a).toLowerCase()===String(p.a||THEME_DEF.a).toLowerCase()); return m ? m.id : 'classic'; }
+function preGuess(p){ if (p.pre && preById(p.pre)) return p.pre; if (p.ios==='px') return 'pixel'; if (p.ios==='bk') return 'style'; if (p.ios==='cm') return 'comic'; const m = THEME_PRE.find(x=>!x.ios && String(x.a).toLowerCase()===String(p.a||THEME_DEF.a).toLowerCase()); return m ? m.id : 'classic'; }
 function themeLoad(){ let p = {}; try{ p = JSON.parse(store.get(themeKey())||'{}')||{}; }catch(e){}
-  if (!store.get(themeKey())){ const q = store.get('ios16'); if (q==='1') p = {ios:16}; else if (q==='px') p = {ios:'px'}; else if (q==='bk') p = {ios:'bk'}; }
+  if (!store.get(themeKey())){ const q = store.get('ios16'); if (q==='1') p = {ios:16}; else if (q==='px') p = {ios:'px'}; else if (q==='bk') p = {ios:'bk'}; else if (q==='cm') p = {ios:'cm'}; }
   const id = preGuess(Object.assign({}, THEME_DEF, p)), x = preById(id);
   THEME = Object.assign({}, THEME_DEF, {a:x.a, b:x.b, lo:x.lo, mid:x.mid, hi:x.hi, amb:x.amb, ios:x.ios, pre:id});      // только пресеты: свои цвета, режим и фон больше не сохраняются
   themeApply(false); }
-function themeSave(){ try{ store.set('ios16', THEME.ios===16?'1':THEME.ios==='px'?'px':THEME.ios==='bk'?'bk':''); store.set('prefx', THEME.pre||'classic'); }catch(e){} try{ store.set(themeKey(), JSON.stringify({pre:THEME.pre||'classic'})); }catch(e){} }
+function themeSave(){ try{ store.set('ios16', THEME.ios===16?'1':THEME.ios==='px'?'px':THEME.ios==='bk'?'bk':THEME.ios==='cm'?'cm':''); store.set('prefx', THEME.pre||'classic'); }catch(e){} try{ store.set(themeKey(), JSON.stringify({pre:THEME.pre||'classic'})); }catch(e){} }
 function themeApply(repaint){
   const T = THEME, [r,g,b] = th2rgb(T.a), [r2,g2,b2] = th2rgb(T.b), mid = thMix(T.a, T.b, .55), [r3,g3,b3] = th2rgb(T.mid);
   let st = document.getElementById('themeCss'); if (!st){ st = document.createElement('style'); st.id = 'themeCss'; document.head.appendChild(st); }
@@ -5768,9 +5989,12 @@ ${T.bg?`html:root body{background-color:${T.bg}!important}`:''}${T.bgi?`html:roo
 body::before{background:${T.amb?`radial-gradient(520px 380px at 12% 8%,rgba(${r},${g},${b},.16),transparent 70%),radial-gradient(560px 420px at 92% 22%,rgba(${r2},${g2},${b2},.13),transparent 70%),radial-gradient(520px 420px at 60% 98%,rgba(${r3},${g3},${b3},.11),transparent 70%)`:'none'}!important}`;
   STC.hi = T.hi; STC.mid = T.mid; STC.lo = T.lo; AN_PAL[0] = T.a; GRP_COL[0] = T.a; VMR_SCC['Обслуживание'] = T.a; VMR_SCC['Подключение'] = T.b;
   const de = document.documentElement; de.removeAttribute('data-theme'); de.dataset.pre = T.pre||'classic';
-  if (T.ios===16) de.dataset.ios = '16'; else if (T.ios==='px') de.dataset.ios = 'px'; else if (T.ios==='bk'){ de.dataset.ios = 'bk'; if (!document.getElementById('bkFonts')){ const lk = document.createElement('link'); lk.id = 'bkFonts'; lk.rel = 'stylesheet'; lk.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap'; document.head.appendChild(lk); } } else de.removeAttribute('data-ios');
+  if (T.ios===16) de.dataset.ios = '16'; else if (T.ios==='px') de.dataset.ios = 'px'; else if (T.ios==='cm'){ de.dataset.ios = 'cm'; if (!document.getElementById('cmFonts')){ const lk = document.createElement('link'); lk.id = 'cmFonts'; lk.rel = 'stylesheet'; { const pc = document.createElement('link'); pc.rel = 'preconnect'; pc.href = 'https://fonts.gstatic.com'; pc.crossOrigin = ''; document.head.appendChild(pc); } lk.href = 'https://fonts.googleapis.com/css2?family=Russo+One&family=Nunito:wght@600;700;800;900&display=swap'; document.head.appendChild(lk); } } else if (T.ios==='bk'){ de.dataset.ios = 'bk'; if (!document.getElementById('bkFonts')){ const lk = document.createElement('link'); lk.id = 'bkFonts'; lk.rel = 'stylesheet'; lk.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap'; document.head.appendChild(lk); } } else de.removeAttribute('data-ios');
   if (repaint && DATA && !$('#app').hidden){ try{ paint(DATA); if (WRAP.dataset.tab==='analytics'){ loadAnalytics(); } if (WRAP.dataset.tab==='vmr'){ loadMyVmr(); } if (WRAP.dataset.tab==='auth') loadAuth(); }catch(e){} }
-  try{ bkDotsSync(); menuApply(); }catch(e){}
+  { if (!themeApply.pal) themeApply.pal = {an:AN_PAL.slice(), gr:GRP_COL.slice()};
+    const cm = T.ios==='cm', CMP = ['#1F4FBF','#E62429','#F2A900','#12A150','#B5179E','#0E9BD8','#7A4B1E','#111111'];
+    AN_PAL.splice(0, AN_PAL.length, ...(cm ? CMP : themeApply.pal.an)); GRP_COL.splice(0, GRP_COL.length, ...(cm ? CMP : themeApply.pal.gr)); if (!cm){ AN_PAL[0] = T.a; GRP_COL[0] = T.a; } }
+  try{ bkDotsSync(); menuApply(); if (window.__calcRedraw) window.__calcRedraw(); }catch(e){}
 }
 function themePanel(){
   let p = document.getElementById('themePanel');
@@ -6226,16 +6450,21 @@ async function wp2Data(){
   ANCACHE.dl = dl; ANCACHE.sim = sim;
   return Object.assign(W, {sal0:sal, dim, ps, tmFull, sur, dlRows: dl&&dl.grid ? anParseDL(dl.grid) : null, simM: sim&&sim.grid ? anParseSim(sim.grid) : null, pulse: pulse&&!pulse.error ? pulse : null, cards: cards&&cards.cards ? cards.cards : [], vrows: ANCACHE.vmrRows||null});
 }
-function wp2Inject(buf, heroIdx, JSZ){
+function wp2Inject(buf, heroIdx, JSZ, thId){
+  /* движение по теме (см. MOTION.md): карточки — float/wipe/zoom, переходы — fade/morph/push */
+  const MV = {classic:{card:'float',tr:'morph'},pixel:{card:'wipe',tr:'push'},style:{card:'float',tr:'morph'},comic:{card:'zoom',tr:'push'}}[thId] || {card:'float',tr:'morph'};
   return JSZ.loadAsync(buf).then(async zip=>{
     const NS = 'xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"';
     const TR = '<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" '+NS+'><mc:Choice xmlns:p159="http://schemas.microsoft.com/office/powerpoint/2015/09/main" xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" Requires="p159"><p:transition spd="slow" p14:dur="1300"><p159:morph option="byObject"/></p:transition></mc:Choice><mc:Fallback><p:transition spd="slow"><p:fade/></p:transition></mc:Fallback></mc:AlternateContent>';
+    const TRX = MV.tr==='push' ? '<p:transition '+NS+' spd="med"><p:push dir="'+(thId==='comic'?'l':'u')+'"/></p:transition>' : TR;
     const eff = (ids, spid, delay, kind) => {
       const nid = () => ++ids[0];
       const vis = `<p:set><p:cBhvr><p:cTn id="${nid()}" dur="1" fill="hold"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn><p:tgtEl><p:spTgt spid="${spid}"/></p:tgtEl><p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst></p:cBhvr><p:to><p:strVal val="visible"/></p:to></p:set>`;
       const fade = ms => `<p:animEffect transition="in" filter="fade"><p:cBhvr><p:cTn id="${nid()}" dur="${ms}"/><p:tgtEl><p:spTgt spid="${spid}"/></p:tgtEl></p:cBhvr></p:animEffect>`;
       let body, pid;
       if (kind==='float'){ body = vis + `<p:anim calcmode="lin" valueType="num"><p:cBhvr additive="base"><p:cTn id="${nid()}" dur="650" fill="hold"/><p:tgtEl><p:spTgt spid="${spid}"/></p:tgtEl><p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="#ppt_y+.07"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="#ppt_y"/></p:val></p:tav></p:tavLst></p:anim>` + fade(650); pid = 42; }
+      else if (kind==='wipe'){ body = vis + `<p:animEffect transition="in" filter="wipe(left)"><p:cBhvr><p:cTn id="${nid()}" dur="450"/><p:tgtEl><p:spTgt spid="${spid}"/></p:tgtEl></p:cBhvr></p:animEffect>`; pid = 22; }
+      else if (kind==='zoom'){ const z = a => `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${nid()}" dur="380" fill="hold"/><p:tgtEl><p:spTgt spid="${spid}"/></p:tgtEl><p:attrNameLst><p:attrName>${a}</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="#${a}*.6"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="#${a}"/></p:val></p:tav></p:tavLst></p:anim>`; body = vis + z('ppt_w') + z('ppt_h') + fade(300); pid = 53; }
       else { body = vis + fade(600); pid = 10; }
       return `<p:par><p:cTn id="${nid()}" presetID="${pid}" presetClass="entr" presetSubtype="0" fill="hold" nodeType="withEffect"><p:stCondLst><p:cond delay="${delay}"/></p:stCondLst><p:childTnLst>${body}</p:childTnLst></p:cTn></p:par>`;
     };
@@ -6247,9 +6476,9 @@ function wp2Inject(buf, heroIdx, JSZ){
       const items = []; let dly = 150, grp = 0, m; const re = /<p:cNvPr id="(\d+)" name="([^"]*)"/g;
       while ((m = re.exec(x))){ const id = +m[1], nm = m[2]; if (!nm || nm.indexOf('!!')===0) continue;
         if (hero){ items.push([id, dly, 'float']); dly += 170; }
-        else if (nm==='card'){ grp = dly; items.push([id, dly, 'float']); dly += 180; }
+        else if (nm==='card'){ grp = dly; items.push([id, dly, MV.card]); dly += 180; }
         else items.push([id, (grp||dly)+120, 'fade']); }
-      x = x.replace('</p:sld>', TR + (items.length ? timing(items) : '') + '</p:sld>');
+      x = x.replace('</p:sld>', TRX + (items.length ? timing(items) : '') + '</p:sld>');
       zip.file(f, x);
     }
     return zip.generateAsync({type:'blob', compression:'DEFLATE'});
@@ -6260,33 +6489,40 @@ async function wp2Build(){
   try{
     const [W] = await Promise.all([wp2Data(), wpLib(), wp2Zip(), wp2Logo()]); st.textContent = 'Рисуем слайды…';
     const pres = new PptxGenJS(); pres.layout = 'LAYOUT_WIDE'; pres.title = 'Собрание с управленцами'; pres.author = 'SUPER PROдажник by Miller';
-    const d = W.d, A = W.A, dim = W.dim, ps = W.ps, FN = 'Helvetica Neue', PR = wpPre(), AC = wpHex(PR.a), VI = wpHex(PR.b), OKc = wpHex(PR.hi), MDc = wpHex(PR.mid), LOc = wpHex(PR.lo);
+    const d = W.d, A = W.A, dim = W.dim, ps = W.ps, PR = wpPre(), AC = wpHex(PR.a), VI = wpHex(PR.b), OKc = wpHex(PR.hi), MDc = wpHex(PR.mid), LOc = wpHex(PR.lo);
+    /* стиль презентации по теме сайта (агент presentation): шрифты, фон, карточка, герой */
+    const PTH = {
+      classic:{fn:'Helvetica Neue',fd:'Helvetica Neue',bg:null,card:'FFFFFF',ln:'E5E5EA',tx:'1D1D1F',mu:'6E6E73',rad:0.2,cline:null,sh:{type:'outer',color:'000000',opacity:0.07,blur:16,offset:2,angle:90},hero:'000000',heroTx:'F5F5F7',heroMu:'86868B',g1:AC,g2:VI,gt:[86,88],up:false},
+      pixel:{fn:'Arial',fd:'Arial',bg:'F8F9FF',card:'ECEEF6',ln:'D3D6E0',tx:'191C20',mu:'5F6368',rad:0.28,cline:null,sh:null,hero:'0B1B3D',heroTx:'FFFFFF',heroMu:'C4D4F5',g1:AC,g2:'D3E3FD',gt:[70,86],up:false},
+      style:{fn:'Arial',fd:'Arial',bg:'F2F1FA',card:'FFFFFF',ln:'E2E0F1',tx:'14122B',mu:'6A6790',rad:0.2,cline:{color:'5B3DF5',width:1.25},sh:{type:'outer',color:'5B3DF5',opacity:0.16,blur:0,offset:4,angle:45},hero:'1B1147',heroTx:'FFFFFF',heroMu:'C9BEFF',g1:'5B3DF5',g2:'B6FF3B',gt:[60,82],up:false},
+      comic:{fn:'Arial',fd:'Impact',bg:'F6F1E4',card:'FFFFFF',ln:'14141B',tx:'14141B',mu:'4A4A55',rad:0.04,cline:{color:'14141B',width:3},sh:{type:'outer',color:'E62429',opacity:1,blur:0,offset:5,angle:45},hero:'E62429',heroTx:'FFFFFF',heroMu:'FFE9A8',g1:'FFD21F',g2:'14141B',gt:[50,72],up:true}
+    }, PT = PTH[PR.id] || PTH.classic, FN = PT.fn, FD = PT.fd;
     const wpMix = (h,t) => [0,2,4].map(i=>Math.round(255-(255-parseInt(h.substr(i,2),16))*t).toString(16).padStart(2,'0')).join('').toUpperCase();
-    const C = {bg:wpMix(AC,.07), card:'FFFFFF', ln:'E5E5EA', tx:'1D1D1F', mu:'6E6E73', hd:'FFFFFF'};
+    const C = {bg:PT.bg||wpMix(AC,.07), card:PT.card, ln:PT.ln, tx:PT.tx, mu:PT.mu, hd:'FFFFFF'};
     const TN = {g:['E8F7ED','1F8A3B'], a:['FFF3DC','B26A00'], r:['FFE8E6','D1241A'], n:['FFFFFF','1D1D1F']};
     const lv = p => p==null ? 'n' : p>=ST_OK ? 'g' : p>=ST_WARN ? 'a' : 'r';
     const today = new Date(), dateStr = today.toLocaleDateString('ru-RU'), P = d.month||'';
     const salNames = W.sal.map(z=>z.name), sh = n => rpShort(n); const salFZ = W.sal.length>20?7:W.sal.length>12?8:9;
     const heroIdx = []; let N = 0;
     const base = (title, sub) => { const s = pres.addSlide(); N++; s.background = {color:C.bg};
-      s.addText(title,{x:0.7,y:0.4,w:9.8,h:0.7,fontFace:FN,fontSize:34,bold:true,charSpacing:-0.5,color:C.tx,valign:'middle',objectName:'!!title'});
+      s.addText(PT.up?String(title).toUpperCase():title,{x:0.7,y:0.4,w:9.8,h:0.7,fontFace:FD,fontSize:PT.up?32:34,bold:!PT.up,charSpacing:PT.up?0.5:-0.5,color:C.tx,valign:'middle',objectName:'!!title'});
       if (sub) s.addText(sub,{x:0.72,y:1.08,w:9.8,h:0.34,fontFace:FN,fontSize:14,color:C.mu,valign:'middle',objectName:'!!sub'});
       s.addText(`Собрание с управленцами · ${dateStr}`,{x:0.72,y:7.1,w:9,h:0.24,fontFace:FN,fontSize:9,color:'86868B',objectName:'!!foot'});
       s.addText(String(N),{x:11.9,y:7.1,w:0.9,h:0.24,fontFace:FN,fontSize:9,color:'86868B',align:'right',objectName:'!!num'});
       s.addImage({data:WP2_LOGO.m||WP2_NOLOGO,x:13.333-0.7-0.62,y:0.46,w:0.62,h:0.62,objectName:'!!logo'}); return s; };
-    const dark = (title, sub, big) => { const s = pres.addSlide(); N++; heroIdx.push(N); s.background = {color:'000000'};
-      s.addShape('ellipse',{x:big?3.2:7.4,y:big?4.2:3.6,w:big?7:6.4,h:big?5:4.6,fill:{color:AC,transparency:86},line:{type:'none'},objectName:'!!glow1'});
-      s.addShape('ellipse',{x:big?6.2:-1.4,y:big?5.2:4.8,w:big?6:5.6,h:big?4:4,fill:{color:VI,transparency:88},line:{type:'none'},objectName:'!!glow2'});
+    const dark = (title, sub, big) => { const s = pres.addSlide(); N++; heroIdx.push(N); s.background = {color:PT.hero};
+      s.addShape('ellipse',{x:big?3.2:7.4,y:big?4.2:3.6,w:big?7:6.4,h:big?5:4.6,fill:{color:PT.g1,transparency:PT.gt[0]},line:{type:'none'},objectName:'!!glow1'});
+      s.addShape('ellipse',{x:big?6.2:-1.4,y:big?5.2:4.8,w:big?6:5.6,h:big?4:4,fill:{color:PT.g2,transparency:PT.gt[1]},line:{type:'none'},objectName:'!!glow2'});
       if (big){
         s.addImage({data:WP2_LOGO.m||WP2_NOLOGO,x:(13.333-1.5)/2,y:1.2,w:1.5,h:1.5,objectName:'!!logo'});
-        s.addText(title,{x:0.8,y:3.55,w:11.73,h:1.1,fontFace:FN,fontSize:60,bold:true,charSpacing:-1.2,color:'F5F5F7',align:'center',valign:'middle',objectName:'hero'});
-        s.addText(sub||'',{x:0.8,y:4.75,w:11.73,h:0.7,fontFace:FN,fontSize:22,color:'86868B',align:'center',valign:'top',objectName:'hero2'});
+        s.addText(PT.up?String(title).toUpperCase():title,{x:0.8,y:3.55,w:11.73,h:1.1,fontFace:FD,fontSize:PT.up?44:60,bold:!PT.up,charSpacing:PT.up?1:-1.2,color:PT.heroTx,align:'center',valign:'middle',objectName:'hero'});
+        s.addText(sub||'',{x:0.8,y:4.75,w:11.73,h:0.7,fontFace:FN,fontSize:22,color:PT.heroMu,align:'center',valign:'top',objectName:'hero2'});
       } else {
         s.addImage({data:WP2_LOGO.m||WP2_NOLOGO,x:0.9,y:0.7,w:0.7,h:0.7,objectName:'!!logo'});
-        s.addText(title,{x:0.9,y:2.6,w:11.5,h:1.2,fontFace:FN,fontSize:56,bold:true,charSpacing:-1.2,color:'F5F5F7',valign:'middle',objectName:'hero'});
-        s.addText(sub||'',{x:0.92,y:3.85,w:11.5,h:0.8,fontFace:FN,fontSize:22,color:'86868B',valign:'top',objectName:'hero2'});
+        s.addText(PT.up?String(title).toUpperCase():title,{x:0.9,y:2.6,w:11.5,h:1.2,fontFace:FD,fontSize:PT.up?46:56,bold:!PT.up,charSpacing:PT.up?1:-1.2,color:PT.heroTx,valign:'middle',objectName:'hero'});
+        s.addText(sub||'',{x:0.92,y:3.85,w:11.5,h:0.8,fontFace:FN,fontSize:22,color:PT.heroMu,valign:'top',objectName:'hero2'});
       } return s; };
-    const card = (s,x,y,w,h) => s.addShape('roundRect',{x,y,w,h,fill:{color:C.card},line:{type:'none'},rectRadius:0.2,shadow:{type:'outer',color:'000000',opacity:0.07,blur:16,offset:2,angle:90},objectName:'card'});
+    const card = (s,x,y,w,h) => s.addShape('roundRect',{x,y,w,h,fill:{color:C.card},line:PT.cline||{type:'none'},rectRadius:PT.rad,shadow:PT.sh||undefined,objectName:'card'});
     const note = (s,t,y) => s.addText(t,{x:0.8,y:y||6.7,w:11.8,h:0.3,fontFace:FN,fontSize:10,color:'86868B',objectName:'note'});
     const BRD = [{type:'none'},{type:'none'},{type:'solid',pt:0.5,color:'E5E5EA'},{type:'none'}];
     const cell = (v,o) => ({text:v==null?'':String(v),options:Object.assign({fontFace:FN,fontSize:11,color:C.tx,valign:'middle',fill:{color:'FFFFFF'},border:BRD},o||{})});
@@ -6515,7 +6751,7 @@ async function wp2Build(){
     }
     st.textContent = 'Добавляем анимации…';
     const buf = await pres.write({outputType:'arraybuffer'});
-    const blob = await wp2Inject(buf, heroIdx, window.JSZip);
+    const blob = await wp2Inject(buf, heroIdx, window.JSZip, PR.id);
     const fn = 'Собрание_с_управленцами_'+today.toISOString().slice(0,10)+'.pptx', a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fn; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 4000);
     st.textContent = 'Готово: '+fn+' ('+N+' слайдов'+(xDone.length?', доп. отчёты: '+xDone.join(', '):'')+(xSkip.length?'; не поддержаны: '+xSkip.join(', '):'')+')';
     window.__wp2 = {N, blob};
