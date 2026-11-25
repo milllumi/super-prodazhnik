@@ -6,9 +6,10 @@
 - Основа — стекло на цветном свечении, один акцент `blue`, статусы green/orange/pink с подписью.
 - Режим сайта по умолчанию — Operate: сдержанно, смелость только в герое.
 - Единый стиль таблиц `.tbl` + модификаторы; новые таблицы только по `tables.md`.
-- Оформления: iOS 27 (по умолчанию), iOS 16, Pixel, Калькулятор (`data-ios=bk`).
+- Оформления: iOS 27 (по умолчанию), iOS 16, Pixel, Стиль (`data-ios=bk`).
 - Градиент синий → индиго → фиолетовый только в герое.
-- Агенты: ui-designer, design-system-keeper, frontend-design, impeccable, open-design, design-files, figma-bridge, screenshot-loop.
+- Агенты: ui-designer, design-system-keeper, frontend-design, impeccable, open-design, design-files, figma-bridge, screenshot-loop, typography, layout-spacing, performance, motion.
+- Пресеты тем: Классика, Pixel, Стиль, Комикс. Шрифты — по группам (typography), анимации — по реестру MOTION.md.
 
 ## Известные исключения
 - `muted` на светлом фоне ≈3.2:1 — только вторичные подписи ≥12px (унаследовано от сайта).
