@@ -48,7 +48,7 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 21600;                                 // кэш данных: 6 ч (максимум CacheService); warmCache() обновляет его после выгрузки продаж (08:20 и 15:20)
-const CACHE_EPOCH = 'e13';
+const CACHE_EPOCH = 'e14';
 let SS_ = null, FRESH_ = false, KB_ = undefined;
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
@@ -845,7 +845,7 @@ function sellerData_(ss, sess, access) {
     next3: next3_(sched, mySched, primarySalon_(ss, meKey, me.tt || (kpiShops_(ss, access)[meKey] || [])[0] || '')),
     pointRes: salonResults_(ss, primarySalon_(ss, meKey, me.tt || (kpiShops_(ss, access)[meKey] || [])[0] || '')),
     bonus: { total: total, shifts: shifts, avgDaily: shifts ? total / shifts : 0, days: worked, groups: inc.groups || null, groupsTotal: inc.gtotal === undefined ? null : inc.gtotal },
-    rating: rating, ratings: ratingsFor_(sellers, meKey),
+    rating: rating, ratings: ratingsFor_(sellers, meKey, screenQty_(ss)),
   };
 }
 
@@ -1391,6 +1391,7 @@ function cardsGet_(req) {
   const all = cardsAll_(ss);
   if (all.missing) return { missing: true, name: CONFIG.SHEET_SALONS };
   const want = {}; names.forEach(function (n) { want[norm_(n)] = true; });
+  if (req.by === 'emp') return { cards: cardsByEmp_(ss, want), salons: names, month: all.month || '', by: 'emp' };
   const out = [];
   all.cards.forEach(function (cd) {
     const idx = []; cd.salons.forEach(function (n, i) { if (want[norm_(n)]) idx.push(i); });
@@ -1569,9 +1570,14 @@ function salesAgg_(data) {
   rows.forEach(function (r) { const p = r.d.split('.'); ym = Math.max(ym, Number(p[2]) * 12 + Number(p[1])); });
   const ng = { n: 0, sum: 0, fixN: 0, fixSum: 0, items: {} };          // чеки с группой «нет» (товар без группы в каталоге 1С)
   const ng2 = {};                                                        // группы, которые сайт не учитывает ни в карточках, ни в бонусе
-  const out = { noGroup: ng, otherGroups: ng2, cards: {}, emp: {}, month: ym ? ((ym - 1) % 12) + 1 : 0, year: ym ? Math.floor((ym - 1) / 12) : 0, maxDay: 0, salonsAll: {} };
+  const out = { noGroup: ng, otherGroups: ng2, cards: {}, ecards: {}, empSalons: {}, empDays: {}, emp: {}, month: ym ? ((ym - 1) % 12) + 1 : 0, year: ym ? Math.floor((ym - 1) / 12) : 0, maxDay: 0, salonsAll: {} };
   const put = function (key, salon, day, val) {
     const c = out.cards[key] = out.cards[key] || {}, s = c[salon] = c[salon] || {};
+    s[day] = (s[day] || 0) + val;
+  };
+  const eput = function (key, emp, salon, day, val) {                  // те же карточки, но по сотрудникам: { ключ: { ФИО: { салон: { день: значение } } } }
+    if (!emp) return;
+    const c = out.ecards[key] = out.ecards[key] || {}, e = c[emp] = c[emp] || {}, s = e[salon] = e[salon] || {};
     s[day] = (s[day] || 0) + val;
   };
   const eadd = function (e, key, val) { const o = out.emp[e] = out.emp[e] || { phones: 0, acc: 0, serv: 0, sim: 0, ins: 0 }; o[key] += val; };
@@ -1586,8 +1592,9 @@ function salesAgg_(data) {
     if (g === 'Услуги' && f.serv) { put('serv', r.s, day, r.k); eadd(r.e, 'serv', r.k); }
     if (g === 'Сим-карты' && f.simOk) { put('sim', r.s, day, r.q); eadd(r.e, 'sim', r.q); }
     if (g === 'Страхование и защита') { put('ins', r.s, day, r.k); eadd(r.e, 'ins', r.k); }
-    if (f.screen) put('screen', r.s, day, r.q);
-    ['pzu', 'watch', 'head', 'bp', 'clean', 'pack'].forEach(function (k) { if (f[k]) put(k, r.s, day, 1); });
+    if (r.e) { (out.empSalons[r.e] = out.empSalons[r.e] || {})[r.s] = 1; (out.empDays[r.e] = out.empDays[r.e] || {})[day] = 1; }
+    if (f.screen) { put('screen', r.s, day, r.q); eput('screen', r.e, r.s, day, r.q); }
+    ['pzu', 'watch', 'head', 'bp', 'clean', 'pack'].forEach(function (k) { if (f[k]) { put(k, r.s, day, 1); eput(k, r.e, r.s, day, 1); } });
   });
   ng.top = Object.keys(ng.items).map(function (k) { return ng.items[k]; }).sort(function (a, b) { return b.sum - a.sum; }).slice(0, 8); ng.models = Object.keys(ng.items).length; delete ng.items;
   out.otherGroups = Object.keys(ng2).map(function (k) { return ng2[k]; }).sort(function (a, b) { return b.sum - a.sum; });
@@ -1689,6 +1696,28 @@ function detailsGrid_(ss) {
     });
     return grid;
   });
+}
+// Те же карточки, но по сотрудникам салонов руководителя: сколько дней отработано и сколько продаж (продажи считаются только в салонах руководителя)
+function cardsByEmp_(ss, want) {
+  const m = salesModel_(ss), ec = m.ecards || {}, out = [];
+  const inWant = function (s) { return !!want[norm_(s)]; };
+  const emps = Object.keys(m.empSalons || {}).filter(function (e) { return Object.keys(m.empSalons[e]).some(inWant); });
+  if (!emps.length) return out;
+  let ppl = {}; try { ppl = readSchedule_(ss).people || {}; } catch (e) {}
+  const loose = {}; Object.keys(ppl).forEach(function (k) { loose[looseName_(k)] = ppl[k]; });
+  const days = {};                                                             // отработано дней: смены по графику до сегодня, иначе дни с чеками
+  emps.forEach(function (e) {
+    const p = ppl[norm_(e)] || loose[looseName_(e)];
+    days[e] = p && p.done > 0 ? p.done : Object.keys((m.empDays || {})[e] || {}).length;
+  });
+  EXTRA_CARDS_.forEach(function (c) {
+    const data = ec[c.key] || {}, rows = emps.map(function (e) {
+      let n = 0; Object.keys(data[e] || {}).forEach(function (s) { if (inWant(s)) Object.keys(data[e][s]).forEach(function (d) { n += data[e][s][d]; }); });
+      return { name: short_(e), days: days[e], n: n };
+    }).sort(function (a, b) { return b.n - a.n || b.days - a.days || (a.name < b.name ? -1 : 1); });
+    out.push({ title: c.title.replace(/^Дней без продажи · /, ''), dir: c.dir, kind: 'emp', rows: rows, total: rows.reduce(function (a, r) { return a + r.n; }, 0) });
+  });
+  return out;
 }
 // Карточки правее основных блоков («Защита экрана», ПЗУ, часы, наушники, БП, чистка, пакет)
 function cardsModel_(ss) {
@@ -2593,28 +2622,40 @@ function vmrWatch_(ss) {
 }
 
 /* ---------- рейтинг по направлениям и «лидеры» (первое место по группе) ---------- */
-function ratingsFor_(sellers, meKey) {
+function ratingsFor_(sellers, meKey, scr) {
   const out = {};
   METRICS.forEach(function (m) {
     const l = sellers.map(function (s) { return { s: s, m: s.metrics.filter(function (x) { return x.key === m.key; })[0] }; })
-      .filter(function (o) { return o.m && o.m.planMonth > 0; })
-      .sort(function (a, b) { return b.m.pct - a.m.pct || b.m.fact - a.m.fact; });
-    out[m.key] = l.map(function (o, i) { return { place: i + 1, name: short_(o.s.name), score: Math.round(o.m.pct), me: norm_(o.s.name) === meKey }; });
+      .filter(function (o) { return o.m && o.m.fact > 0; })                  // места — по обороту (₽; Сим — шт), а не по закрытию плана
+      .sort(function (a, b) { return b.m.fact - a.m.fact || b.m.pct - a.m.pct; });
+    out[m.key] = l.map(function (o, i) { return { place: i + 1, name: short_(o.s.name), score: Math.round(o.m.fact), me: norm_(o.s.name) === meKey }; });
   });
+  if (scr) {                                                              // «Защита экрана»: плана нет — места по числу проданных плёнок и стёкол
+    out.screen = sellers.map(function (s) { return { s: s, q: scr(s.name) }; }).filter(function (o) { return o.q > 0; })
+      .sort(function (a, b) { return b.q - a.q; })
+      .map(function (o, i) { return { place: i + 1, name: short_(o.s.name), score: Math.round(o.q), me: norm_(o.s.name) === meKey }; });
+  }
   return out;
+}
+function screenQty_(ss) {                                                 // функция «ФИО → число проданных плёнок и стёкол за месяц»
+  const e = (salesModel_(ss).ecards || {}).screen || {}, a = {}, l = {};
+  Object.keys(e).forEach(function (k) {
+    let t = 0; Object.keys(e[k]).forEach(function (s) { Object.keys(e[k][s]).forEach(function (d) { t += e[k][s][d]; }); });
+    a[norm_(k)] = (a[norm_(k)] || 0) + t; l[looseName_(k)] = (l[looseName_(k)] || 0) + t;
+  });
+  return function (name) { const n = norm_(name); return a[n] !== undefined ? a[n] : (l[looseName_(name)] || 0); };
 }
 function leaders_(ss, access) {
   const allowed = {}; access.forEach(function (a) { if (!a.manager) allowed[a.key] = true; });
-  const sellers = readPlan_(ss).filter(function (s) { return allowed[norm_(s.name)]; }), r = ratingsFor_(sellers, ''), out = {};
+  const sellers = readPlan_(ss).filter(function (s) { return allowed[norm_(s.name)]; }), r = ratingsFor_(sellers, '', screenQty_(ss)), out = {};
   Object.keys(r).forEach(function (k) { if (r[k].length && r[k][0].score > 0) out[k] = r[k][0].name; });
-  // общий рейтинг — как в sellerData_: по месту из таблицы, затем по среднему % плана
+  // «Звезда команды» — наибольший общий оборот в рублях: телефоны + аксессуары + услуги + страховки (Сим считается штуками и в рубли не складывается)
+  let best = null, bt = 0;
   sellers.forEach(function (s) {
-    if (s.rating !== null && s.rating !== undefined) { s.score = s.rating; return; }
-    const pcts = s.metrics.filter(function (m) { return m.planMonth > 0; }).map(function (m) { return m.pct; });
-    s.score = pcts.length ? pcts.reduce(function (a, b) { return a + b; }, 0) / pcts.length : 0;
+    const t = s.metrics.filter(function (m) { return m.key !== 'sim'; }).reduce(function (a, m) { return a + (m.fact || 0); }, 0);
+    if (t > bt) { bt = t; best = s; }
   });
-  const top = sellers.slice().sort(function (a, b) { const pa = a.place || 9999, pb = b.place || 9999; return pa !== pb ? pa - pb : b.score - a.score; })[0];
-  if (top && top.score > 0) out.all = short_(top.name);
+  if (best) out.all = short_(best.name);
   return out;
 }
 // звания считаем отдельно от личных кэшей: короткий кэш (2 мин), чтобы звание сразу переходило новому лидеру

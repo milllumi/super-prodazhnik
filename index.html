@@ -777,6 +777,8 @@ html[data-ios="bk"] .btn:not(.ghost),html[data-ios="16"] .btn:not(.ghost){box-sh
 .rp-ns{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap;vertical-align:1px}
 .rp-ns.bad{background:rgba(255,55,95,.14);color:var(--pink)}.rp-ns.good{background:rgba(48,184,85,.15);color:var(--green)}
 .rp-sn:has(.rp-ns){white-space:normal;overflow:visible}
+.cp-seg{margin:0 0 12px}
+.rp-et{width:100%}.rp-et td,.rp-et th{padding:7px 8px}.rp-et th.num,.rp-et td.num{text-align:right;white-space:nowrap}.rp-et td:first-child{overflow-wrap:anywhere}
 .rc-big .rp-ax{font-size:13px}.rc-big .rp-vl{font-size:13px}
 .rp-ser .rp-cl,.rp-dir .rc-kp+.rp-chart .rp-cl{font-size:13.5px}
 @media(max-width:560px){.rc-big .rp-ax,.rc-big .rp-vl{font-size:14px}}
@@ -1996,6 +1998,7 @@ small,.muted{font-size:max(var(--fs-xs),.86em)}
 .lead.ld-all{background:linear-gradient(135deg,#ffe066,#ff9f0a);color:#5a3200}
 .lead.ld-smart{background:linear-gradient(135deg,#a9d4ff,#5aa9ff);color:#08306b}
 .lead.ld-acc{background:linear-gradient(135deg,#ffc2e0,#ff7ab8);color:#6b0838}
+.lead.ld-screen{background:linear-gradient(135deg,#ffd9a8,#ff9f43);color:#5c2a00}
 .lead.ld-serv{background:linear-gradient(135deg,#b8f0c8,#4cd27a);color:#08411f}
 .lead.ld-ins{background:linear-gradient(135deg,#a8ece6,#2bc4b8);color:#05403b}
 .lead.ld-sim{background:linear-gradient(135deg,#d8c7ff,#9b7bff);color:#2c0f73}
@@ -3681,7 +3684,7 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden && store.
 
 function paint(d){
   if (DEMO && DEMO_TM() && !d.dataWarn) d.dataWarn = {other:[{g:'Продукты оператора',n:1,sum:2940},{g:'(не исп) Неактуальные номенклатуры',n:2,sum:600}],noGroup:{n:122,sum:1412888,fixN:122,fixSum:1412888,models:73,top:[{n:'Смартфон Samsung A07s 4/128Gb Black РСТ НЕМАРКИРУЕМЫЙ ТОВАР',sum:96880},{n:'Смартфон Honor X7d 8/256Gb НЕМАРКИРУЕМЫЙ ТОВАР',sum:81990},{n:'Мобильный телефон Olmio X14 Black НЕМАРКИРУЕМЫЙ ТОВАР',sum:60400}]}};
-  DATA = d; LEADERS = d.leaders || (DEMO ? {all:'Иванов Пётр',serv:'Смирнова Анна',smart:'Иванов Пётр',acc:'Попова Мария',ins:'Орлова Дарья',sim:'Соколов Артём'} : {}); if (d.role==='seller') leadNotify(d.name);
+  DATA = d; LEADERS = d.leaders || (DEMO ? {all:'Иванов Пётр',serv:'Смирнова Анна',smart:'Иванов Пётр',acc:'Попова Мария',screen:'Смирнова Анна',ins:'Орлова Дарья',sim:'Соколов Артём'} : {}); if (d.role==='seller') leadNotify(d.name);
   if (d.role==='manager') renderManager(d); else renderSeller(d);
   applyView();
   { const lc=lcFor(d); $('#upd').textContent = lc ? 'чек '+lc.d.slice(0,5)+(lc.t?' '+lc.t:'') : 'обновлено '+new Date(d.updated).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); } updLine(d);
@@ -4371,7 +4374,7 @@ function demoApi(b){
     store.set('demoName', b.login.trim()); store.set('demoRole', MG.some(m=>l.startsWith(m))?'manager':'seller');
     return Promise.resolve({token:'demo', role:store.get('demoRole')});
   }
-  if (b.action==='cards_get') return Promise.resolve(demoCards());
+  if (b.action==='cards_get') return Promise.resolve(demoCards(b.by));
   if (b.action==='recon_get') return Promise.resolve(demoRecon());
   if (b.action==='tm_report'){
     if (!DEMO_TM()) return Promise.resolve({error:'forbidden'});
@@ -4421,12 +4424,15 @@ function demoRecon(){
     simOp:days.map((_,i)=>Math.round((15+(i%5))*(k?0.4:1))),inactive:days.map((_,i)=>i%3),active:days.map((_,i)=>Math.round((14+(i%4))*(k?0.4:1)))});
   return {month:11,days,opStale:false,updated:new Date().toISOString(),options:[{key:'all',label:'Всего по Миллеру',series:mk(0)},{key:'КЗН Зорге 75 БЛН',label:'КЗН Зорге 75 БЛН',series:mk(1)},{key:'КЗН Мира 30а БЛН',label:'КЗН Мира 30а БЛН',series:mk(2)}]};
 }
-function demoCards(){
-  const S=['КЗН Зорге 75 БЛН','КЗН Мира 30а БЛН'], days=Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0')+'.11.2026');
+function demoCards(by){
+  const EMP = by==='emp', S=EMP?['Егоров Даниил','Логинова Василиса','Гайнцев Ярослав','Жилина Ксения']:['КЗН Зорге 75 БЛН','КЗН Мира 30а БЛН'], days=Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0')+'.11.2026');
   let sd=11; const rn=m=>{sd=(sd*9301+49297)%233280;return Math.floor(sd/233280*m)};
   const mk=(title,dir,pctFlag,max,plan)=>{ const v=days.map(()=>S.map(()=>pctFlag?rn(160):(rn(4)===0?null:rn(max)))); return {title,dir,kind:'days',pct:pctFlag,salons:S,days,plan:days.map(()=>plan),v,tot:pctFlag?S.map((_,j)=>Math.round(v.reduce((a,r)=>a+(r[j]||0),0)/v.length)):S.map((_,j)=>v.reduce((a,r)=>a+(r[j]||0),0)),sums:[]}; };
   const cards=[mk('Дней без продажи · Защита экрана','Аксессуары',false,3,1),mk('ПЗУ','Аксессуары',false,2,0),mk('Часы','Аксессуары',false,2,0),mk('Наушники','Аксессуары',false,4,1),mk('БП','Услуги',false,3,1),mk('Чистка','Услуги',false,2,0),mk('Пакет','Услуги',false,3,1)];
   cards.push({title:'Сводка: ПЗУ, Наушники, Часы',dir:'Аксессуары',kind:'pivot',pct:false,salons:S,rows:[{label:'ПЗУ',vals:[1,2]},{label:'Наушники',vals:[5,3]},{label:'Часы',vals:[0,2]}],sums:[]});
+  if (EMP){ const T=['Защита экрана','ПЗУ','Часы','Наушники','БП','Чистка','Пакет'], D=[['Аксессуары'],['Аксессуары'],['Аксессуары'],['Аксессуары'],['Услуги'],['Услуги'],['Услуги']];
+    const ec=T.map((t,i)=>{ const rows=S.map((n,j)=>({name:n,days:9+((i+j)%4),n:rn(14)})).sort((a,b)=>b.n-a.n); return {title:t,dir:D[i][0],kind:'emp',rows,total:rows.reduce((a,r)=>a+r.n,0)}; });
+    return {cards:ec,salons:['КЗН Зорге 75 БЛН','КЗН Мира 30а БЛН'],by:'emp'}; }
   return {cards,salons:S};
 }
 const DEMO_TM = ()=>(store.get('demoName')||'').toLowerCase().startsWith('тм ');
@@ -4449,7 +4455,7 @@ function demoSeller(){
     return {key,label,planDay:day,planMonth:plan,fact,pct:fact/plan*100,forecast:null,forecastPct:pf*30/9*100};};
   const names=['Егоров Даниил','Логинова Василиса','Гайнцев Ярослав','Сакирьянова София','Ракчеев Даниил','Жилина Ксения','Зарипова Ляйсан','Фахреева Алина','Парукова Мария','Хасаншина Камилла',dn,'Глебов Артем'];
   const rating=names.map((n,i)=>({place:i+1,name:n,score:Math.round(112-i*6.5),me:i===10}));
-  const ratings={}; ['sim','smart','acc','serv','ins'].forEach((k,ki)=>{ const sh=(ki*3+4)%12, perm=names.map((_,i)=>names[(i+sh)%12]); ratings[k]=perm.map((n,i)=>({place:i+1,name:n,score:Math.round(118-i*7.5-ki*2),me:n===names[10]})); });
+  const ratings={}; ['sim','smart','acc','serv','ins','screen'].forEach((k,ki)=>{ const sh=(ki*3+4)%12, perm=names.map((_,i)=>names[(i+sh)%12]); ratings[k]=perm.map((n,i)=>({place:i+1,name:n,score:Math.round(118-i*7.5-ki*2),me:n===names[10]})); });
   const leaders={}; Object.keys(ratings).forEach(k=>leaders[k]=ratings[k][0].name);
   const vals=[1840,2310,0,2750,1990,2480,3120,2260,1730];
   const days=vals.map((v,i)=>({d:String(i+1).padStart(2,'0')+'.11.2026',v}));
@@ -5010,9 +5016,17 @@ function rpSide(b, bi){
 function rpCardsHTML(r){
   if (r.missing) return `<div class="card empty">Лист «${esc(r.name||'Детали продаж салоны')}» не найден.</div>`;
   if (r.cards) r = Object.assign({}, r, {cards: r.cards.filter(c=>c.kind!=='pivot' && !/отставани\S*[,\s]+прогноз/i.test(c.title||''))});   // не показываем сводные таблицы по салонам и карточки «… · отставание, прогноз»
-  if (!r.cards || !r.cards.length) return '<div class="card empty">Для ваших салонов дополнительных карточек пока нет.'+((r.salons&&r.salons.length)?'':' За вами не закреплен ни один салон (лист «закрепление» в KPI ОСС).')+'</div>';
-  const head = `<div class="rp-cap">Ваши салоны: ${esc((r.salons||[]).map(rpShort).join(', '))}</div>`;
-  return head + r.cards.map((cd,i)=>cd.kind==='pivot' ? rpPivotCard(cd,i) : rpDaysCard(cd,i)).join('');
+  const byEmp = r.by==='emp';
+  if (!r.cards || !r.cards.length) return '<div class="card empty">'+(byEmp?'По сотрудникам ваших салонов карточек пока нет — в этом месяце не было продаж.':'Для ваших салонов дополнительных карточек пока нет.')+((r.salons&&r.salons.length)?'':' За вами не закреплен ни один салон (лист «закрепление» в KPI ОСС).')+'</div>';
+  const head = `<div class="rp-cap">${byEmp?'Сотрудники салонов':'Ваши салоны'}: ${esc((r.salons||[]).map(rpShort).join(', '))}</div>`;
+  return head + r.cards.map((cd,i)=>cd.kind==='pivot' ? rpPivotCard(cd,i) : cd.kind==='emp' ? rpEmpCard(cd) : rpDaysCard(cd,i)).join('');
+}
+/* «Карточки» → «Сотрудники»: без графиков — сколько дней отработано и сколько продаж */
+function rpEmpCard(cd){
+  const rows = cd.rows||[];
+  return `<section class="card rp-dir rp-emp fade"><div class="rp-dh"><div><div class="eyebrow">${esc(cd.dir||'Детали продаж')}</div><h2>${esc(cd.title)}</h2></div>
+    <div class="rp-big num">${fmt(cd.total||0)}<small>продаж за месяц</small></div></div>
+    <div class="tbl"><table class="rp-et"><thead><tr><th>Сотрудник</th><th class="num">Дней</th><th class="num">Продаж</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.name)}</td><td class="num">${x.days==null?'—':x.days}</td><td class="num"><b>${fmt(x.n||0)}</b></td></tr>`).join('')}</tbody></table></div></section>`;
 }
 function rpPivotCard(cd,i){
   const sub = [['Салон'].concat(cd.rows.map(x=>x.label)).concat(['Итого'])];
@@ -5043,16 +5057,20 @@ function rpDaysCard(cd,i){
     <div hidden><div class="tbl rp-gridw"><table class="rp-grid"><thead><tr><th>д</th>${plan?'<th title="План на день">пл</th>':''}${cd.salons.map((n,j)=>`<th title="${esc(n)}">${j+1}</th>`).join('')}</tr></thead><tbody>${cd.v.map((row,ri)=>`<tr><th>${esc(labels[ri].slice(0,2))}</th>${plan?`<td class="pl">${rpK(plan[ri])}</td>`:''}${row.map(v=>v==null?'<td class="z"></td>':`<td style="background:color-mix(in srgb,${col} ${Math.round(8+Math.min(1,Math.abs(v)/mx)*52)}%,transparent)">${pct?fmt(v):rpK(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>
     <ol class="rp-leg">${cd.salons.map((n,j)=>`<li><b>${j+1}</b>${esc(rpShort(n))}</li>`).join('')}</ol></div></div></section>`;
 }
+let CPG = 'salons';   // страница отчёта «Карточки»: salons — по салонам, emp — по сотрудникам
 async function cardsLoad(el, force){
-  const own = !(GV && gHas(DATA,'cards')), ck = own ? 'rp:cards' : 'rp:cards:g'; let cached=null; try{ cached=JSON.parse(store.get(ck)||'null'); }catch(e){}
-  const draw = r => { el.innerHTML = rpCardsHTML(r); el.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{ const t=b.nextElementSibling; t.hidden=!t.hidden; b.classList.toggle('on',!t.hidden); }); animate(); };
-  if (cached && !force) draw(cached); else if (!cached) el.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем карточки…</div>';
+  const own = !(GV && gHas(DATA,'cards')), emp = CPG==='emp', ck = (own ? 'rp:cards' : 'rp:cards:g') + (emp ? ':emp' : ''); let cached=null; try{ cached=JSON.parse(store.get(ck)||'null'); }catch(e){}
+  const seg = `<div class="chips rt-tabs cp-seg" role="group" aria-label="Карточки по">${[['salons','Салоны'],['emp','Сотрудники']].map(x=>`<button class="chipb" data-cpg="${x[0]}" aria-pressed="${CPG===x[0]}">${x[1]}</button>`).join('')}</div>`;
+  const bind = () => el.querySelectorAll('[data-cpg]').forEach(b=>b.onclick=()=>{ if (CPG===b.dataset.cpg) return; CPG=b.dataset.cpg; cardsLoad(el); });
+  const draw = r => { el.innerHTML = seg + rpCardsHTML(r); bind(); el.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{ const t=b.nextElementSibling; t.hidden=!t.hidden; b.classList.toggle('on',!t.hidden); }); animate(); };
+  if (cached && !force) draw(cached); else if (!cached){ el.innerHTML = seg + '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем карточки…</div>'; bind(); }
   try{
-    const r = await api({action:'cards_get', token:store.get('token'), fresh:!!force, own:own});
-    if (r.error){ if (r.error==='auth') return showLogin('Сессия истекла. Войдите снова.'); if(!cached) el.innerHTML='<div class="card empty">Не удалось загрузить ('+esc(r.error)+').</div>'; return; }
+    const r = await api({action:'cards_get', token:store.get('token'), fresh:!!force, own:own, by:emp?'emp':'salons'});
+    if (emp!==(CPG==='emp')) return;   // пока грузилось, переключили страницу
+    if (r.error){ if (r.error==='auth') return showLogin('Сессия истекла. Войдите снова.'); if(!cached){ el.innerHTML=seg+'<div class="card empty">Не удалось загрузить ('+esc(r.error)+').</div>'; bind(); } return; }
     const same = cached && !force && JSON.stringify(cached)===JSON.stringify(r);
     store.set(ck, JSON.stringify(r)); if (!same) draw(r);
-  }catch(e){ if(!cached) el.innerHTML='<div class="card empty">Нет связи. Нажмите «Обновить».</div>'; }
+  }catch(e){ if(!cached){ el.innerHTML=seg+'<div class="card empty">Нет связи. Нажмите «Обновить».</div>'; bind(); } }
 }
 const DIR_LABELS_RP = {phones:'телефоны',acc:'аксессуары',serv:'услуги',sim:'сим',ins:'страховки'};
 
@@ -7029,14 +7047,15 @@ document.addEventListener('keydown', e=>{ if ((e.key==='Enter'||e.key===' ') && 
 /* =================== Рейтинг: общий и по направлениям, титулы лидеров =================== */
 /* Звания лидеров: [значок, название, подсказка]. all — первое место в общем рейтинге; остальные — первое место по направлению. */
 const LEAD_T = {
-  all:  ['👑','Звезда команды',      'Первое место в общем рейтинге'],
-  smart:['📱','Повелитель экранов',  'Первое место по телефонам: продаёт больше всех смартфонов'],
-  acc:  ['🎧','Волшебник комплекта', 'Первое место по аксессуарам: к каждому телефону — полный набор'],
-  serv: ['🛠️','Золотые руки',        'Первое место по услугам: пакеты, плёнка, чистка — всё в дело'],
-  ins:  ['🛡️','Рыцарь защиты',       'Первое место по страховкам: клиент под надёжной защитой'],
-  sim:  ['📡','Человек-антенна',     'Первое место по SIM: на связи с каждым клиентом']
+  all:  ['👑','Звезда команды',      'Наибольший общий оборот: телефоны, аксессуары, услуги и страховки'],
+  smart:['📱','Король смартфонов',   'Первое место по телефонам: самый большой оборот в рублях'],
+  acc:  ['🎧','Волшебник комплекта', 'Первое место по аксессуарам: самый большой оборот в рублях'],
+  screen:['🖥️','Повелитель экранов',  'Первое место по защите экрана: больше всех продано плёнок и стёкол (шт)'],
+  serv: ['🛠️','Золотые руки',        'Первое место по услугам: самый большой оборот в рублях'],
+  ins:  ['🛡️','Рыцарь защиты',       'Первое место по страховкам: самый большой оборот в рублях'],
+  sim:  ['📡','Человек-антенна',     'Первое место по SIM: больше всех подключений (шт)']
 };
-const RT_TABS = [['all','Общий'],['smart','Телефоны'],['acc','Аксессуары'],['serv','Услуги'],['ins','Страховки'],['sim','Сим']];
+const RT_TABS = [['all','Общий'],['smart','Телефоны'],['acc','Аксессуары'],['screen','Защита экрана'],['serv','Услуги'],['ins','Страховки'],['sim','Сим']];
 let LEADERS = {}, RT = 'all';
 const ldKey = n => String(n||'').toLowerCase().replace(/ё/g,'е').split(/\s+/).slice(0,2).join(' ');
 function leadTags(name){ const k = ldKey(name); if (!k) return ''; return Object.keys(LEAD_T).filter(d=>LEADERS[d] && ldKey(LEADERS[d])===k).map(d=>`<span class="lead ld-${d}" title="${esc(LEAD_T[d][2])}"><i aria-hidden="true">${LEAD_T[d][0]}</i>${LEAD_T[d][1]}</span>`).join(''); }
@@ -7062,7 +7081,7 @@ function ratingList(d){
 }
 function ratingHTML(d){
   return `<h2>Рейтинг команды</h2><div class="chips rt-tabs" role="group" aria-label="Рейтинг">${RT_TABS.map(x=>`<button class="chipb" data-rt="${x[0]}" aria-pressed="${RT===x[0]}">${x[1]}</button>`).join('')}</div><div id="ratingList">${ratingList(d)}</div>
-    <div class="sub" style="font-size:13px">Топ-5 — «лидеры продаж»; первое место в направлении получает титул. Руководители салонов в рейтинг не входят.</div>`;
+    <div class="sub" style="font-size:13px">Топ-5 — «лидеры продаж»; рейтинги по направлениям — по обороту (Сим и защита экрана — по штукам), первое место получает звание. Руководители салонов в рейтинг не входят.</div>`;
 }
 document.addEventListener('click', e=>{ const b = e.target.closest('[data-rt]'); if (!b || !DATA) return; RT = b.dataset.rt; const c = $('#ratingCard'); if (c) c.querySelectorAll('[data-rt]').forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.rt===RT))); const l = $('#ratingList'); if (l) l.innerHTML = ratingList(DATA); });
 
