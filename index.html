@@ -6423,7 +6423,7 @@ function nyClock(now){ now = now==null ? Date.now() : now; const m = new Date(no
   const dec = mo===11 && now>=Date.UTC(y,11,1,6,0,0), jan = mo===0 && now<Date.UTC(y,0,11,6,0,0);   // строго с 1 декабря 09:00 МСК до 11 января 09:00 МСК, потом прежнее оформление
   return {y, dec, jan, released: dec||jan, target: Date.UTC(jan?y:y+1,0,1,-3,0,0), newYear: jan, year: jan?y:y+1}; }
 function nyReleased(){ return nyClock().released; }
-function nyPreview(){ return !!NY.demo; }                                  // до старта тема включается строго по расписанию; исключение — короткий показ анимации по тройному нажатию на логотип (ничего не сохраняется)
+function nyPreview(){ return false; }                                       // до старта никаких предпросмотров: тема включается строго по расписанию
 function nySeason(){ return nyReleased() || nyPreview(); }                  // таймер и оформление доступны
 function nyWanted(){ return nySeason() && store.get('ny')!=='0'; }          // оформление (снег, гирлянда…) — можно выключить в «Оформлении»
 function nyPlural(n, a){ const n10 = n%10, n100 = n%100; return (n10===1&&n100!==11)?a[0]:(n10>=2&&n10<=4&&(n100<10||n100>=20))?a[1]:a[2]; }
@@ -6495,18 +6495,7 @@ function nyIntroCan(){
 function nyIntroEnd(){ NYI.tm.forEach(clearTimeout); NYI.tm = []; NYI.an.forEach(a=>{ try{ a.cancel(); }catch(e){} }); NYI.an = [];
   const r = document.getElementById('nyIntro'); if (r) r.remove(); document.documentElement.classList.remove('ny-intro');
   const pre = document.getElementById('nyPre'); if (pre) pre.style.visibility = '';
-  if (NY.hold){ NY.hold = false; nyApply(); }
-  if (NY.demo && !NY.demoT) NY.demoT = setTimeout(nyDemoEnd, 7000); }                // демо: после анимации 7 секунд показываем оформление и возвращаем всё как было
-function nyDemoEnd(){ clearTimeout(NY.demoT); NY.demoT = 0; if (!NY.demo) return; NY.demo = false;
-  try{ if (NY.demoPrev==null) store.del('nyIntro'); else store.set('nyIntro', NY.demoPrev); }catch(e){}
-  nyApply(); nyPreSync(); }
-function nyDemoIntro(){                                                          // показ анимации с мешком до старта темы: только на экране входа, без сохранения состояния
-  const L = document.getElementById('login');
-  if (NY.demo || NY.hold || nyReleased() || document.getElementById('nyIntro') || !L || L.hidden) return;
-  NY.demo = true; NY.demoPrev = store.get('nyIntro'); nyIntroPlay('full'); }
-window.nyDemoIntro = nyDemoIntro;
-(function(){ const lg = document.querySelector('#loginForm .logo'); if (!lg) return; let n = 0, t = 0;
-  lg.addEventListener('click', () => { const now = Date.now(); n = now-t<700 ? n+1 : 1; t = now; if (n>=3){ n = 0; nyDemoIntro(); } }); })();
+  if (NY.hold){ NY.hold = false; nyApply(); } }
 function nyIntroPlay(mode){
   NY.hold = true; store.set('nyIntro',String(nyClock().year)); const full = mode==='full', W = innerWidth, H = innerHeight;
   const root = document.createElement('div'); root.id = 'nyIntro'; root.className = 'nyi'; root.setAttribute('aria-hidden','true');
@@ -6577,7 +6566,7 @@ function nyTimerSync(){
   e.hidden = !(nySeason() && home); clearInterval(NY.tick); if (!e.hidden){ nyTimerTick(); NY.tick = setInterval(()=>{ if (!document.hidden) nyTimerTick(); }, 1000); } }
 /* до старта оформления: тонкая полоса сверху с одним лишь обратным отсчётом (для всех, за 40 дней) */
 function nyPreSync(){
-  const left = Date.UTC(nyClock().y,11,1,6,0,0) - Date.now(), lg = document.getElementById('login'), show = !nyReleased() && !NY.demo && left>0 && left<40*864e5 && !!lg && !lg.hidden; let e = document.getElementById('nyPre');   // пока тема не началась, виден только отсчёт — и только на экране входа
+  const left = Date.UTC(nyClock().y,11,1,6,0,0) - Date.now(), lg = document.getElementById('login'), show = !nyReleased() && left>0 && left<40*864e5 && !!lg && !lg.hidden; let e = document.getElementById('nyPre');   // пока тема не началась, виден только отсчёт — и только на экране входа
   clearInterval(nyPreSync.t); document.documentElement.toggleAttribute('data-nypre', show);
   if (!show){ if (e) e.remove(); return; }
   if (!e){ e = document.createElement('div'); e.id = 'nyPre'; e.className = 'ny-pre'; e.setAttribute('role','timer'); e.setAttribute('aria-label','До начала новогоднего оформления');
