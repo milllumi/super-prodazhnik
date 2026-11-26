@@ -2062,6 +2062,60 @@ html[data-ios="px"]:not(#_) :is(.tbl,.mtable,.rp-gridw,.dr-wide,.dr-t2,.rp-t,.rc
 #m-dl .stack{display:flex;flex-direction:column;gap:var(--rp-gap,16px);margin:0!important}
 #m-dl .stack>.card,#m-dl .stack>section{margin:0!important}
 #m-dl .rp-dl .note-s{margin:12px 2px 0!important}
+
+/* ---------- Новый год: слой поверх любой темы (включается атрибутом html[data-ny]) ---------- */
+@media (pointer:fine){
+html[data-ny],html[data-ny] body,html[data-ny] *:not(input):not(textarea):not([contenteditable=true]){cursor:url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2732%27%20height=%2732%27%20viewBox=%270%200%2032%2032%27%3E%3Cpath%20d=%27M15.5%2015.5L28%2028%27%20stroke=%27%23c9b6a6%27%20stroke-width=%275%27%20stroke-linecap=%27round%27/%3E%3Cpath%20d=%27M15.5%2015.5L28%2028%27%20stroke=%27%23fff%27%20stroke-width=%273%27%20stroke-linecap=%27round%27/%3E%3Ccircle%20cx=%2711%27%20cy=%2711%27%20r=%279.6%27%20fill=%27%23fff%27%20stroke=%27%23b3122b%27%20stroke-width=%271.3%27/%3E%3Cpath%20d=%27M11%2011a1.6%201.6%200%200%201%203.2%200a3.2%203.2%200%200%201-6.4%200a4.8%204.8%200%200%201%209.6%200a6.4%206.4%200%200%201-12.8%200%27%20fill=%27none%27%20stroke=%27%23e5243b%27%20stroke-width=%272.1%27%20stroke-linecap=%27round%27/%3E%3Cellipse%20cx=%277.6%27%20cy=%276.6%27%20rx=%272.3%27%20ry=%271.2%27%20fill=%27%23fff%27%20opacity=%27.85%27%20transform=%27rotate%28-35%207.6%206.6%29%27/%3E%3Cpath%20d=%27M20%2019.5l5.5%205.5%27%20stroke=%27%23e5243b%27%20stroke-width=%271.4%27%20stroke-linecap=%27round%27%20opacity=%27.0%27/%3E%3C/svg%3E") 6 6,auto!important}
+html[data-ny].ny-hand,html[data-ny].ny-hand *:not(input):not(textarea):not([contenteditable=true]){cursor:url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2732%27%20height=%2732%27%20viewBox=%270%200%2032%2032%27%3E%3Cpath%20d=%27M15.5%2015.5L28%2028%27%20stroke=%27%23c9b6a6%27%20stroke-width=%275%27%20stroke-linecap=%27round%27/%3E%3Cpath%20d=%27M15.5%2015.5L28%2028%27%20stroke=%27%23fff%27%20stroke-width=%273%27%20stroke-linecap=%27round%27/%3E%3Ccircle%20cx=%2711%27%20cy=%2711%27%20r=%279.6%27%20fill=%27%23fff%27%20stroke=%27%23b3122b%27%20stroke-width=%271.3%27/%3E%3Cpath%20d=%27M11%2011a1.6%201.6%200%200%201%203.2%200a3.2%203.2%200%200%201-6.4%200a4.8%204.8%200%200%201%209.6%200a6.4%206.4%200%200%201-12.8%200%27%20fill=%27none%27%20stroke=%27%23e5243b%27%20stroke-width=%272.1%27%20stroke-linecap=%27round%27/%3E%3Cellipse%20cx=%277.6%27%20cy=%276.6%27%20rx=%272.3%27%20ry=%271.2%27%20fill=%27%23fff%27%20opacity=%27.85%27%20transform=%27rotate%28-35%207.6%206.6%29%27/%3E%3Cpath%20d=%27M20%2019.5l5.5%205.5%27%20stroke=%27%23e5243b%27%20stroke-width=%271.4%27%20stroke-linecap=%27round%27%20opacity=%27.0%27/%3E%3Cpath%20d=%27M26.5%203v6M23.5%206h6%27%20stroke=%27%23ffb800%27%20stroke-width=%272%27%20stroke-linecap=%27round%27/%3E%3Cpath%20d=%27M26.5%204.6v2.8M25.1%206h2.8%27%20stroke=%27%23fff%27%20stroke-width=%27.9%27%20stroke-linecap=%27round%27/%3E%3C/svg%3E") 6 6,pointer!important}
+}
+.ny-timer{position:relative;isolation:isolate;overflow:hidden;margin:0 0 18px;padding:40px clamp(14px,3vw,40px) 30px;border-radius:var(--r,24px);color:#fff;text-align:center;background:radial-gradient(900px 380px at 50% -12%,rgba(74,140,255,.55),transparent 65%),linear-gradient(165deg,#0a1a45 0%,#13306f 55%,#4d1238 135%);box-shadow:0 18px 50px rgba(10,26,69,.35)}
+.ny-timer[hidden]{display:none}
+.ny-timer::before{content:"";position:absolute;left:0;right:0;top:0;height:16px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 12' preserveAspectRatio='none'%3E%3Cpath d='M0 0H90V4C80 4 78 11 68 11 58 11 56 5 46 5 36 5 32 10 22 10 12 10 10 4 0 4z' fill='%23fff'/%3E%3C/svg%3E") repeat-x left top/120px 16px;z-index:3;pointer-events:none}
+.nyt-st{position:absolute;inset:0;z-index:-1;background-image:radial-gradient(1.6px 1.6px at 6% 24%,#fff,transparent),radial-gradient(1.2px 1.2px at 14% 62%,#fff,transparent),radial-gradient(1.4px 1.4px at 22% 18%,#fff,transparent),radial-gradient(1.2px 1.2px at 31% 70%,#fff,transparent),radial-gradient(1.6px 1.6px at 40% 12%,#fff,transparent),radial-gradient(1.2px 1.2px at 47% 80%,#fff,transparent),radial-gradient(1.4px 1.4px at 55% 22%,#fff,transparent),radial-gradient(1.2px 1.2px at 63% 64%,#fff,transparent),radial-gradient(1.6px 1.6px at 72% 14%,#fff,transparent),radial-gradient(1.2px 1.2px at 80% 58%,#fff,transparent),radial-gradient(1.4px 1.4px at 88% 28%,#fff,transparent),radial-gradient(1.6px 1.6px at 94% 74%,#fff,transparent),radial-gradient(1px 1px at 36% 40%,#fff,transparent),radial-gradient(1px 1px at 68% 42%,#fff,transparent),radial-gradient(1px 1px at 10% 84%,#fff,transparent);pointer-events:none}
+.nyt-in{position:relative;z-index:2;max-width:1060px;margin:0 auto}
+@media (min-width:761px){.nyt-in{padding:0 clamp(60px,9vw,128px)}}
+.nyt-eb{font-size:14px;font-weight:700;letter-spacing:.12em;color:#ffd86b}
+.nyt-h{margin:6px 0 clamp(20px,3vw,32px);font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5.6vw,56px);line-height:1.08;letter-spacing:-.01em;text-shadow:0 3px 0 rgba(0,0,0,.22)}
+.nyt-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,2vw,26px);padding-top:18px}
+.nyt-g[hidden]{display:none}
+.nyt-t{--nta:#ff4d67;--ntb:#b3122b;position:relative;border-radius:clamp(16px,2.4vw,26px);padding:clamp(14px,2.4vw,28px) 6px clamp(12px,2vw,20px);background:linear-gradient(165deg,var(--nta),var(--ntb));border:2px solid rgba(255,214,107,.9);box-shadow:inset 0 2px 0 rgba(255,255,255,.38),inset 0 -12px 26px rgba(0,0,0,.2),0 12px 28px rgba(0,0,0,.38);transform-origin:50% -18px}
+.nyt-t::before{content:"";position:absolute;left:calc(50% - 1px);top:-20px;width:2px;height:20px;background:#e8c766}
+.nyt-t::after{content:"";position:absolute;left:calc(50% - 9px);top:-7px;width:18px;height:10px;border-radius:4px 4px 2px 2px;background:linear-gradient(#ffe38a,#d9a100)}
+.nyt-t.t1{--nta:#35c47a;--ntb:#0f6a3a}.nyt-t.t2{--nta:#4da6ff;--ntb:#1a49ad}.nyt-t.t3{--nta:#f0b429;--ntb:#a86300}
+.nyt-t b{display:block;font-family:var(--f-display);font-weight:800;font-size:clamp(50px,8.6vw,116px);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums lining-nums;text-shadow:0 3px 0 rgba(0,0,0,.26)}
+.nyt-t span{display:block;margin-top:8px;font-size:clamp(13px,1.9vw,21px);font-weight:700;opacity:.96}
+.nyt-wish{font-size:clamp(18px,3vw,30px);font-weight:700;line-height:1.3;max-width:760px;margin:0 auto;color:#ffe9a8}.nyt-wish[hidden]{display:none}
+.ny-timer.done .nyt-h{font-size:clamp(34px,7vw,72px)}
+.nyt-f{margin-top:22px;font-size:13px;opacity:.78}.nyt-f[hidden]{display:none}
+.nyt-tree{position:absolute;bottom:-8px;width:clamp(70px,10vw,140px);z-index:1;pointer-events:none;opacity:.95}
+.nyt-tree:nth-of-type(1){left:1.5%}.nyt-tree:nth-of-type(2){right:1.5%;transform:scaleX(-1)}
+.nyt-tree .o{fill:#ff375f}.nyt-tree .o2{fill:#ffd60a}.nyt-tree .o3{fill:#3aa0ff}.nyt-tree .o4{fill:#ff8fb1}.nyt-tree .o5{fill:#fff}
+@media (max-width:760px){.nyt-tree{display:none}.nyt-g{grid-template-columns:repeat(2,minmax(0,1fr))}.nyt-t b{font-size:clamp(56px,20vw,92px)}.ny-timer{padding-top:36px}}
+@media (prefers-reduced-motion:no-preference){
+.nyt-t{animation:nySway 5.5s ease-in-out infinite alternate}.nyt-t.t1{animation-delay:-1.4s}.nyt-t.t2{animation-delay:-2.8s;animation-duration:6.2s}.nyt-t.t3{animation-delay:-4.1s}
+.nyt-st{animation:nyTw 4.5s ease-in-out infinite}.nyt-tree .o{animation:nyTw 2.2s ease-in-out infinite}.nyt-tree .o2{animation-duration:2.8s}.nyt-tree .o3{animation-duration:1.9s}}
+@keyframes nySway{from{transform:rotate(-1.3deg)}to{transform:rotate(1.3deg)}}
+html[data-ios="cm"] .ny-timer{border:3px solid var(--cm-ink);border-radius:6px;box-shadow:6px 6px 0 var(--cm-ink)}
+html[data-ios="cm"] .nyt-t{border:3px solid var(--cm-ink);box-shadow:4px 4px 0 var(--cm-ink)}
+html[data-ios="px"] .ny-timer{border-radius:32px}
+@media print{.ny-timer{display:none}}
+.ny-cv{position:fixed;inset:0;width:100%;height:100%;z-index:19;pointer-events:none}
+.ny-gl{position:absolute;left:0;right:0;top:100%;height:30px;pointer-events:none;overflow:hidden;z-index:2}
+.ny-gl svg{display:block;width:100%;height:30px}.ny-gl .w{fill:none;stroke:#4d6b58;stroke-width:1.6;stroke-linecap:round}
+.ny-gl .b{--c:#ff375f;fill:var(--c);filter:drop-shadow(0 0 4px var(--c));opacity:.92}.ny-gl .k{fill:#59635d}
+.ny-gl .b.c1{--c:#ffd60a}.ny-gl .b.c2{--c:#30d158}.ny-gl .b.c3{--c:#3aa0ff}
+@media (prefers-reduced-motion:no-preference){.ny-gl .b{animation:nyTw 2.4s ease-in-out infinite}.ny-gl .b.c1{animation-duration:2.9s}.ny-gl .b.c2{animation-duration:2.1s}.ny-gl .b.c3{animation-duration:3.3s}}
+@keyframes nyTw{0%,100%{opacity:1}50%{opacity:.38}}
+html[data-ny] .brand{position:relative}html[data-ny] .top{margin-bottom:18px}
+html[data-ny] .brand::before{content:"";position:absolute;left:-5px;top:-9px;width:22px;height:20px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 40'%3E%3Cpath d='M7 29C8 14 19 4 34 7c-2 7 0 15 4 22z' fill='%23e5243b'/%3E%3Cpath d='M12 20c6-3 14-3 24 0l2 9H9z' fill='%23c01530' opacity='.45'/%3E%3Crect x='4' y='26' width='37' height='9' rx='4.5' fill='%23fff'/%3E%3Ccircle cx='35' cy='7' r='4.6' fill='%23fff'/%3E%3C/svg%3E") no-repeat center/contain;transform:rotate(-16deg);transform-origin:70% 90%;pointer-events:none;z-index:2;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+@media (max-width:420px){html[data-ny] .brand::before{left:-6px;top:-8px;width:20px;height:18px}}
+html[data-ny]:not([data-ios="cm"]) div.hero::after{content:"";position:absolute;inset:0 16px auto 16px;width:auto;height:11px;border-radius:0 0 8px 8px;z-index:1;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 12' preserveAspectRatio='none'%3E%3Cpath d='M0 0H90V4C80 4 78 11 68 11 58 11 56 5 46 5 36 5 32 10 22 10 12 10 10 4 0 4z' fill='%23fff'/%3E%3C/svg%3E") repeat-x left top/90px 11px !important;pointer-events:none}
+.ny-cd{display:none;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px;background:linear-gradient(90deg,rgba(255,55,95,.14),rgba(48,209,88,.16));color:var(--text);white-space:nowrap}
+@media (min-width:760px){html[data-ny] .ny-cd{display:inline-flex}}
+html[data-ios="cm"] .ny-cd{background:var(--cm-paper);border:2px solid var(--cm-ink);border-radius:4px;box-shadow:2px 2px 0 var(--cm-ink)}
+html[data-ios="px"] .ny-cd{background:var(--pc);color:var(--opc)}
+html[data-ios="bk"] .ny-cd{border-radius:8px}
+@media print{.ny-cv,.ny-gl{display:none}}
 </style>
 </head>
 <body>
@@ -6158,10 +6212,12 @@ function themePanel(){
     p = document.createElement('div'); p.id = 'themePanel'; p.className = 'th-pan'; p.hidden = true; p.setAttribute('role','dialog'); p.setAttribute('aria-label','Оформление');
     p.innerHTML = `<div class="th-h"><div><b>Оформление</b><small id="thWho"></small></div><button type="button" class="icon-btn" id="thX" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
 <div class="th-sec"><span>Темы</span><div class="th-pre th-pre2">${THEME_PRE.map(x=>`<button type="button" data-pre="${x.id}" aria-pressed="false"><i style="background:linear-gradient(135deg,${x.a},${x.b})"></i><span><b>${x.n}</b><small>${x.d}</small></span></button>`).join('')}</div></div>
+<div class="th-sec"><span>Праздник</span><div class="th-pre th-pre2"><button type="button" id="nyTg" aria-pressed="false"><i style="background:linear-gradient(135deg,#e5243b,#30d158)"></i><span><b>Новый год</b><small>снег, гирлянда, шапка</small></span></button></div></div>
 <div class="th-f"><small>Тема хранится для вашего логина</small></div>`;
     document.body.appendChild(p);
-    p._sync = () => { p.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.pre===(THEME.pre||'classic')))); };
+    p._sync = () => { p.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.pre===(THEME.pre||'classic')))); const ny = p.querySelector('#nyTg'); if (ny){ ny.setAttribute('aria-pressed', String(!!NY.on)); const sec = ny.closest('.th-sec'); if (sec) sec.hidden = !(nyReleased() || nyIsDemo()); } };
     p.querySelectorAll('[data-pre]').forEach(b=>b.onclick = () => { const x = preById(b.dataset.pre); if (!x) return; THEME = Object.assign({}, THEME_DEF, {a:x.a, b:x.b, lo:x.lo, mid:x.mid, hi:x.hi, amb:x.amb, ios:x.ios, pre:x.id}); themeApply(false); themeSave(); setTimeout(()=>themeApply(true), 220); p._sync(); });
+    p.querySelector('#nyTg').onclick = () => nyToggle();
     p.querySelector('#thX').onclick = () => { p.hidden = true; };
     document.addEventListener('pointerdown', e=>{ if (!p.hidden && !e.target.closest('#themePanel,#btnTheme')) p.hidden = true; });
     document.addEventListener('keydown', e=>{ if (e.key==='Escape') p.hidden = true; });
@@ -6170,6 +6226,86 @@ function themePanel(){
 }
 try{ if (store.get('login')) themeLoad(); }catch(e){}
 (function(){ const b = {}; b.onclick = () => { const p = themePanel(); if (p.hidden){ p.querySelector('#thWho').textContent = ' · '+String((DATA&&DATA.name)||store.get('demoName')||store.get('login')||''); p._sync(); p.hidden = false; } else p.hidden = true; }; })();
+
+
+/* =================== Новый год: снег, гирлянда, шапка, леденец-курсор, большой таймер =================== */
+const NY = {on:false, raf:0, fl:[], w:0, h:0, last:0, tick:0};
+const NY_MSK = 3*3600e3;                                                    // московское время (UTC+3) — старт и отсчёт одинаковы у всех
+const nyIsDemo = () => !!store.get('demoName');
+function nyUrlFlag(){ const q = (location.search.match(/[?&]ny=(\d)/)||[])[1]; if (q==='1'||q==='0'){ store.set('nyPrev', q); try{ history.replaceState(null,'',location.pathname+location.hash); }catch(e){} } }
+nyUrlFlag();
+function nyClock(now){ now = now==null ? Date.now() : now; const m = new Date(now+NY_MSK), y = m.getUTCFullYear(), mo = m.getUTCMonth(), d = m.getUTCDate();
+  const dec = mo===11 && now>=Date.UTC(y,11,1,6,0,0), jan = mo===0 && d<=14;   // старт: 1 декабря в 09:00 МСК, конец: 14 января включительно
+  return {y, dec, jan, released: dec||jan, target: Date.UTC(jan?y:y+1,0,1,-3,0,0), newYear: jan, year: jan?y:y+1}; }
+function nyReleased(){ return nyClock().released; }
+function nyPreview(){ return !nyReleased() && nyIsDemo() && store.get('nyPrev')==='1'; }
+function nySeason(){ return nyReleased() || nyPreview(); }                  // таймер и оформление доступны
+function nyWanted(){ return nySeason() && store.get('ny')!=='0'; }          // оформление (снег, гирлянда…) — можно выключить в «Оформлении»
+function nyPlural(n, a){ const n10 = n%10, n100 = n%100; return (n10===1&&n100!==11)?a[0]:(n10>=2&&n10<=4&&(n100<10||n100>=20))?a[1]:a[2]; }
+function nyCountText(){ const c = nyClock(); if (c.newYear) return 'С Новым '+c.year+' годом!'; const days = Math.floor((c.target-Date.now())/864e5); if (days<=0) return 'Сегодня Новый год!'; return 'До Нового года '+days+' '+nyPlural(days,['день','дня','дней']); }
+function nyGarland(){
+  const top = document.querySelector('.top'); if (!top) return; let g = top.querySelector('.ny-gl');
+  if (!g){ g = document.createElement('div'); g.className = 'ny-gl'; g.setAttribute('aria-hidden','true'); top.appendChild(g); }
+  const W = Math.max(320, top.clientWidth||innerWidth), step = W<600 ? 38 : 52, n = Math.ceil(W/step)+1; let wire = '', bulbs = '';
+  for (let i=0;i<n;i++){ const x0 = i*step-step/2, x1 = x0+step, mx = (x0+x1)/2, y = 2.5;
+    wire += `M${x0},${y} Q${mx},11 ${x1},${y} `; const by = y+4.25;                  // середина квадратичной кривой: y + (13-y)/2
+    bulbs += `<rect class="k" x="${mx-1.6}" y="${by-1}" width="3.2" height="4" rx="1"/><ellipse class="b c${i%4}" style="animation-delay:${((i*37)%23)/10}s" cx="${mx}" cy="${by+6.5}" rx="3.4" ry="4.8"/>`; }
+  g.innerHTML = `<svg viewBox="0 0 ${W} 30" preserveAspectRatio="none" focusable="false"><path class="w" d="${wire}"/>${bulbs}</svg>`; }
+function nySnow(){
+  let c = document.getElementById('nyCv'); if (!c){ c = document.createElement('canvas'); c.id = 'nyCv'; c.className = 'ny-cv'; c.setAttribute('aria-hidden','true'); document.body.appendChild(c); }
+  const dpr = Math.min(2, devicePixelRatio||1), w = innerWidth, h = innerHeight; NY.w = w; NY.h = h; c.width = Math.round(w*dpr); c.height = Math.round(h*dpr);
+  const cx = c.getContext('2d'); cx.setTransform(dpr,0,0,dpr,0,0);
+  const cnt = Math.max(22, Math.min(70, Math.round(w*h/15000)));
+  NY.fl = Array.from({length:cnt}, () => ({x:Math.random()*w, y:Math.random()*h, r:1.4+Math.random()*2.6, v:.35+Math.random()*.8, ph:Math.random()*6.28, sw:.4+Math.random()*.9}));
+  NY.cx = cx; nyDraw(0); }
+function nyDraw(dt){
+  const cx = NY.cx; if (!cx) return; cx.clearRect(0,0,NY.w,NY.h);
+  for (const f of NY.fl){ if (dt){ f.y += f.v*dt*38*(.6+f.r/4); f.ph += dt*f.sw; f.x += Math.sin(f.ph)*dt*14; if (f.y>NY.h+6){ f.y = -6; f.x = Math.random()*NY.w; } if (f.x<-6) f.x = NY.w+6; else if (f.x>NY.w+6) f.x = -6; }
+    cx.beginPath(); cx.arc(f.x,f.y,f.r+.9,0,6.283); cx.fillStyle = 'rgba(96,140,210,.22)'; cx.fill();         // тонкий голубой контур — виден и на светлом фоне
+    cx.beginPath(); cx.arc(f.x,f.y,f.r,0,6.283); cx.fillStyle = 'rgba(255,255,255,.95)'; cx.fill(); } }
+function nyLoop(t){ if (!NY.on) return; NY.raf = requestAnimationFrame(nyLoop); if (document.hidden){ NY.last = 0; return; }
+  const dt = NY.last ? Math.min(.05,(t-NY.last)/1000) : 0; if (dt && dt<.028) return; NY.last = t; nyDraw(dt||.016); }
+function nyCountdown(){ const t = document.querySelector('.top .sp'); if (!t) return; let e = document.getElementById('nyCd'); if (!e){ e = document.createElement('span'); e.id = 'nyCd'; e.className = 'ny-cd'; t.after(e); } e.textContent = '🎄 '+nyCountText(); }
+/* большой таймер на главной */
+const NYT_TREE = `<svg class="nyt-tree" viewBox="0 0 120 170" aria-hidden="true" focusable="false"><path d="M60 6l9 18-5-1 14 24-8-2 18 28-10-2 22 34H16l22-34-10 2 18-28-8 2 14-24-5 1z" fill="#1f8a4c"/><path d="M60 6l9 18-5-1 14 24-8-2 18 28-10-2 22 34H60z" fill="#16703c" opacity=".55"/><rect x="54" y="142" width="12" height="20" rx="2" fill="#7a4b1e"/><path d="M60 0l2.4 5.4 5.8.6-4.4 3.8 1.4 5.7L60 12.500l-5.200 3 1.400-5.700-4.400-3.800 5.800-.6z" fill="#ffd60a"/><circle class="o o1" cx="46" cy="60" r="4"/><circle class="o o2" cx="72" cy="48" r="4"/><circle class="o o3" cx="40" cy="96" r="4.500"/><circle class="o o4" cx="68" cy="84" r="4"/><circle class="o o5" cx="84" cy="116" r="4.500"/><circle class="o o2" cx="50" cy="126" r="4.500"/><circle class="o o1" cx="76" cy="136" r="4"/><circle class="o o3" cx="60" cy="30" r="3.500"/></svg>`;
+function nyTimerEl(){ let e = document.getElementById('nyTimer'); if (e) return e;
+  const m = document.querySelector('main'); if (!m) return null; e = document.createElement('section'); e.id = 'nyTimer'; e.className = 'ny-timer'; e.hidden = true; e.setAttribute('aria-label','Обратный отсчёт до Нового года');
+  e.innerHTML = `<i class="nyt-st" aria-hidden="true"></i>${NYT_TREE}${NYT_TREE}<div class="nyt-in"><div class="nyt-eb">❄ Новогодний отсчёт ❄</div><h2 class="nyt-h" id="nytH">До Нового года</h2>
+    <div class="nyt-g" role="timer"><div class="nyt-t t0"><b data-u="d">00</b><span data-l="d">дней</span></div><div class="nyt-t t1"><b data-u="h">00</b><span data-l="h">часов</span></div><div class="nyt-t t2"><b data-u="m">00</b><span data-l="m">минут</span></div><div class="nyt-t t3"><b data-u="s">00</b><span data-l="s">секунд</span></div></div>
+    <div class="nyt-wish" id="nytW" hidden>Пусть год будет щедрым на продажи и добрых людей рядом! 🎁</div>
+    <div class="nyt-f" id="nytF">по московскому времени · 1 января в 00:00</div></div>`;
+  const l = document.getElementById('loading'); if (l) l.after(e); else m.prepend(e); return e; }
+function nyTimerTick(){ const e = document.getElementById('nyTimer'); if (!e || e.hidden) return; const c = nyClock(); const g = e.querySelector('.nyt-g'), h = e.querySelector('#nytH'), w = e.querySelector('#nytW'), f = e.querySelector('#nytF');
+  const ny = c.newYear || (c.target-Date.now())<=0; e.classList.toggle('done', ny);
+  if (ny){ h.textContent = 'С Новым '+c.year+' годом!'; g.hidden = true; w.hidden = false; f.hidden = true; return; }
+  g.hidden = false; w.hidden = true; f.hidden = false; h.textContent = 'До Нового '+c.year+' года';
+  let d = Math.max(0, c.target-Date.now()); const v = {d:Math.floor(d/864e5), h:Math.floor(d%864e5/36e5), m:Math.floor(d%36e5/6e4), s:Math.floor(d%6e4/1e3)}, pad = (k,n)=> k==='d' ? String(n) : String(n).padStart(2,'0');
+  for (const k in v){ const b = e.querySelector('[data-u="'+k+'"]'), t = pad(k,v[k]); if (b.textContent!==t){ b.textContent = t; if (k==='s' && b.animate && !matchMedia('(prefers-reduced-motion:reduce)').matches) b.animate([{transform:'translateY(-6%) scale(1.06)'},{transform:'none'}],{duration:260,easing:'ease-out'}); }
+    e.querySelector('[data-l="'+k+'"]').textContent = k==='d' ? nyPlural(v.d,['день','дня','дней']) : k==='h' ? nyPlural(v.h,['час','часа','часов']) : k==='m' ? nyPlural(v.m,['минута','минуты','минут']) : nyPlural(v.s,['секунда','секунды','секунд']); } }
+function nyTimerSync(){
+  const e = nySeason() ? nyTimerEl() : document.getElementById('nyTimer'); if (!e) return;
+  let home = false; try{ home = !!DATA && !!ROLE && WRAP.dataset.tab === tabsFor(ROLE,DATA)[0][0] && !$('#app').hidden; }catch(x){}
+  e.hidden = !(nySeason() && home); clearInterval(NY.tick); if (!e.hidden){ nyTimerTick(); NY.tick = setInterval(()=>{ if (!document.hidden) nyTimerTick(); }, 1000); } }
+function nyApply(){
+  const on = nyWanted(), de = document.documentElement; NY.on = on;
+  if (on){ de.setAttribute('data-ny','1'); nyGarland(); nyCountdown();
+    cancelAnimationFrame(NY.raf); NY.last = 0; nySnow();
+    if (!matchMedia('(prefers-reduced-motion:reduce)').matches) NY.raf = requestAnimationFrame(nyLoop); }
+  else { de.removeAttribute('data-ny'); de.classList.remove('ny-hand'); cancelAnimationFrame(NY.raf); document.querySelectorAll('#nyCv,.ny-gl,#nyCd').forEach(e=>e.remove()); }
+  nyTimerSync();
+  const p = document.getElementById('themePanel'); if (p && p._sync) p._sync(); }
+function nyToggle(){ if (nyReleased()) store.set('ny', NY.on ? '0' : '1'); else store.set('nyPrev', nySeason() ? '0' : '1'); nyApply(); }
+(function(){ const CL = 'a,button,summary,label,select,[role=button],[role=tab],[onclick],[tabindex]:not([tabindex="-1"]),[data-rc],[data-tg],[data-cpg],[data-read],[data-pre],[data-demo],[data-tab],.chipb,.btn,.icon-btn,.mn-i,.rp-tg,.th-pre button';   // леденец с искоркой над кликабельным
+  document.addEventListener('mouseover', e => { if (!NY.on) return; const t = e.target, h = t && t.closest ? !!t.closest(CL) : false, de = document.documentElement; if (h !== de.classList.contains('ny-hand')) de.classList.toggle('ny-hand', h); }, {passive:true});
+})();
+(function(){ let tm = 0; addEventListener('resize', () => { if (!NY.on) return; clearTimeout(tm); tm = setTimeout(() => { nyGarland(); nySnow(); }, 160); });
+  const boot = () => { nyApply();
+    const app = document.getElementById('app'); if (app) new MutationObserver(() => nyApply()).observe(app, {attributes:true, attributeFilter:['hidden']});          // после входа / демо
+    const w = document.getElementById('wrap'); if (w) new MutationObserver(() => nyTimerSync()).observe(w, {attributes:true, attributeFilter:['data-tab']});   // смена вкладки
+    const arm = () => { const c = nyClock(), st = Date.UTC(c.y,11,1,6,0,0), left = st-Date.now(); if (!c.released && left>0 && left<2147e6) setTimeout(() => { nyApply(); nyBoom(); }, left+500); };    // тема включается у всех в 09:00 МСК 1 декабря, даже если сайт открыт
+    arm(); document.addEventListener('visibilitychange', () => { if (!document.hidden){ const was = NY.on; nyApply(); if (!was && NY.on) nyBoom(); } }); };
+  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot(); })();
+function nyBoom(){ try{ if (typeof toast==='function') toast('С началом новогоднего сезона! 🎄'); }catch(e){} }
 
 /* =================== Входы на сайт (только ТМ): история авторизации по сотрудникам =================== */
 let AUC = null, AUS = {f:'all', u:'all'};
