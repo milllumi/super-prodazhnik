@@ -31,6 +31,9 @@
 }}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
+/* страница не должна двигаться вбок: любой выступающий элемент обрезается, горизонтальная прокрутка есть только у таблиц и лент внутри */
+html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}
+@supports (overflow:clip){html,body{overflow-x:clip}}
 body{margin:0;background:var(--bg);color:var(--text);
   font:400 17px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   -webkit-font-smoothing:antialiased;letter-spacing:-.01em}
@@ -1406,6 +1409,22 @@ html #login .login-card::after{display:none}
 #login .lg-chips span{padding:7px 13px;border-radius:999px;font-size:13px;font-weight:700;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:lgChip 4s ease-in-out infinite}
 #login .lg-chips span:nth-child(2){animation-delay:-1.3s}#login .lg-chips span:nth-child(3){animation-delay:-2.6s}
 @keyframes lgChip{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-4px) rotate(1deg)}}
+/* логичная компоновка входа: бренд → форма → дополнительные действия → преимущества; всё одной колонкой по центру экрана */
+html #login{align-content:center;justify-items:center;grid-auto-rows:min-content;row-gap:16px}
+#login .login-card{max-width:400px}
+#login .logo{width:76px;height:76px;margin-bottom:10px}#login .logo svg{width:76px;height:76px}
+#login .lg-tag{margin:8px 0 0;font-size:18px}
+#login .login-card p#loginLead{margin:22px 0 12px;font-size:15px;font-weight:600;color:#e6e1ff}
+#login .login-card .field{margin-bottom:10px}
+#login .login-card .err,#login .err{min-height:0;margin:0}
+#login .err:not(:empty){margin:10px 0 0}
+#login .demo-or{margin:18px 0 12px}
+#login #btnInstall{margin:14px auto 0!important;font-size:14px}
+#login .login-card:has(#stepDemo:not([hidden])) #btnInstall,#login .login-card:has(#stepDemo:not([hidden])) #installHint{display:none!important}
+#login #stepDemo{margin-top:6px}
+#login .lg-chips{flex-wrap:nowrap;gap:6px;width:100%;max-width:400px;justify-content:space-between}
+#login .lg-chips span{flex:1 1 auto;text-align:center;white-space:nowrap;padding:7px 6px;font-size:12px;animation:none}
+@media (max-width:360px){#login .lg-chips span{font-size:11px;padding:6px 4px}}
 @media (max-width:420px){#login .wm-h .wm{font-size:30px}html #login{justify-content:flex-start;padding-top:max(28px,env(safe-area-inset-top))}}
 @media (prefers-reduced-motion:reduce){#login .lg-blobs i,#login .lg-chips span,html #login .login-card::before,#login .login-card #btnLogin::before{animation:none}}
 
@@ -2099,6 +2118,57 @@ html[data-ios="cm"] .ny-timer{border:3px solid var(--cm-ink);border-radius:6px;b
 html[data-ios="cm"] .nyt-t{border:3px solid var(--cm-ink);box-shadow:4px 4px 0 var(--cm-ink)}
 html[data-ios="px"] .ny-timer{border-radius:32px}
 @media print{.ny-timer{display:none}}
+.ny-pre{display:flex;justify-content:center;align-items:center;gap:clamp(8px,2.4vw,18px);min-height:40px;padding:6px 12px;color:#fff;background:linear-gradient(90deg,#0a1a45,#1b3a8a 50%,#6b1237);font-weight:800;font-variant-numeric:tabular-nums lining-nums;position:relative;z-index:25;box-shadow:0 2px 12px rgba(10,26,69,.3)}
+.ny-pre[hidden]{display:none}.ny-pre span{display:inline-flex;align-items:baseline;gap:3px;white-space:nowrap}.ny-pre b{font-size:clamp(17px,4.6vw,22px);color:#ffe08a;letter-spacing:.01em}.ny-pre i{font-style:normal;font-size:12px;font-weight:700;opacity:.85}.ny-pre em{font-style:normal;font-size:16px}
+html[data-nypre] .login{min-height:calc(100vh - 40px);min-height:calc(100dvh - 40px)}
+html[data-ios="cm"] .ny-pre{background:var(--cm-ink);border-bottom:3px solid var(--cm-red)}
+@media print{.ny-pre{display:none}}
+/* ---------- Новый год: фон входа, украшения, снег на элементах, вступительная анимация ---------- */
+html[data-ny] #login{background:radial-gradient(900px 520px at 82% 6%,rgba(255,236,170,.22),transparent 62%),linear-gradient(180deg,#06112f 0%,#0d2763 50%,#173d82 100%)!important;animation:none!important}
+html[data-ny] #login .lg-blobs i{opacity:.42}
+html[data-ny] #login .lg-blobs i:nth-child(1){background:#1fa86a}html[data-ny] #login .lg-blobs i:nth-child(2){background:#d4152f}html[data-ny] #login .lg-blobs i:nth-child(3){background:#2b6fe0}html[data-ny] #login .lg-blobs i:nth-child(4){background:#ffc94d}
+html[data-ny] #login .login-card::before{background:conic-gradient(from var(--a,0deg),#e5243b,#ffd60a,#30d158,#3aa0ff,#e5243b)!important}
+html[data-ny] #login .login-card .btn:not(.ghost){background-image:linear-gradient(100deg,#d4152f,#f0503a 55%,#e8a317)!important}
+html[data-ny] #login .lg-tag em{background-image:linear-gradient(90deg,#ffd86b,#ff9a6b)}
+html[data-ny] #login .login-card{overflow:visible}
+#nyDeco{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+#nyDeco .nyd-st{position:absolute;inset:0;background-image:radial-gradient(1.6px 1.6px at 8% 12%,#fff,transparent),radial-gradient(1.2px 1.2px at 18% 28%,#fff,transparent),radial-gradient(1.5px 1.5px at 27% 8%,#fff,transparent),radial-gradient(1.2px 1.2px at 38% 20%,#fff,transparent),radial-gradient(1.6px 1.6px at 52% 6%,#fff,transparent),radial-gradient(1.2px 1.2px at 63% 24%,#fff,transparent),radial-gradient(1.5px 1.5px at 74% 10%,#fff,transparent),radial-gradient(1.2px 1.2px at 91% 30%,#fff,transparent),radial-gradient(1.4px 1.4px at 96% 14%,#fff,transparent),radial-gradient(1.2px 1.2px at 13% 46%,#fff,transparent),radial-gradient(1.2px 1.2px at 88% 52%,#fff,transparent)}
+#nyDeco .nyd-moon{position:absolute;right:7%;top:9%;width:clamp(54px,8vw,96px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 36% 34%,#fffbe8,#ffe9a8 60%,#f3cf72);box-shadow:0 0 40px 12px rgba(255,236,170,.35)}
+#nyDeco .nyd-hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:clamp(90px,20vh,190px)}
+#nyDeco .nyd-ball{position:absolute;top:0;width:34px;height:150px;transform-origin:50% 0}
+#nyDeco .nyd-big{position:absolute}
+#nyDeco .nyd-tree{right:4%;bottom:calc(clamp(90px,20vh,190px) - 30px);height:clamp(190px,44vh,400px)}
+#nyDeco .nyd-tree2{left:21%;bottom:calc(clamp(90px,20vh,190px) - 22px);height:clamp(110px,24vh,230px)}
+#nyDeco .nyd-man{left:5%;bottom:calc(clamp(90px,20vh,190px) - 24px);height:clamp(150px,32vh,300px)}
+#nyDeco .nyd-gift{right:15%;bottom:calc(clamp(90px,20vh,190px) - 34px);width:clamp(90px,12vw,160px)}
+#nyDeco .nyd-cane{right:2%;bottom:calc(clamp(90px,20vh,190px) - 28px);height:clamp(60px,12vh,110px)}
+#nyDeco .nyd-cane.c2{right:12.5%;transform:rotate(8deg)}
+#nyDeco .o{fill:#ff375f}#nyDeco .o2{fill:#ffd60a}#nyDeco .o3{fill:#3aa0ff}#nyDeco .o4{fill:#ff8fb1}#nyDeco .o5{fill:#fff}
+@media (max-width:759px){#nyDeco .nyd-big{display:none}#nyDeco .nyd-moon{right:5%;top:6%}}
+@media (prefers-reduced-motion:no-preference){#nyDeco .nyd-st{animation:nyTw 4.5s ease-in-out infinite}#nyDeco .nyd-ball{animation:nyBall 4.6s ease-in-out infinite alternate;animation-delay:var(--d,0s)}#nyDeco .o{animation:nyTw 2.2s ease-in-out infinite}#nyDeco .o2{animation:nyTw 2.8s ease-in-out infinite}#nyDeco .o3{animation:nyTw 1.9s ease-in-out infinite}}
+@keyframes nyBall{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+#login .login-card>.ny-holly{position:absolute;top:-18px;width:74px;height:54px;z-index:3;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+#login .login-card>.ny-holly.l{left:-16px;transform:rotate(-8deg)}#login .login-card>.ny-holly.r{right:-16px;transform:scaleX(-1) rotate(-8deg)}
+html[data-ny] #login .login-card::after{content:"";position:absolute;left:22px;right:22px;top:0;height:10px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0H80V3C72 3 70 9 61 9 52 9 50 4 41 4 32 4 29 8 20 8 11 8 9 3 0 3z' fill='%23fff' stroke='%23b7cdee' stroke-width='.9'/%3E%3C/svg%3E") repeat-x left top/80px 10px;z-index:3;opacity:1;display:block;border-radius:0!important;filter:none}
+/* снег на элементах интерфейса */
+html[data-ny] .card:not(.hero):not(.empty)::after{content:"";position:absolute;left:16px;right:16px;top:0;height:10px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0H80V3C72 3 70 9 61 9 52 9 50 4 41 4 32 4 29 8 20 8 11 8 9 3 0 3z' fill='%23fff' stroke='%23b7cdee' stroke-width='.9'/%3E%3C/svg%3E") repeat-x left top/80px 10px;pointer-events:none;z-index:4}
+html[data-ny] .icon-btn::after{content:"";position:absolute;left:18%;right:18%;top:-3px;height:8px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 9'%3E%3Cpath d='M1 8C3 3 8 0 13 0s10 3 12 8c-3-1-4 1-6 1s-3-2-6-2-4 2-6 2-3-2-6-1z' fill='%23fff' stroke='%23b7cdee' stroke-width='.8'/%3E%3C/svg%3E") no-repeat center top/100% 100%;pointer-events:none;z-index:4}
+html[data-ny] #tabseg::after{content:"";position:absolute;left:12px;right:12px;top:-4px;height:8px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0H80V3C72 3 70 9 61 9 52 9 50 4 41 4 32 4 29 8 20 8 11 8 9 3 0 3z' fill='%23fff' stroke='%23b7cdee' stroke-width='.9'/%3E%3C/svg%3E") repeat-x left top/60px 8px;pointer-events:none;z-index:4}
+html[data-ny]:not([data-ios="cm"]):not([data-ios="bk"]) body::before{background:radial-gradient(520px 380px at 12% 8%,rgba(229,36,59,.10),transparent 70%),radial-gradient(560px 420px at 92% 22%,rgba(48,209,88,.09),transparent 70%),radial-gradient(520px 420px at 60% 98%,rgba(255,200,60,.09),transparent 70%)!important}
+/* вступительная анимация */
+html.ny-intro{overflow:hidden}
+.nyi{position:fixed;inset:0;z-index:99990;overflow:hidden;cursor:pointer;-webkit-user-select:none;user-select:none}
+.nyi-fill{position:absolute;inset:0;clip-path:circle(0% at 50% 50%);background:radial-gradient(900px 520px at 50% 28%,rgba(96,150,255,.5),transparent 70%),linear-gradient(165deg,#06112f,#12306f 55%,#5a1030 135%)}
+.nyi-fill::after{content:"";position:absolute;inset:0;background-image:radial-gradient(1.6px 1.6px at 12% 20%,#fff,transparent),radial-gradient(1.3px 1.3px at 30% 70%,#fff,transparent),radial-gradient(1.6px 1.6px at 48% 12%,#fff,transparent),radial-gradient(1.3px 1.3px at 66% 62%,#fff,transparent),radial-gradient(1.6px 1.6px at 82% 22%,#fff,transparent),radial-gradient(1.3px 1.3px at 92% 78%,#fff,transparent),radial-gradient(1.3px 1.3px at 20% 90%,#fff,transparent)}
+.nyi-clock{position:absolute;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;font-weight:800;background:linear-gradient(90deg,#0a1a45,#1b3a8a 50%,#6b1237);font-variant-numeric:tabular-nums lining-nums;white-space:nowrap;box-shadow:0 0 0 2px rgba(255,214,107,0),0 10px 40px rgba(0,0,0,.4)}
+.nyi-ci{display:inline-flex;align-items:center;gap:16px;padding:0 26px}.nyi-ci span{display:inline-flex;align-items:baseline;gap:4px}.nyi-ci b{font-size:24px;color:#ffe08a}.nyi-ci i{font-style:normal;font-size:13px;opacity:.85}.nyi-ci em{font-style:normal;font-size:20px}
+.nyi-bag-w{position:absolute;left:50%;top:54%;width:min(62vw,290px);aspect-ratio:220/270;transform:translate(-50%,-50%);pointer-events:none}
+.nyi-drop,.nyi-shake{width:100%;height:100%}.nyi-bag{display:block;width:100%;height:100%;overflow:visible}
+.nyi-bag .fl{transform-box:fill-box;transition:transform .6s cubic-bezier(.3,1.4,.5,1)}.nyi-bag .fl.l{transform-origin:100% 100%}.nyi-bag .fl.r{transform-origin:0 100%}
+.nyi.open .nyi-bag .fl.l{transform:rotate(-26deg)}.nyi.open .nyi-bag .fl.r{transform:rotate(26deg)}
+.nyi-glow{opacity:0;transition:opacity .6s}.nyi.open .nyi-glow{opacity:1}
+.nyi-fx{position:absolute;inset:0;pointer-events:none}.nyi-fx span{position:absolute;left:0;top:0;line-height:1;will-change:transform,opacity}
+.nyi-skip{position:absolute;right:14px;bottom:14px;font-size:12px;color:rgba(255,255,255,.55)}
 .ny-cv{position:fixed;inset:0;width:100%;height:100%;z-index:19;pointer-events:none}
 .ny-gl{position:absolute;left:0;right:0;top:100%;height:30px;pointer-events:none;overflow:hidden;z-index:2}
 .ny-gl svg{display:block;width:100%;height:30px}.ny-gl .w{fill:none;stroke:#4d6b58;stroke-width:1.6;stroke-linecap:round}
@@ -6215,7 +6285,7 @@ function themePanel(){
 <div class="th-sec"><span>Праздник</span><div class="th-pre th-pre2"><button type="button" id="nyTg" aria-pressed="false"><i style="background:linear-gradient(135deg,#e5243b,#30d158)"></i><span><b>Новый год</b><small>снег, гирлянда, шапка</small></span></button></div></div>
 <div class="th-f"><small>Тема хранится для вашего логина</small></div>`;
     document.body.appendChild(p);
-    p._sync = () => { p.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.pre===(THEME.pre||'classic')))); const ny = p.querySelector('#nyTg'); if (ny){ ny.setAttribute('aria-pressed', String(!!NY.on)); const sec = ny.closest('.th-sec'); if (sec) sec.hidden = !(nyReleased() || nyIsDemo()); } };
+    p._sync = () => { p.querySelectorAll('[data-pre]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.pre===(THEME.pre||'classic')))); const ny = p.querySelector('#nyTg'); if (ny){ ny.setAttribute('aria-pressed', String(!!NY.on)); const sec = ny.closest('.th-sec'); if (sec) sec.hidden = !nyReleased(); } };
     p.querySelectorAll('[data-pre]').forEach(b=>b.onclick = () => { const x = preById(b.dataset.pre); if (!x) return; THEME = Object.assign({}, THEME_DEF, {a:x.a, b:x.b, lo:x.lo, mid:x.mid, hi:x.hi, amb:x.amb, ios:x.ios, pre:x.id}); themeApply(false); themeSave(); setTimeout(()=>themeApply(true), 220); p._sync(); });
     p.querySelector('#nyTg').onclick = () => nyToggle();
     p.querySelector('#thX').onclick = () => { p.hidden = true; };
@@ -6235,10 +6305,10 @@ const nyIsDemo = () => !!store.get('demoName');
 function nyUrlFlag(){ const q = (location.search.match(/[?&]ny=(\d)/)||[])[1]; if (q==='1'||q==='0'){ store.set('nyPrev', q); try{ history.replaceState(null,'',location.pathname+location.hash); }catch(e){} } }
 nyUrlFlag();
 function nyClock(now){ now = now==null ? Date.now() : now; const m = new Date(now+NY_MSK), y = m.getUTCFullYear(), mo = m.getUTCMonth(), d = m.getUTCDate();
-  const dec = mo===11 && now>=Date.UTC(y,11,1,6,0,0), jan = mo===0 && d<=14;   // старт: 1 декабря в 09:00 МСК, конец: 14 января включительно
+  const dec = mo===11 && now>=Date.UTC(y,11,1,6,0,0), jan = mo===0 && now<Date.UTC(y,0,11,6,0,0);   // строго с 1 декабря 09:00 МСК до 11 января 09:00 МСК, потом прежнее оформление
   return {y, dec, jan, released: dec||jan, target: Date.UTC(jan?y:y+1,0,1,-3,0,0), newYear: jan, year: jan?y:y+1}; }
 function nyReleased(){ return nyClock().released; }
-function nyPreview(){ return !nyReleased() && nyIsDemo() && store.get('nyPrev')==='1'; }
+function nyPreview(){ return false; }                                       // до старта никаких предпросмотров: тема включается строго по расписанию
 function nySeason(){ return nyReleased() || nyPreview(); }                  // таймер и оформление доступны
 function nyWanted(){ return nySeason() && store.get('ny')!=='0'; }          // оформление (снег, гирлянда…) — можно выключить в «Оформлении»
 function nyPlural(n, a){ const n10 = n%10, n100 = n%100; return (n10===1&&n100!==11)?a[0]:(n10>=2&&n10<=4&&(n100<10||n100>=20))?a[1]:a[2]; }
@@ -6246,11 +6316,13 @@ function nyCountText(){ const c = nyClock(); if (c.newYear) return 'С Новы�
 function nyGarland(){
   const top = document.querySelector('.top'); if (!top) return; let g = top.querySelector('.ny-gl');
   if (!g){ g = document.createElement('div'); g.className = 'ny-gl'; g.setAttribute('aria-hidden','true'); top.appendChild(g); }
-  const W = Math.max(320, top.clientWidth||innerWidth), step = W<600 ? 38 : 52, n = Math.ceil(W/step)+1; let wire = '', bulbs = '';
+  g.innerHTML = nyGarlandSvg(Math.max(320, top.clientWidth||innerWidth)); }
+function nyGarlandSvg(W){
+  const step = W<600 ? 38 : 52, n = Math.ceil(W/step)+1; let wire = '', bulbs = '';
   for (let i=0;i<n;i++){ const x0 = i*step-step/2, x1 = x0+step, mx = (x0+x1)/2, y = 2.5;
     wire += `M${x0},${y} Q${mx},11 ${x1},${y} `; const by = y+4.25;                  // середина квадратичной кривой: y + (13-y)/2
     bulbs += `<rect class="k" x="${mx-1.6}" y="${by-1}" width="3.2" height="4" rx="1"/><ellipse class="b c${i%4}" style="animation-delay:${((i*37)%23)/10}s" cx="${mx}" cy="${by+6.5}" rx="3.4" ry="4.8"/>`; }
-  g.innerHTML = `<svg viewBox="0 0 ${W} 30" preserveAspectRatio="none" focusable="false"><path class="w" d="${wire}"/>${bulbs}</svg>`; }
+  return `<svg viewBox="0 0 ${W} 30" preserveAspectRatio="none" focusable="false"><path class="w" d="${wire}"/>${bulbs}</svg>`; }
 function nySnow(){
   let c = document.getElementById('nyCv'); if (!c){ c = document.createElement('canvas'); c.id = 'nyCv'; c.className = 'ny-cv'; c.setAttribute('aria-hidden','true'); document.body.appendChild(c); }
   const dpr = Math.min(2, devicePixelRatio||1), w = innerWidth, h = innerHeight; NY.w = w; NY.h = h; c.width = Math.round(w*dpr); c.height = Math.round(h*dpr);
@@ -6266,6 +6338,97 @@ function nyDraw(dt){
 function nyLoop(t){ if (!NY.on) return; NY.raf = requestAnimationFrame(nyLoop); if (document.hidden){ NY.last = 0; return; }
   const dt = NY.last ? Math.min(.05,(t-NY.last)/1000) : 0; if (dt && dt<.028) return; NY.last = t; nyDraw(dt||.016); }
 function nyCountdown(){ const t = document.querySelector('.top .sp'); if (!t) return; let e = document.getElementById('nyCd'); if (!e){ e = document.createElement('span'); e.id = 'nyCd'; e.className = 'ny-cd'; t.after(e); } e.textContent = '🎄 '+nyCountText(); }
+
+/* ---- украшения экрана входа: небо, луна, холмы, ёлки, снеговик, подарки, леденцы, шары, гирлянда, остролист ---- */
+const NYD = {
+  tree: (id) => `<svg class="nyd-big nyd-tree${id}" viewBox="0 -16 150 232" aria-hidden="true"><defs><linearGradient id="nyg${id}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#34b566"/><stop offset="1" stop-color="#0f6a3a"/></linearGradient></defs><rect x="62" y="188" width="26" height="26" rx="3" fill="#7a4b1e"/><path d="M75 74L140 190H10z" fill="url(#nyg${id})"/><path d="M75 38L122 126H28z" fill="url(#nyg${id})"/><path d="M75 6L106 70H44z" fill="url(#nyg${id})"/><g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"><path d="M16 188q8-9 16 0t16 0 16 0 16 0 16 0 16 0 12 0"/><path d="M34 124q8-8 16 0t16 0 16 0 16 0 8 0"/><path d="M48 68q8-8 14 0t14 0 14 0 6 0"/></g><g fill="none" stroke="#ffd60a" stroke-width="2.4" stroke-dasharray="2 5" stroke-linecap="round"><path d="M26 160Q75 184 124 160"/><path d="M42 106Q75 128 108 106"/><path d="M56 54Q75 66 94 54"/></g><circle class="o" cx="36" cy="172" r="5"/><circle class="o2" cx="75" cy="178" r="5"/><circle class="o3" cx="116" cy="170" r="5"/><circle class="o4" cx="52" cy="116" r="4.6"/><circle class="o" cx="98" cy="118" r="4.6"/><circle class="o2" cx="75" cy="92" r="4.6"/><circle class="o3" cx="62" cy="58" r="4"/><circle class="o" cx="88" cy="56" r="4"/><circle class="o5" cx="75" cy="40" r="3.6"/><path d="M75-12l4.6 9.6 10.5 1.4-7.7 7.3 1.9 10.4-9.3-5-9.3 5 1.9-10.4-7.7-7.3 10.5-1.4z" fill="#ffd60a" stroke="#fff3b0" stroke-width="1.2"/></svg>`,
+  man: `<svg class="nyd-big nyd-man" viewBox="0 0 130 200" aria-hidden="true"><defs><radialGradient id="nysm" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#cfdcf3"/></radialGradient></defs><path d="M24 102L4 80M96 102L120 78" stroke="#6b4423" stroke-width="4" stroke-linecap="round"/><circle cx="64" cy="150" r="44" fill="url(#nysm)"/><circle cx="64" cy="98" r="31" fill="url(#nysm)"/><circle cx="64" cy="52" r="23" fill="url(#nysm)"/><rect x="40" y="18" width="48" height="8" rx="2" fill="#222"/><rect x="48" y="-2" width="32" height="22" rx="3" fill="#2b2b2b"/><rect x="48" y="12" width="32" height="6" fill="#d4152f"/><circle cx="55" cy="49" r="2.6" fill="#222"/><circle cx="73" cy="49" r="2.6" fill="#222"/><path d="M64 55l16 4-16 3z" fill="#ff8a1f"/><path d="M52 62q12 8 24 0" stroke="#222" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="48" cy="58" r="4" fill="#ff9fb4" opacity=".6"/><circle cx="80" cy="58" r="4" fill="#ff9fb4" opacity=".6"/><path d="M42 74q22 14 44 0l2 10q-24 14-48 0z" fill="#d4152f"/><path d="M80 80l8 24-10 2-2-22z" fill="#b3122b"/><circle cx="64" cy="108" r="3" fill="#222"/><circle cx="64" cy="124" r="3" fill="#222"/><circle cx="64" cy="140" r="3" fill="#222"/></svg>`,
+  gift: `<svg class="nyd-big nyd-gift" viewBox="0 0 120 72" aria-hidden="true"><rect x="4" y="28" width="46" height="42" rx="3" fill="#e5243b"/><rect x="24" y="28" width="6" height="42" fill="#ffd60a"/><rect x="4" y="44" width="46" height="6" fill="#ffd60a"/><path d="M27 28c-10-14-22-6-12 0zM27 28c10-14 22-6 12 0z" fill="#ffd60a"/><rect x="56" y="40" width="34" height="30" rx="3" fill="#1f9d55"/><rect x="70" y="40" width="6" height="30" fill="#fff"/><rect x="56" y="52" width="34" height="5" fill="#fff"/><path d="M73 40c-8-12-18-5-9 0zM73 40c8-12 18-5 9 0z" fill="#fff"/><rect x="92" y="50" width="26" height="20" rx="3" fill="#3a82e8"/><rect x="102" y="50" width="5" height="20" fill="#ffd60a"/></svg>`,
+  cane: (c) => `<svg class="nyd-big nyd-cane ${c}" viewBox="0 0 44 84" aria-hidden="true"><path d="M10 80V30a14 14 0 0 1 28 0" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/><path d="M10 80V30a14 14 0 0 1 28 0" fill="none" stroke="#e5243b" stroke-width="9" stroke-dasharray="7 7"/></svg>`,
+  ball: (x,len,col,d) => `<svg class="nyd-ball" style="left:${x}%;--d:${d}s;height:${len+34}px" viewBox="0 0 34 ${len+34}" aria-hidden="true"><path d="M17 0V${len}" stroke="#d9c27a" stroke-width="1.4"/><rect x="12" y="${len-3}" width="10" height="6" rx="2" fill="#f3c63f"/><circle cx="17" cy="${len+15}" r="14" fill="${col}"/><path d="M5 ${len+15}q12 8 24 0" stroke="#fff" stroke-opacity=".5" stroke-width="3" fill="none"/><ellipse cx="11" cy="${len+9}" rx="4" ry="2.6" fill="#fff" opacity=".6" transform="rotate(-35 11 ${len+9})"/></svg>`,
+  holly: (c) => `<svg class="ny-holly ${c}" viewBox="0 0 80 56" aria-hidden="true"><path d="M40 30C26 10 6 12 2 26c12-4 24 8 38 4z" fill="#1f8a4c"/><path d="M40 30C54 10 74 12 78 26c-12-4-24 8-38 4z" fill="#16703c"/><path d="M40 30c-6 14-20 22-32 20 8-10 20-16 32-20z" fill="#1f8a4c"/><circle cx="40" cy="32" r="6" fill="#e5243b"/><circle cx="31" cy="38" r="5" fill="#c01530"/><circle cx="49" cy="38" r="5" fill="#e5243b"/><circle cx="38" cy="30" r="1.6" fill="#fff" opacity=".8"/></svg>`,
+  hills: `<svg class="nyd-hills" viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="nyh1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#dbe9ff"/><stop offset="1" stop-color="#a9c3ee"/></linearGradient><linearGradient id="nyh2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#dfeaff"/></linearGradient></defs><path d="M0 70C140 20 260 40 380 70S640 110 760 60 1040 20 1200 70V200H0z" fill="url(#nyh1)"/><path d="M0 120C160 80 300 90 440 120S720 150 860 110 1100 80 1200 116V200H0z" fill="url(#nyh2)"/></svg>`
+};
+function nyDeco(on){
+  const L = document.getElementById('login'); if (!L) return; let d = document.getElementById('nyDeco');
+  if (!on){ if (d) d.remove(); L.querySelectorAll('.ny-holly').forEach(e=>e.remove()); return; }
+  if (!d){ d = document.createElement('div'); d.id = 'nyDeco'; d.setAttribute('aria-hidden','true'); L.prepend(d); }
+  d.innerHTML = `<i class="nyd-st"></i><i class="nyd-moon"></i>${NYD.hills}${NYD.man}${NYD.tree('2')}${NYD.tree('')}${NYD.gift}${NYD.cane('c1')}${NYD.cane('c2')}`
+    + [[6,60,'#e5243b',0],[16,110,'#3aa0ff',-1.2],[27,48,'#ffd60a',-2.2],[73,56,'#30d158',-.6],[84,118,'#e5243b',-1.8],[94,66,'#bf5af2',-2.6]].map(b=>NYD.ball(...b)).join('')
+    + `<div class="ny-gl" style="top:0">${nyGarlandSvg(Math.max(320,L.clientWidth||innerWidth))}</div>`;
+  const card = L.querySelector('.login-card'); if (card && !card.querySelector('.ny-holly')) card.insertAdjacentHTML('afterbegin', NYD.holly('l')+NYD.holly('r')); }
+
+/* ---- вступительная анимация: таймер уходит в центр, заливает экран, падает мешок, из него вылетают элементы входа (один раз на устройстве) ---- */
+const NYI = {tm:[], an:[]};
+const NYI_BAG = `<svg class="nyi-bag" viewBox="0 0 220 270" aria-hidden="true"><defs><linearGradient id="nyib" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ee3a50"/><stop offset="1" stop-color="#8f0f24"/></linearGradient><radialGradient id="nyig" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff6c0" stop-opacity=".95"/><stop offset="1" stop-color="#ffd60a" stop-opacity="0"/></radialGradient></defs>
+<ellipse cx="110" cy="262" rx="82" ry="9" fill="#000" opacity=".28"/>
+<path d="M72 66C28 100 10 164 26 216c10 36 158 36 168 0 16-52-2-116-46-150z" fill="url(#nyib)"/>
+<path d="M60 96C34 140 34 190 46 226" stroke="#fff" stroke-opacity=".18" stroke-width="10" stroke-linecap="round" fill="none"/>
+<ellipse cx="110" cy="62" rx="46" ry="14" fill="#3b0710"/><ellipse class="nyi-glow" cx="110" cy="52" rx="62" ry="40" fill="url(#nyig)"/>
+<path class="fl l" d="M68 70C54 34 76 6 98 22c4 14 0 34-2 50z" fill="#c01530"/><path class="fl r" d="M152 70C166 34 144 6 122 22c-4 14 0 34 2 50z" fill="#c01530"/>
+<path d="M64 72C90 86 130 86 156 72" stroke="#ffd60a" stroke-width="9" stroke-linecap="round" fill="none"/><circle cx="110" cy="84" r="9" fill="#f3b61f"/><path d="M104 90l-10 26M116 90l10 26" stroke="#ffd60a" stroke-width="6" stroke-linecap="round"/>
+<path d="M110 128l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#ffd60a" stroke="#fff3b0" stroke-width="2"/>
+<circle cx="64" cy="212" r="5" fill="#fff" opacity=".7"/><circle cx="160" cy="198" r="4" fill="#fff" opacity=".7"/><circle cx="84" cy="236" r="3.4" fill="#fff" opacity=".6"/></svg>`;
+function nyIntroCan(){
+  if (store.get('nyIntro')===String(nyClock().year) || NY.hold || document.getElementById('nyIntro') || !nyReleased() || store.get('ny')==='0') return '';
+  if (matchMedia('(prefers-reduced-motion:reduce)').matches){ store.set('nyIntro',String(nyClock().year)); return ''; }
+  if (document.getElementById('nyPre')) return 'full';                         // страница была открыта, пока шёл отсчёт
+  const L = document.getElementById('login'), A = document.getElementById('app');
+  if (L && !L.hidden) return 'short';                                           // впервые открыли уже после старта (экран входа)
+  if (A && !A.hidden) store.set('nyIntro',String(nyClock().year));                                  // вошли в приложение после старта — без анимации
+  return ''; }
+function nyIntroEnd(){ NYI.tm.forEach(clearTimeout); NYI.tm = []; NYI.an.forEach(a=>{ try{ a.cancel(); }catch(e){} }); NYI.an = [];
+  const r = document.getElementById('nyIntro'); if (r) r.remove(); document.documentElement.classList.remove('ny-intro');
+  const pre = document.getElementById('nyPre'); if (pre) pre.style.visibility = '';
+  if (NY.hold){ NY.hold = false; nyApply(); } }
+function nyIntroPlay(mode){
+  NY.hold = true; store.set('nyIntro',String(nyClock().year)); const full = mode==='full', W = innerWidth, H = innerHeight;
+  const root = document.createElement('div'); root.id = 'nyIntro'; root.className = 'nyi'; root.setAttribute('aria-hidden','true');
+  const pre = document.getElementById('nyPre'), pr = pre ? pre.getBoundingClientRect() : {top:0,height:40};
+  root.innerHTML = `<div class="nyi-fill"></div>${full?`<div class="nyi-clock"><div class="nyi-ci"><em>❄️</em><span><b>0</b><i>дн</i></span><span><b>00</b><i>ч</i></span><span><b>00</b><i>мин</i></span><span><b>00</b><i>сек</i></span><em>❄️</em></div></div>`:''}<div class="nyi-bag-w"><div class="nyi-drop"><div class="nyi-shake">${NYI_BAG}</div></div></div><div class="nyi-fx"></div>`;
+  document.body.appendChild(root); document.documentElement.classList.add('ny-intro'); if (pre) pre.style.visibility = 'hidden';
+  const A = (el,kf,o) => { const a = el.animate(kf, Object.assign({fill:'both'}, o)); NYI.an.push(a); return a; }, at = (ms,fn) => NYI.tm.push(setTimeout(fn, ms));
+  const T = full ? {fill:900, fdur:1800, apply:2600, bag:3000, shake:4400, burst:5400} : {fill:0, fdur:800, apply:760, bag:900, shake:2300, burst:3200};
+  root.addEventListener('click', nyIntroEnd);
+  const $q = q => root.querySelector(q), fill = $q('.nyi-fill'), drop = $q('.nyi-drop'), shake = $q('.nyi-shake'), fx = $q('.nyi-fx'), bagW = $q('.nyi-bag-w');
+  // 1. полоса-таймер превращается в плашку, уезжает в центр и растёт
+  let scaleEnd = 1;
+  if (full){ const ck = $q('.nyi-clock'), ci = $q('.nyi-ci'), cw = ci.getBoundingClientRect().width, ch = 58; scaleEnd = Math.max(1, Math.min(3.4, Math.min(W*.9, 980)/cw));
+    ck.style.cssText = `left:0;top:${pr.top}px;width:${W}px;height:${pr.height}px;border-radius:0`;
+    const mid = {left:(W/2-cw/2)+'px', top:(H/2-ch/2)+'px', width:cw+'px', height:ch+'px', borderRadius:'18px', transform:`scale(${scaleEnd})`, boxShadow:'0 0 0 2px rgba(255,214,107,.95),0 0 60px rgba(255,214,107,.55)'};
+    A(ck,[{left:'0px', top:pr.top+'px', width:W+'px', height:pr.height+'px', borderRadius:'0px', transform:'scale(1)'}, mid], {duration:1500, easing:'cubic-bezier(.65,0,.25,1)'});
+    A(ck,[{opacity:1, transform:mid.transform},{opacity:0, transform:`scale(${scaleEnd*1.35})`}], {delay:T.apply, duration:600, easing:'ease-in', fill:'forwards'});
+    ck.querySelectorAll('b').forEach(b=>A(b,[{transform:'scale(1)'},{transform:'scale(1.25)'},{transform:'scale(1)'}],{delay:1500, duration:700, iterations:2})); }
+  // 2. заливка экрана новогодним фоном
+  A(fill,[{clipPath:'circle(0% at 50% 50%)'},{clipPath:'circle(150% at 50% 50%)'}],{delay:T.fill, duration:T.fdur, easing:'cubic-bezier(.5,0,.2,1)'});
+  A(fill,[{opacity:1},{opacity:0}],{delay:T.burst, duration:1500, easing:'ease-in-out'});
+  // 3. падает мешок
+  const hh = H*.52+320;
+  A(drop,[{transform:`translateY(${-hh}px) rotate(-12deg)`,offset:0},{transform:'translateY(0) rotate(3deg)',offset:.56,easing:'ease-out'},{transform:'translateY(-9%) rotate(0deg) scale(.96,1.07)',offset:.72,easing:'ease-in'},{transform:'translateY(0) scale(1.08,.92)',offset:.86},{transform:'none',offset:1}],{delay:T.bag, duration:1400, easing:'cubic-bezier(.45,0,.9,.6)'});
+  at(T.bag+800, () => { const r = bagW.getBoundingClientRect(), cx = r.left+r.width/2, by = r.bottom-10;     // снежное облачко при ударе
+    for (let i=0;i<16;i++){ const d = document.createElement('span'), sz = 6+Math.random()*10, ang = Math.PI*(1+Math.random()), dist = 40+Math.random()*90; d.style.cssText = `width:${sz}px;height:${sz}px;border-radius:50%;background:#fff;left:${cx}px;top:${by}px`; fx.appendChild(d);
+      A(d,[{transform:'translate(0,0) scale(.4)',opacity:.95},{transform:`translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist*.5-8}px) scale(1)`,opacity:0}],{duration:900+Math.random()*500, easing:'ease-out'}); } });
+  // 4. мешок трясётся и открывается
+  A(shake,[{transform:'rotate(0)'},{transform:'rotate(-6deg)'},{transform:'rotate(6deg)'},{transform:'rotate(-5deg)'},{transform:'rotate(5deg)'},{transform:'rotate(-3deg)'},{transform:'rotate(0)'}],{delay:T.shake, duration:900, easing:'ease-in-out'});
+  at(T.shake+700, () => root.classList.add('open'));
+  // 5. применяем тему под заливкой и готовим вылет элементов
+  let last = T.burst + 400;
+  at(T.apply, () => { NY.hold = false; nyApply(); NY.hold = true; requestAnimationFrame(() => requestAnimationFrame(() => {
+    const L = document.getElementById('login'), mouth = () => { const r = bagW.getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height*.2}; }, m = mouth();
+    const items = []; if (L && !L.hidden){ const card = L.querySelector('.login-card');
+      if (card){ A(card,[{opacity:0},{opacity:1}],{delay:T.burst-(T.apply+80)+350, duration:900, easing:'ease-out'}); [...card.children].forEach(e=>{ if (!e.classList.contains('ny-holly') && !e.hidden && e.offsetParent!==null) items.push(e); }); }
+      L.querySelectorAll('.lg-chips span').forEach(e=>items.push(e)); }
+    items.forEach((e,i) => { const r = e.getBoundingClientRect(), dx = m.x-(r.left+r.width/2), dy = m.y-(r.top+r.height/2), rot = (i%2?1:-1)*(180+Math.random()*360), arc = 90+Math.random()*140, dly = T.burst-(T.apply+80)+i*150;
+      A(e,[{transform:`translate(${dx}px,${dy}px) scale(.04) rotate(${rot}deg)`,opacity:0,offset:0},{transform:`translate(${dx*.5}px,${dy*.5-arc}px) scale(.85) rotate(${rot*.35}deg)`,opacity:1,offset:.5},{transform:'none',opacity:1,offset:1}],{delay:dly, duration:1400, easing:'cubic-bezier(.22,.9,.3,1)'}); last = Math.max(last, T.burst+i*150+1500); });
+    // праздничный салют из мешка: новогодние эмодзи
+    at(T.burst, () => { const mm = mouth(), N = 22; for (let i=0;i<N;i++){ const d = document.createElement('span'); d.textContent = NY_EMO[i%NY_EMO.length]; d.style.cssText = `font-size:${22+Math.random()*26}px;left:${mm.x}px;top:${mm.y}px`; fx.appendChild(d);
+        const dx = (Math.random()-.5)*W*.95, up = -(H*(.25+Math.random()*.4)), fall = H*(.15+Math.random()*.4), r = (Math.random()-.5)*540;
+        A(d,[{transform:'translate(0,0) scale(.3) rotate(0)',opacity:0,offset:0},{transform:`translate(${dx*.55}px,${up}px) scale(1) rotate(${r*.5}deg)`,opacity:1,offset:.4},{transform:`translate(${dx}px,${fall}px) scale(.9) rotate(${r}deg)`,opacity:0,offset:1}],{delay:i*55, duration:2200+Math.random()*800, easing:'cubic-bezier(.2,.7,.4,1)'}); } });
+    // мешок исчезает после последнего элемента
+    A(drop,[{opacity:1,transform:'none'},{opacity:0,transform:'translateY(14%) scale(.8)'}],{delay:last-T.apply-300, duration:700, easing:'ease-in', fill:'forwards'});
+    at(last+900, nyIntroEnd); })); });
+  at(16000, nyIntroEnd);                                                         // страховка
+}
 /* большой таймер на главной */
 const NYT_TREE = `<svg class="nyt-tree" viewBox="0 0 120 170" aria-hidden="true" focusable="false"><path d="M60 6l9 18-5-1 14 24-8-2 18 28-10-2 22 34H16l22-34-10 2 18-28-8 2 14-24-5 1z" fill="#1f8a4c"/><path d="M60 6l9 18-5-1 14 24-8-2 18 28-10-2 22 34H60z" fill="#16703c" opacity=".55"/><rect x="54" y="142" width="12" height="20" rx="2" fill="#7a4b1e"/><path d="M60 0l2.4 5.4 5.8.6-4.4 3.8 1.4 5.7L60 12.500l-5.200 3 1.400-5.700-4.400-3.800 5.800-.6z" fill="#ffd60a"/><circle class="o o1" cx="46" cy="60" r="4"/><circle class="o o2" cx="72" cy="48" r="4"/><circle class="o o3" cx="40" cy="96" r="4.500"/><circle class="o o4" cx="68" cy="84" r="4"/><circle class="o o5" cx="84" cy="116" r="4.500"/><circle class="o o2" cx="50" cy="126" r="4.500"/><circle class="o o1" cx="76" cy="136" r="4"/><circle class="o o3" cx="60" cy="30" r="3.500"/></svg>`;
 function nyTimerEl(){ let e = document.getElementById('nyTimer'); if (e) return e;
@@ -6286,24 +6449,41 @@ function nyTimerSync(){
   const e = nySeason() ? nyTimerEl() : document.getElementById('nyTimer'); if (!e) return;
   let home = false; try{ home = !!DATA && !!ROLE && WRAP.dataset.tab === tabsFor(ROLE,DATA)[0][0] && !$('#app').hidden; }catch(x){}
   e.hidden = !(nySeason() && home); clearInterval(NY.tick); if (!e.hidden){ nyTimerTick(); NY.tick = setInterval(()=>{ if (!document.hidden) nyTimerTick(); }, 1000); } }
+/* до старта оформления: тонкая полоса сверху с одним лишь обратным отсчётом (для всех, за 40 дней) */
+function nyPreSync(){
+  const left = Date.UTC(nyClock().y,11,1,6,0,0) - Date.now(), lg = document.getElementById('login'), show = !nyReleased() && left>0 && left<40*864e5 && !!lg && !lg.hidden; let e = document.getElementById('nyPre');   // пока тема не началась, виден только отсчёт — и только на экране входа
+  clearInterval(nyPreSync.t); document.documentElement.toggleAttribute('data-nypre', show);
+  if (!show){ if (e) e.remove(); return; }
+  if (!e){ e = document.createElement('div'); e.id = 'nyPre'; e.className = 'ny-pre'; e.setAttribute('role','timer'); e.setAttribute('aria-label','До начала новогоднего оформления');
+    e.innerHTML = '<em aria-hidden="true">❄️</em><span><b data-p="d"></b><i>дн</i></span><span><b data-p="h"></b><i>ч</i></span><span><b data-p="m"></b><i>мин</i></span><span><b data-p="s"></b><i>сек</i></span><em aria-hidden="true">❄️</em>'; document.body.prepend(e); }
+  const tick = () => { let d = Math.max(0, Date.UTC(nyClock().y,11,1,6,0,0) - Date.now()); if (d<=0){ nyApply(); return; }
+    const v = {d:Math.floor(d/864e5), h:Math.floor(d%864e5/36e5), m:Math.floor(d%36e5/6e4), s:Math.floor(d%6e4/1e3)};
+    for (const k in v){ const b = e.querySelector('[data-p="'+k+'"]'), t = k==='d' ? String(v.d) : String(v[k]).padStart(2,'0'); if (b.textContent!==t) b.textContent = t; } };
+  tick(); nyPreSync.t = setInterval(() => { if (!document.hidden) tick(); }, 1000); }
+const NY_EMO = ['🎄','❄️','⛄','🎁','🎅','🦌','🔔','⭐','✨','🍊','🧦','🎆','🥂','🍾','🎇','🤶','☃️','🍪','🧣','🎉'];
+const NY_EMO_BIG = ['🎅','🤶','⛄','🎄'];
+function nyEmoji(on){ [['#login .zf span',NY_EMO],['#login .zs',NY_EMO_BIG]].forEach(([q,L]) => document.querySelectorAll(q).forEach((e,i) => { if (e.dataset.o===undefined) e.dataset.o = e.textContent; e.textContent = on ? L[i%L.length] : e.dataset.o; })); }   // на экране входа летят только новогодние эмодзи
 function nyApply(){
-  const on = nyWanted(), de = document.documentElement; NY.on = on;
+  if (NY.hold) return;
+  { const mode = nyIntroCan(); if (mode){ nyIntroPlay(mode); return; } }
+  const on = nyWanted(), de = document.documentElement; NY.on = on; NY.season = nySeason();
   if (on){ de.setAttribute('data-ny','1'); nyGarland(); nyCountdown();
     cancelAnimationFrame(NY.raf); NY.last = 0; nySnow();
     if (!matchMedia('(prefers-reduced-motion:reduce)').matches) NY.raf = requestAnimationFrame(nyLoop); }
   else { de.removeAttribute('data-ny'); de.classList.remove('ny-hand'); cancelAnimationFrame(NY.raf); document.querySelectorAll('#nyCv,.ny-gl,#nyCd').forEach(e=>e.remove()); }
-  nyTimerSync();
+  nyTimerSync(); nyPreSync(); nyEmoji(on); nyDeco(on);
   const p = document.getElementById('themePanel'); if (p && p._sync) p._sync(); }
 function nyToggle(){ if (nyReleased()) store.set('ny', NY.on ? '0' : '1'); else store.set('nyPrev', nySeason() ? '0' : '1'); nyApply(); }
 (function(){ const CL = 'a,button,summary,label,select,[role=button],[role=tab],[onclick],[tabindex]:not([tabindex="-1"]),[data-rc],[data-tg],[data-cpg],[data-read],[data-pre],[data-demo],[data-tab],.chipb,.btn,.icon-btn,.mn-i,.rp-tg,.th-pre button';   // леденец с искоркой над кликабельным
   document.addEventListener('mouseover', e => { if (!NY.on) return; const t = e.target, h = t && t.closest ? !!t.closest(CL) : false, de = document.documentElement; if (h !== de.classList.contains('ny-hand')) de.classList.toggle('ny-hand', h); }, {passive:true});
 })();
-(function(){ let tm = 0; addEventListener('resize', () => { if (!NY.on) return; clearTimeout(tm); tm = setTimeout(() => { nyGarland(); nySnow(); }, 160); });
+(function(){ let tm = 0; addEventListener('resize', () => { if (!NY.on) return; clearTimeout(tm); tm = setTimeout(() => { nyGarland(); nySnow(); nyDeco(true); }, 160); });
   const boot = () => { nyApply();
-    const app = document.getElementById('app'); if (app) new MutationObserver(() => nyApply()).observe(app, {attributes:true, attributeFilter:['hidden']});          // после входа / демо
+    const app = document.getElementById('app'); if (app) new MutationObserver(() => nyApply()).observe(app, {attributes:true, attributeFilter:['hidden']}); const lg = document.getElementById('login'); if (lg) new MutationObserver(() => nyApply()).observe(lg, {attributes:true, attributeFilter:['hidden']});          // после входа / демо
     const w = document.getElementById('wrap'); if (w) new MutationObserver(() => nyTimerSync()).observe(w, {attributes:true, attributeFilter:['data-tab']});   // смена вкладки
     const arm = () => { const c = nyClock(), st = Date.UTC(c.y,11,1,6,0,0), left = st-Date.now(); if (!c.released && left>0 && left<2147e6) setTimeout(() => { nyApply(); nyBoom(); }, left+500); };    // тема включается у всех в 09:00 МСК 1 декабря, даже если сайт открыт
-    arm(); document.addEventListener('visibilitychange', () => { if (!document.hidden){ const was = NY.on; nyApply(); if (!was && NY.on) nyBoom(); } }); };
+    arm(); setInterval(() => { if (!document.hidden && !NY.hold && (nyWanted()!==NY.on || nySeason()!==NY.season)) nyApply(); }, 20000);   // старт и конец темы подхватываются без перезагрузки
+    document.addEventListener('visibilitychange', () => { if (!document.hidden){ const was = NY.on; nyApply(); if (!was && NY.on) nyBoom(); } }); };
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot(); })();
 function nyBoom(){ try{ if (typeof toast==='function') toast('С началом новогоднего сезона! 🎄'); }catch(e){} }
 
