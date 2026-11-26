@@ -2186,6 +2186,115 @@ html[data-ios="cm"] .ny-cd{background:var(--cm-paper);border:2px solid var(--cm-
 html[data-ios="px"] .ny-cd{background:var(--pc);color:var(--opc)}
 html[data-ios="bk"] .ny-cd{border-radius:8px}
 @media print{.ny-cv,.ny-gl{display:none}}
+
+/* ═══ Мобильный проход (дизайнеры, 27.11): цели 44px, текст ≥12px, поля, safe-area, лёгкие эффекты ═══ */
+@media (max-width:900px),(hover:none){
+  /* скорость: стекло только у шапки и нижней панели, без блюра у мелких элементов */
+  .icon-btn,.chipb,.btn.ghost,.vm-sel,.hero-row>div,.ms-bg,.vm-modal,.sr-bg,.atq{backdrop-filter:none;-webkit-backdrop-filter:none}
+  .ms-bg{background:rgba(10,12,24,.5)}
+  /* вход карточек без блюра на целых блоках */
+  @keyframes rvIn{0%{opacity:0;transform:translateY(14px) scale(.985)}100%{opacity:1;transform:none}}
+  /* липкое наведение на тачскрине */
+  .chipb:hover,.icon-btn:hover,.btn.ghost:hover,.vm-ri[data-ri]:hover{transform:none}
+  select:active,summary:active{background-color:var(--track)}
+}
+@media (prefers-reduced-motion:reduce){*{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}}
+@media (max-width:700px){
+  /* поля страницы: шапка, баннеры и карточки на одной линии */
+  .top-in{padding-left:20px;padding-right:20px}
+  .demo-banner{font-size:12.5px;padding:6px 16px;padding-top:calc(6px + env(safe-area-inset-top))}
+  .demo-banner+.top .top-in,.demo-banner~.top .top-in{padding-top:12px}
+  .ny-pre{padding-top:calc(6px + env(safe-area-inset-top));min-height:calc(40px + env(safe-area-inset-top))}
+  .upd-line{padding:8px 20px 0;line-height:1.35}
+  /* шапка: видимые 36px, зона касания 44px, зазор 8px (не пересекаются) */
+  header .icon-btn,.top .icon-btn{width:36px;height:36px}
+  header .actions,.top .actions{gap:8px}
+  .bell-d{font-size:12px;min-width:18px;height:18px;top:-5px;right:-5px}
+  /* нижняя панель */
+  .mn-l{font-size:12px;letter-spacing:-.3px}
+  .mn-i{padding:0 1px}
+  #updBar{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+  /* поля ввода и выпадающие списки: 44px и 16px (iOS не зумит) */
+  .at-flt select,.at-flt input,.vm-sel,.gr-form select,#grWho{min-height:44px;font-size:16px}
+  .at-flt .at-fr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
+  .at-flt .at-fr>label{min-width:0}
+  .at-flt .at-fr>label:last-child:nth-child(odd){grid-column:1/-1}
+  .at-flt select,.at-flt input{width:100%;min-width:0;box-sizing:border-box}
+  /* кнопки */
+  .btn,.chipb,.dd>.dd-b,.vm-dd>.chipb,.xt button{min-height:44px}
+  .rp-tg{min-height:48px}
+  #calc button,#calc .dl,#calc .subtabs button{min-height:44px}
+  #calc .subtabs{padding:2px}
+  .at-cb2.none{min-height:44px;display:inline-flex;align-items:center}
+  /* карточка: больше места тексту */
+  .card{padding:16px}
+  .hx .eyebrow,.hx>h2,.hx .rp-h{padding-right:96px}
+  /* мелкий текст ≥12px */
+  .at-cb2,.at-no,.at-cm small,.at-th,.at-tc small,.at-v small,em.n3p,.fb-lbl,.rtop-l,.wp-g,.au-ev,.demo,.brand .byline,.vm-off span,.wkc span,.wkd,.dg-c small,.mn-l,small,.rp-ax{font-size:12px}
+  .vm-k em,.hero-row em,.vm-k small,.m-fact small{font-size:12px}
+  /* не обрезать названия, переносить */
+  .at-cm b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.2}
+  .rp-s{grid-template-columns:minmax(0,1fr) auto}
+  .rp-sn{grid-column:1;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+  .rp-sv{grid-column:2}
+  .rp-s>:nth-child(n+3):not(.rp-sv){grid-column:1/-1}
+  .dr-t2 th.l{overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere;min-width:112px;max-width:150px;line-height:1.2}
+  .dr-t2 thead th:not(.l){white-space:normal;min-width:64px;line-height:1.15}
+  /* вход: меньше декора */
+  .lg-blobs i{filter:none}
+  .lg-grain,.zf span{display:none}
+  .login-card{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  .login-card::before{animation:none}
+}
+@media (max-width:420px){
+  .mnav{left:8px;right:8px}
+}
+@media (max-width:900px){
+  /* подсказка, что таблицу можно листать вправо: край затухает (там, где браузер умеет) */
+  @property --mr{syntax:'<length>';inherits:false;initial-value:0px}
+  @keyframes tblFade{0%,90%{--mr:28px}100%{--mr:0px}}
+  @supports (animation-timeline:scroll()){
+    .mtable,.dr-wide{animation:tblFade linear both;animation-timeline:scroll(self x);-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - var(--mr)),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - var(--mr)),transparent)}
+  }
+  .mtable,.dr-wide{scrollbar-width:thin}
+}
+@media (max-width:700px){
+  /* Attachment: у чека «без допов» бейдж комментария не сжимает название товара до нуля */
+  .at-ck.bad summary{grid-template-columns:auto minmax(0,1fr)}
+  .at-ck.bad .at-cc{grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+  .at-ck.bad .at-cb2{margin-top:0}
+  /* шрифты: подписи графиков не мельче 12px на экране (viewBox сжимается) */
+  .rp-svg text,.rp-ax{font-size:13.5px}
+  /* поля ввода 16px: iOS не приближает страницу */
+  :is(input,select,textarea):not([type=checkbox],[type=radio],[type=color],[type=range],[type=file]){font-size:16px!important;min-height:44px}
+  .at-flt select{min-width:0}
+  /* цифры одной ширины */
+  .at-tc b,.at-v,.dd-v,.vm-k,.an-leg,.dy-wd,.dlr-c,li b,em,small{font-variant-numeric:tabular-nums lining-nums}
+  /* заголовки по шкале */
+  h1{font-size:30px;line-height:1.1}
+  h2{font-size:22px;line-height:1.25}
+  .m-name{font-size:18px;line-height:1.25}
+  /* мелочи из замеров */
+  small,em,.wp-g,.fb-lbl{font-size:12px!important}
+}
+@media (max-width:700px){
+  .rp-svg .rp-vl,.rp-svg .rp-ax{font-size:13px!important}
+  .rc-big .rp-vl,.rc-big .rp-ax{font-size:14.5px!important}
+  .vm-donut .vm-ax{font-size:12px}
+  #calc .dl,#dl{min-width:44px;min-height:44px}
+  .gr-days button,.seg button{min-height:44px}
+  .gr-days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  /* чекбоксы: вся строка — зона нажатия 44px */
+  label:has(>input[type=checkbox]),.wp-i,.sw{min-height:44px;display:flex;align-items:center;gap:10px}
+  input[type=checkbox]{min-height:0}
+}
+@media (max-width:700px){.avgline,.avgline span{font-size:12px}}
+@media (max-width:700px){
+  .at-flt select,.vm-sel{font-weight:500;padding-left:12px;padding-right:28px;text-overflow:ellipsis}
+  .demo-banner{font-size:12px;line-height:1.3;padding-top:calc(4px + env(safe-area-inset-top));padding-bottom:4px}
+}
+@media (max-width:420px){.at-flt .at-fr{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:700px){.vm-ax,.vm-vl,.an-svg text,.vm-svg text{font-size:12.5px}.vm-vl{font-size:13px}}
 </style>
 </head>
 <body>
@@ -5837,7 +5946,7 @@ function anPace(d){
   sal.forEach(s=>s.dirs.forEach(x=>{ if (k==='turn' ? rubK.indexOf(x.key)<0 : x.key!==k) return; plan += x.plan||0; x.days.forEach(z=>{ const n=Number(z.d.slice(0,2)); byDay[n]=(byDay[n]||0)+(z.v||0); }); }));
   const W = anWeeks(dim); let cum = 0;
   const rows = W.map((w,i)=>{ let f=0; for (let n=w[0];n<=Math.min(w[1],ps);n++) f+=byDay[n]||0; cum+=f; const need = plan*(w[1]-w[0]+1)/dim, needCum = plan*w[1]/dim, started = w[0]<=ps, done = w[1]<=ps; return {i, a:w[0], b:w[1], f, need, cum, needCum, started, done}; });
-  const max = Math.max(plan, ...rows.map(r=>r.cum), 1), Wd=640, H=230, L=44, R=12, T=14, B=34, iw=Wd-L-R, ih=H-T-B, X=i=>L+iw*(i+.5)/rows.length, Y=v=>T+ih-ih*v/max;
+  const max = Math.max(plan, ...rows.map(r=>r.cum), 1), Wd=window.innerWidth<560?340:640, H=230, L=44, R=12, T=14, B=34, iw=Wd-L-R, ih=H-T-B, X=i=>L+iw*(i+.5)/rows.length, Y=v=>T+ih-ih*v/max;
   const bw = Math.min(54, iw/rows.length*.5);
   const grid = [0,.25,.5,.75,1].map(t=>`<line x1="${L}" x2="${Wd-R}" y1="${Y(max*t)}" y2="${Y(max*t)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${Y(max*t)+4}" text-anchor="end" font-size="10" fill="var(--muted)">${meta.unit==='шт'?fmt(max*t):fmt(max*t/1000)+'к'}</text>`).join('');
   const bars = rows.map(r=>`<rect x="${X(r.i)-bw/2}" y="${Y(r.f)}" width="${bw}" height="${Math.max(0,Y(0)-Y(r.f))}" rx="5" fill="${COLORS[k]||'var(--blue)'}" opacity=".35"/>`).join('');
@@ -6078,7 +6187,7 @@ const vmrCell = (p,extra='') => `<td class="hm" style="background:${vmrBg(p)}">$
 const vmrTT = n => String(n).replace(/^КЗН\s+/,'').replace(/\s+(БЛН|МТС|МФ)\b.*$/,'').trim() || n;
 function vmrLine(ms){   // ms: [{m, avg, n}] — линия средней оценки + столбики числа проверок
   if (!ms.length) return '';
-  const W=680, H=262, L=38, R=14, T=18, B=44, vals = ms.map(x=>x.avg), lo = Math.max(0, Math.floor((Math.min(...vals,60)-5)/10)*10), hi = Math.max(110, Math.ceil((Math.max(...vals)+3)/10)*10);
+  const W=window.innerWidth<560?340:680, H=262, L=38, R=14, T=18, B=44, vals = ms.map(x=>x.avg), lo = Math.max(0, Math.floor((Math.min(...vals,60)-5)/10)*10), hi = Math.max(110, Math.ceil((Math.max(...vals)+3)/10)*10);
   const x = i => ms.length===1 ? (L+W-R)/2 : L+34 + (W-L-R-68)*i/(ms.length-1), y = v => T + (H-T-B)*(1-(v-lo)/(hi-lo)), mxn = Math.max(...ms.map(z=>z.n),1);
   const grid = [ST_WARN, ST_OK].map(v=>`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="${stCol(v)}" stroke-dasharray="4 4" opacity=".55"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" class="vm-ax">${v}%</text>`).join('');
   const bars = ms.map((z,i)=>{ const bh = (H-T-B)*0.28*z.n/mxn; return `<rect x="${x(i)-14}" y="${H-B-bh}" width="28" height="${bh}" rx="6" class="vm-bar"/>`; }).join('');
@@ -6314,7 +6423,7 @@ function nyClock(now){ now = now==null ? Date.now() : now; const m = new Date(no
   const dec = mo===11 && now>=Date.UTC(y,11,1,6,0,0), jan = mo===0 && now<Date.UTC(y,0,11,6,0,0);   // строго с 1 декабря 09:00 МСК до 11 января 09:00 МСК, потом прежнее оформление
   return {y, dec, jan, released: dec||jan, target: Date.UTC(jan?y:y+1,0,1,-3,0,0), newYear: jan, year: jan?y:y+1}; }
 function nyReleased(){ return nyClock().released; }
-function nyPreview(){ return false; }                                       // до старта никаких предпросмотров: тема включается строго по расписанию
+function nyPreview(){ return !!NY.demo; }                                  // до старта тема включается строго по расписанию; исключение — короткий показ анимации по тройному нажатию на логотип (ничего не сохраняется)
 function nySeason(){ return nyReleased() || nyPreview(); }                  // таймер и оформление доступны
 function nyWanted(){ return nySeason() && store.get('ny')!=='0'; }          // оформление (снег, гирлянда…) — можно выключить в «Оформлении»
 function nyPlural(n, a){ const n10 = n%10, n100 = n%100; return (n10===1&&n100!==11)?a[0]:(n10>=2&&n10<=4&&(n100<10||n100>=20))?a[1]:a[2]; }
@@ -6386,7 +6495,18 @@ function nyIntroCan(){
 function nyIntroEnd(){ NYI.tm.forEach(clearTimeout); NYI.tm = []; NYI.an.forEach(a=>{ try{ a.cancel(); }catch(e){} }); NYI.an = [];
   const r = document.getElementById('nyIntro'); if (r) r.remove(); document.documentElement.classList.remove('ny-intro');
   const pre = document.getElementById('nyPre'); if (pre) pre.style.visibility = '';
-  if (NY.hold){ NY.hold = false; nyApply(); } }
+  if (NY.hold){ NY.hold = false; nyApply(); }
+  if (NY.demo && !NY.demoT) NY.demoT = setTimeout(nyDemoEnd, 7000); }                // демо: после анимации 7 секунд показываем оформление и возвращаем всё как было
+function nyDemoEnd(){ clearTimeout(NY.demoT); NY.demoT = 0; if (!NY.demo) return; NY.demo = false;
+  try{ if (NY.demoPrev==null) store.del('nyIntro'); else store.set('nyIntro', NY.demoPrev); }catch(e){}
+  nyApply(); nyPreSync(); }
+function nyDemoIntro(){                                                          // показ анимации с мешком до старта темы: только на экране входа, без сохранения состояния
+  const L = document.getElementById('login');
+  if (NY.demo || NY.hold || nyReleased() || document.getElementById('nyIntro') || !L || L.hidden) return;
+  NY.demo = true; NY.demoPrev = store.get('nyIntro'); nyIntroPlay('full'); }
+window.nyDemoIntro = nyDemoIntro;
+(function(){ const lg = document.querySelector('#loginForm .logo'); if (!lg) return; let n = 0, t = 0;
+  lg.addEventListener('click', () => { const now = Date.now(); n = now-t<700 ? n+1 : 1; t = now; if (n>=3){ n = 0; nyDemoIntro(); } }); })();
 function nyIntroPlay(mode){
   NY.hold = true; store.set('nyIntro',String(nyClock().year)); const full = mode==='full', W = innerWidth, H = innerHeight;
   const root = document.createElement('div'); root.id = 'nyIntro'; root.className = 'nyi'; root.setAttribute('aria-hidden','true');
@@ -6457,7 +6577,7 @@ function nyTimerSync(){
   e.hidden = !(nySeason() && home); clearInterval(NY.tick); if (!e.hidden){ nyTimerTick(); NY.tick = setInterval(()=>{ if (!document.hidden) nyTimerTick(); }, 1000); } }
 /* до старта оформления: тонкая полоса сверху с одним лишь обратным отсчётом (для всех, за 40 дней) */
 function nyPreSync(){
-  const left = Date.UTC(nyClock().y,11,1,6,0,0) - Date.now(), lg = document.getElementById('login'), show = !nyReleased() && left>0 && left<40*864e5 && !!lg && !lg.hidden; let e = document.getElementById('nyPre');   // пока тема не началась, виден только отсчёт — и только на экране входа
+  const left = Date.UTC(nyClock().y,11,1,6,0,0) - Date.now(), lg = document.getElementById('login'), show = !nyReleased() && !NY.demo && left>0 && left<40*864e5 && !!lg && !lg.hidden; let e = document.getElementById('nyPre');   // пока тема не началась, виден только отсчёт — и только на экране входа
   clearInterval(nyPreSync.t); document.documentElement.toggleAttribute('data-nypre', show);
   if (!show){ if (e) e.remove(); return; }
   if (!e){ e = document.createElement('div'); e.id = 'nyPre'; e.className = 'ny-pre'; e.setAttribute('role','timer'); e.setAttribute('aria-label','До начала новогоднего оформления');
@@ -6522,7 +6642,7 @@ function authPane(r){
   // активность по дням (уникальные сотрудники за 30 дней)
   const days = []; for (let i=29;i>=0;i--){ const d = new Date(now); d.setHours(0,0,0,0); d.setDate(d.getDate()-i); days.push(d); }
   const cnt = days.map(d=>{ const k = d.toDateString(); return new Set(S.ev.filter(e=>e.ev!=='ошибка PIN' && e.t.toDateString()===k).map(e=>e.name)).size; }), mx = Math.max(1,...cnt);
-  const W = 680, H = 150, bw = (W-20)/30, svg = `<svg viewBox="0 0 ${W} ${H+22}" class="vm-svg" role="img" aria-label="Активность по дням">${cnt.map((c,i)=>{ const h = c/mx*(H-18); return `<rect x="${10+i*bw+2}" y="${H-h}" width="${bw-4}" height="${Math.max(2,h)}" rx="4" style="fill:var(--blue)" opacity="${c?1:.25}"><title>${auPad(days[i].getDate())}.${auPad(days[i].getMonth()+1)}: ${c}</title></rect>${c?`<text x="${10+i*bw+bw/2}" y="${H-h-4}" text-anchor="middle" class="vm-ax">${c}</text>`:''}`; }).join('')}<text x="10" y="${H+16}" class="vm-ax">${auPad(days[0].getDate())}.${auPad(days[0].getMonth()+1)}</text><text x="${W-10}" y="${H+16}" text-anchor="end" class="vm-ax">сегодня</text></svg>`;
+  const W = window.innerWidth<560?340:680, H = 150, bw = (W-20)/30, svg = `<svg viewBox="0 0 ${W} ${H+22}" class="vm-svg" role="img" aria-label="Активность по дням">${cnt.map((c,i)=>{ const h = c/mx*(H-18); return `<rect x="${10+i*bw+2}" y="${H-h}" width="${bw-4}" height="${Math.max(2,h)}" rx="4" style="fill:var(--blue)" opacity="${c?1:.25}"><title>${auPad(days[i].getDate())}.${auPad(days[i].getMonth()+1)}: ${c}</title></rect>${c?`<text x="${10+i*bw+bw/2}" y="${H-h-4}" text-anchor="middle" class="vm-ax">${c}</text>`:''}`; }).join('')}<text x="10" y="${H+16}" class="vm-ax">${auPad(days[0].getDate())}.${auPad(days[0].getMonth()+1)}</text><text x="${W-10}" y="${H+16}" text-anchor="end" class="vm-ax">сегодня</text></svg>`;
   const chart = `<div class="card fade"><div class="eyebrow">Динамика</div><h2>Сколько сотрудников заходило по дням</h2>${svg}<div class="note-s">Уникальные сотрудники за день, 30 дней. Считаются входы, первые входы и визиты (раз в час).</div></div>`;
   // таблица
   const rows = S.rows.filter(F[AUS.f]||F.all).sort((a,b)=>(b.last?b.last.t:0)-(a.last?a.last.t:0));
