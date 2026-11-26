@@ -3711,7 +3711,7 @@ $('#loginForm').addEventListener('submit', async e=>{
   }catch(err){ $('#loginErr').textContent='Сервер не ответил. Проверьте интернет и попробуйте ещё раз.'; }
   b.disabled = false;
 });
-$('#btnLogout').onclick = ()=>{ GATE_DONE=false; load.once=0; store.del('token'); store.del('bonus:team'); store.del('bonus:dl'); TBD=null; DLB=null; if (store.get('demoMode')==='1'){ store.del('demoMode'); DEMO = !API_URL; } rpClear(); DATA=null; $('#content').hidden=true; $('#mgrView').hidden=true; $('#loading').hidden=false; showLogin(); };
+$('#btnLogout').onclick = ()=>{ GATE_DONE=false; load.once=0; store.del('token'); store.del('bonus:team'); store.del('bonus:dl'); store.del('bonus:dlg'); TBD=null; DLB=null; DLBG=null; if (store.get('demoMode')==='1'){ store.del('demoMode'); DEMO = !API_URL; } rpClear(); DATA=null; $('#content').hidden=true; $('#mgrView').hidden=true; $('#loading').hidden=false; showLogin(); };
 $('#btnRefresh').onclick = ()=>{ if (WRAP.dataset.tab==='reports') loadReports(true); if (WRAP.dataset.tab==='dl') loadDL(true); if (WRAP.dataset.tab==='teambonus') loadTeamBonus(true); if (WRAP.dataset.tab==='dayres') loadDayPlan(true); if (WRAP.dataset.tab==='analytics') ANCACHE={}; if (WRAP.dataset.tab==='auth') loadAuth(true); load(true,true); };
 
 /* ---------- вкладки ---------- */
@@ -3738,6 +3738,7 @@ function tabsFor(role,d){
     if (gHas(d,'reports')) GL.push(['reports','Отчёты']);
     if (gHas(d,'dayres')||gHas(d,'dayplan')) GL.push(['g_dayres','Итоги дня · доступ']);
     if (gHas(d,'analytics')) GL.push(['g_analytics','Аналитика · доступ']);
+    if (gHas(d,'dl')) GL.push(['g_dl','Сотрудники ДЛ · доступ']);
     if (gHas(d,'cards')) GL.push(['g_cards','Карточки · доступ']);
     if (gHas(d,'vmr')) GL.push(['g_vmr','ВМР · доступ']);
   }
@@ -3830,6 +3831,7 @@ async function load(silent, fresh){
     if (!load.once){ load.once=1; newsGate(); setTimeout(checkNewsDot, 2500); setTimeout(notifPoll, 3500); setTimeout(()=>{ lib('chart').catch(()=>{}); lib('h2c').catch(()=>{}); lib('pdf').catch(()=>{}); }, 6000); }
   }catch(e){
     if(!silent) $('#loading').textContent='Не удалось загрузить данные. Нажмите «Обновить».';
+    else if (fresh) { try{ toast('Не удалось обновить данные — сервер занят. Повторите через минуту'); }catch(_){} }
   }finally{ clearTimeout(slowT); btn.classList.remove('spin'); }
 }
 function switchRole(role,d){
@@ -4503,7 +4505,7 @@ function demoApi(b){
   if (b.action==='cards_get') return Promise.resolve(demoCards(b.by));
   if (b.action==='recon_get') return Promise.resolve(demoRecon());
   if (b.action==='tm_report'){
-    if (!DEMO_TM()) return Promise.resolve({error:'forbidden'});
+    if (!DEMO_TM() && !(b.guest && b.name==='dl')) return Promise.resolve({error:'forbidden'});
     if (b.name==='vmr') return Promise.resolve({name:'отчет по вмр ММБ', grid:demoVmrGrid(), at:new Date().toISOString()});
     return Promise.resolve(Object.assign({at:new Date().toISOString()},DEMO_RPT[b.name]||{missing:true,name:b.name}));
   }
@@ -4638,24 +4640,25 @@ const rpMark = h => h && h.mark ? ' class="rp-me"' : '';
 /* ---------- загрузка: сначала из кэша браузера, потом свежие данные ---------- */
 const rpKey = k => 'rp:'+k;
 function rpClear(){ try{ Object.keys(localStorage).filter(k=>k.indexOf('rp:')===0||k==='dc').forEach(k=>localStorage.removeItem(k)); }catch(e){} }
-async function rpLoad(key, force, host){
+async function rpLoad(key, force, host, guest){
   const el = $(host||'#rpBody'); if (!el) return;
   if (!host && RP_MAN[key]){ rpDraw(key, RP_MAN[key]); return; }          // вручную загруженный Excel (только в этой сессии)
   if (key==='cards') return cardsLoad(el, force);
   if (key==='recon') return reconLoad(el, force);
-  let cached = null; try{ cached = JSON.parse(store.get(rpKey(key))||'null'); }catch(e){}
+  const sk = rpKey(guest ? key+':g' : key);
+  let cached = null; try{ cached = JSON.parse(store.get(sk)||'null'); }catch(e){}
   if (cached && !force) rpDraw(key, cached, host);
   else if (!cached) el.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Загружаем лист…</div>';
   try{
-    const r = await api({action:'tm_report', token:store.get('token'), name:key, fresh:!!force});
+    const r = await api({action:'tm_report', token:store.get('token'), name:key, fresh:!!force, guest:guest||undefined});
     if (r && r.error){ if (r.error==='auth') return showLogin('Сессия истекла. Войдите снова.'); if (!cached) el.innerHTML = '<div class="card empty">Не удалось загрузить лист ('+esc(r.error)+').</div>'; return; }
     const same = cached && !force && JSON.stringify(cached.grid)===JSON.stringify(r.grid);
-    store.set(rpKey(key), JSON.stringify(r));
+    store.set(sk, JSON.stringify(r));
     if ((host||RPT===key) && !same) rpDraw(key, r, host);
   }catch(e){ if (!cached) el.innerHTML = '<div class="card empty">Нет связи. Нажмите «Обновить».</div>'; }
 }
 function loadDayPlan(){ if (DATA) dayComboDraw(DATA); }
-let DLV = 'rate', DLB = null;
+let DLV = 'rate', DLB = null, DLBG = null;
 function loadDL(force){
   const el = $('#m-dl'); if (!el) return;
   if (!$('#dlBody')){
@@ -4664,7 +4667,7 @@ function loadDL(force){
   }
   el.querySelectorAll('[data-dlv]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.dlv===DLV)));
   if (DLV==='bonus') return dlBonusLoad(force);
-  rpLoad('dl', force, '#dlBody');
+  rpLoad('dl', force, '#dlBody', gOn(DATA,'dl'));
 }
 /* «Бонус»: данные считаются раз в день — после утренней выгрузки (08:30). Дальше берём сохранённое, перезапрос только по кнопке обновления */
 const bonusDay = () => { const t = new Date(Date.now()-(8*60+30)*60000); return t.getFullYear()+'-'+(t.getMonth()+1)+'-'+t.getDate(); };
@@ -4680,10 +4683,13 @@ async function loadTeamBonus(force){
 }
 async function dlBonusLoad(force){
   const el = $('#dlBody'); if (!el) return;
-  if (!DLB && !force) DLB = bonusStored('dl');
-  if (!DLB || force){ el.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Считаем бонус по сотрудникам…</div>'; try{ DLB = await api({action:'dl_bonus', token:store.get('token'), fresh:!!force}); bonusKeep('dl', DLB); }catch(e){ DLB = {error:'net'}; } }
-  if (DLV!=='bonus') return;
-  el.innerHTML = dlBonusPane(DLB); animate();
+  const g = gOn(DATA,'dl'), k = g ? 'dlg' : 'dl';                              // выданный гостевой раздел — вся сеть, отдельный кэш
+  let R = g ? DLBG : DLB;
+  if (!R && !force) R = bonusStored(k);
+  if (!R || force){ el.innerHTML = '<div class="card empty rp-wait"><span class="rp-spin"></span>Считаем бонус по сотрудникам…</div>'; try{ R = await api({action:'dl_bonus', token:store.get('token'), fresh:!!force, guest:g||undefined}); bonusKeep(k, R); }catch(e){ R = {error:'net'}; } }
+  if (g) DLBG = R; else DLB = R;
+  if (DLV!=='bonus' || gOn(DATA,'dl')!==g) return;
+  el.innerHTML = dlBonusPane(R); animate();
 }
 function dlBonusPane(r, team){
   if (!r || r.error){ if (r && r.error==='auth') { showLogin('Сессия истекла. Войдите снова.'); return ''; } return `<div class="card empty">Не удалось посчитать бонус${r&&r.error?' ('+esc(r.error)+')':''}. Нажмите «Обновить».</div>`; }

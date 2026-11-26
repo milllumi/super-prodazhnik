@@ -49,8 +49,16 @@ const DIR_ORDER  = ['phones', 'acc', 'serv', 'sim', 'ins'];
 /* ---------- скорость: книга открывается один раз, тяжёлые чтения — в кэше (gzip, кусками) ---------- */
 const TTL_ = 21600;                                 // кэш данных: 6 ч (максимум CacheService); warmCache() обновляет его после выгрузки продаж (08:20 и 15:20)
 const CACHE_EPOCH = 'e14';
-let SS_ = null, FRESH_ = false, KB_ = undefined;
+let SS_ = null, FRESH_ = false, KB_ = undefined, MEM_ = {};
 function ss_() { return SS_ || (SS_ = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID)); }
+function freshAllowed_(action) {
+  if (action === 'import_checks') return true;
+  try { const c = CacheService.getScriptCache(), k = 'fresh:' + action; if (c.get(k)) return false; c.put(k, '1', 180); } catch (e) {}
+  return true;
+}
+function softDrop_(req) {                                   // «Обновить» во время чужого пересчёта: сбрасываем только личный ответ, общие модели уже пересчитываются
+  try { if (req.action === 'data' && req.token) { const raw = CacheService.getScriptCache().get('t:' + req.token); if (raw) cacheDrop_('u:' + JSON.parse(raw).key); } } catch (e) {}
+}
 function cacheDrop_(key) { try { CacheService.getScriptCache().remove('c:' + CACHE_EPOCH + ':' + key); } catch (e) {} }
 function cachePut_(key, ttl, val) {              // записать значение в тот же кэш, что читает cached_ (gzip, кусками)
   key = CACHE_EPOCH + ':' + key;
@@ -66,6 +74,9 @@ function cached_(key, ttl, fn) {
   const rawKey = key;
   key = CACHE_EPOCH + ':' + key;
   const c = CacheService.getScriptCache();
+  // пересчёт «с нуля» (FRESH_) раньше пересчитывал одну и ту же модель при КАЖДОМ обращении внутри запуска — отсюда тайм-ауты 6 минут.
+  // Теперь каждая модель считается один раз за запуск, дальше берётся из памяти (копия через JSON — как из кэша).
+  if (FRESH_ && MEM_[key] !== undefined) { try { return JSON.parse(MEM_[key]); } catch (e) {} }
   if (!FRESH_) {
     try {
       const n = Number(c.get('c:' + key) || 0);
@@ -79,6 +90,7 @@ function cached_(key, ttl, fn) {
   }
   const val = fn();
   cachePut_(rawKey, ttl, val);
+  if (FRESH_) { try { const js = JSON.stringify(val); if (js !== undefined) MEM_[key] = js; } catch (e) {} }
   return val;
 }
 
@@ -86,7 +98,8 @@ function doPost(e) {
   let out;
   try {
     const req = JSON.parse((e.parameter && e.parameter.payload) || e.postData.contents);   // payload — отправка формой (автовыгрузка из DataLens)
-    FRESH_ = !!req.fresh;
+    FRESH_ = !!req.fresh; MEM_ = {};
+    if (FRESH_ && !freshAllowed_(req.action)) { FRESH_ = false; softDrop_(req); }   // не чаще раза в 3 минуты на всех: одновременные полные пересчёты упираются в лимит 6 минут
     if (req.action === 'start') out = start_(req);
     else if (req.action === 'setpin') out = setpin_(req);
     else if (req.action === 'login') out = login_(req);
@@ -260,14 +273,29 @@ function installTrigger() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (['warmCache', 'warmMore_', 'warmHourly_'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('warmHourly_').timeBased().everyHours(1).create();     // раз в час: догреваем кэш (в пределах лимита 6 минут)
   scheduleMore_(1);
+  installEditTrigger();
 }
 function warmHourly_() { warm_(false); }
+// Правка таблицы вручную → через минуту полный пересчёт кэша (серия правок = один пересчёт). Триггер ставится один раз: installTrigger() или installEditTrigger().
+function onBookEdit_() {
+  try {
+    const c = CacheService.getScriptCache();
+    if (c.get('edit:pending')) return;
+    c.put('edit:pending', '1', 120);
+    scheduleWarm_();
+  } catch (e) {}
+}
+function installEditTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'onBookEdit_') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('onBookEdit_').forSpreadsheet(CONFIG.SPREADSHEET_ID).onEdit().create();
+  try { const kid = kpiSpreadsheetIdRaw_(ss_()); if (kid) ScriptApp.newTrigger('onBookEdit_').forSpreadsheet(kid).onEdit().create(); } catch (e) { Logger.log('KPI: ' + e); }
+}
 function warmMore_() { warm_(false); }
 function scheduleMore_(min) {                                   // продолжение прогрева, если за один запуск не успели всех
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmMore_') ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('warmMore_').timeBased().after((min || 1) * 60000).create();
 }
-function warmAfterImport_() { warmCache(); }
+function warmAfterImport_() { try { CacheService.getScriptCache().remove('edit:pending'); } catch (e) {} warmCache(); }
 function scheduleWarm_() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmAfterImport_') ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('warmAfterImport_').timeBased().after(60000).create();
@@ -293,7 +321,7 @@ function fixAmounts() { return fixAmounts_(ss_()); }                // можн�
 function warmCache() { warm_(true); }
 // fresh=true — пересчёт с нуля (после загрузки чеков); false — только то, чего нет в кэше. Лимит Apps Script — 6 минут: после 4,5 мин останавливаемся и планируем продолжение.
 function warm_(fresh) {
-  FRESH_ = !!fresh;
+  FRESH_ = !!fresh; MEM_ = {};
   const T0 = Date.now(), ss = ss_();
   try { const fx = fixAmounts_(ss); if (fx) Logger.log('Суммы текстом → числа: ' + fx); } catch (e) { Logger.log('fixAmounts_: ' + e); }
   try { readAccess_(ss); readSalonSheet_(ss); readMonthPlan_(ss); readPlan_(ss); readIncome_(ss); readSchedule_(ss); } catch (e) {}
@@ -309,7 +337,7 @@ function warm_(fresh) {
     if (Date.now() - T0 > 270000) { cut = true; if (fresh) cacheDrop_('u:' + u.key); return; }      // не успели — сбросим старый кэш, продолжение пересчитает
     try { cached_('u:' + u.key, TTL_, function () { const d = u.manager ? managerData_(ss, u, access) : sellerData_(ss, u, access); d.updated = new Date().toISOString(); return d; }); } catch (e) {}
   });
-  FRESH_ = false;
+  FRESH_ = false; MEM_ = {};
   if (cut) scheduleMore_(1);
 }
 function kpiShopsDrop_() { CacheService.getScriptCache().remove('kpiShops2'); CacheService.getScriptCache().remove('kpiGrades'); }
@@ -1246,7 +1274,8 @@ function tmReport_(req) {
   if (!(req.name === 'dl' && u.manager) && !repAllowed_(ss, u, req.name === 'dl' ? 'dl' : req.name === 'vmr' ? 'vmr' : 'reports')) return { error: 'forbidden' };   // «Сотрудники ДЛ» — и РТТ/УТТ (только свои)   // ТМ или временный доступ (по отмеченным разделам)
   if (req.name === 'vmr' && u.roleTitle !== 'ТМ') { const m = vmrMine_(req); return m && m.grid ? Object.assign({ at: new Date().toISOString() }, m) : m; }   // ВМР у РТТ/УТТ — только их ТТ (в т.ч. при выданном доступе)
   const rep = tmReportRaw_(ss, req.name);
-  if (req.name !== 'dl' || u.roleTitle === 'ТМ' || !rep.grid) return rep;                // «Сотрудники ДЛ» у РТТ/УТТ — только их сотрудники
+  const gst = !!req.guest && req.name === 'dl' && u.roleTitle !== 'ТМ' && grantHas_(ss, u, 'dl');       // выданный доступ «Сотрудники ДЛ» — вся сеть, как у ТМ (отдельный пункт меню у гостя)
+  if (req.name !== 'dl' || u.roleTitle === 'ТМ' || !rep.grid || gst) return rep;                // «Сотрудники ДЛ» у РТТ/УТТ — только их сотрудники
   const shops = kpiShops_(ss, readAccess_(ss))[u.key] || [];
   const grid = rep.grid.filter(function (r, i) { return i < 2 || shops.some(function (sh) { return salonShort_(sh) === String(r[1] || '').trim() || sameSalon_(String(r[1] || ''), sh); }); });
   return Object.assign({}, rep, { grid: grid });
@@ -2206,7 +2235,7 @@ function dlBonusFull_(ss) { return cached_('dl:bonus', TTL_, function () { retur
 function dlBonusGet_(req) {
   const ss = ss_(), u = sessionUser_(ss, req.token);
   if (!u) return { error: 'auth' };
-  const team = u.roleTitle !== 'ТМ';                                        // РТТ/УТТ (в т.ч. с выданным доступом) видят только сотрудников своих салонов; вся сеть — только у ТМ
+  const team = u.roleTitle !== 'ТМ' && !(req.guest && grantHas_(ss, u, 'dl'));      // РТТ/УТТ видят только сотрудников своих салонов; вся сеть — у ТМ и в выданном гостевом разделе «Сотрудники ДЛ»
   if (team ? !u.manager : !repAllowed_(ss, u, 'dl')) return { error: 'forbidden' };
   const full = dlBonusFull_(ss);
   if (!team) return full;
